@@ -110,6 +110,8 @@ body.broker{padding-bottom:140px}
 .item{position:relative}
 .soon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);background:linear-gradient(135deg,var(--chip),var(--brass-soft));font-weight:700;font-size:17px}
 .soon svg{opacity:.7}
+.photo.soonimg{background:#000}
+.soonimg img{width:100%;height:100%;object-fit:contain;display:block}
 .open{color:inherit;text-decoration:none}
 .open:hover h2,.open:focus-visible h2{text-decoration:underline;text-decoration-color:var(--brass)}
 .more-link{display:inline-block;margin-top:6px;color:var(--navy);font-weight:700;text-decoration:underline;text-decoration-color:var(--brass);text-underline-offset:3px}
@@ -267,12 +269,13 @@ function match(x){
   return true;
 }
 function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+const SOON_IMG="soon.jpg";
 const SOON_SVG='<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 function row(x, full){
   const li = el("li","item");
   const imgs = full ? (x.imgs||[]) : (x.imgs||[]).slice(0,3);
-  if(!imgs.length){ const ph=el("div","photo soon"); ph.innerHTML=SOON_SVG; ph.appendChild(el("span",null,"תמונות בקרוב"));
-    if(!full){ const a=el("a"); a.href="#p="+x.id; a.className="soon"; a.style.height="100%"; a.style.width="100%"; a.setAttribute("aria-label","לכל הפרטים על נכס מס' "+x.id); while(ph.firstChild) a.appendChild(ph.firstChild); ph.appendChild(a); }
+  if(!imgs.length){ const ph=el("div","photo soonimg"); const im=el("img"); im.src=SOON_IMG; im.alt="תמונות בקרוב – צוות סרגייב"; im.loading="lazy";
+    if(!full){ const a=el("a"); a.href="#p="+x.id; a.setAttribute("aria-label","לכל הפרטים על נכס מס' "+x.id); a.appendChild(im); ph.appendChild(a); } else ph.appendChild(im);
     li.appendChild(ph); }
   if(imgs.length){ const ph=el("div","photo"); const strip=el("div","strip"); strip.tabIndex=0; strip.setAttribute("aria-label","תמונות של נכס מס' "+x.id);
     imgs.forEach((src,i)=>{ const im=el("img"); im.src=src; im.alt="נכס מס' "+x.id+", תמונה "+(i+1)+" מתוך "+imgs.length; im.loading= (full&&i==0)?"eager":"lazy";
