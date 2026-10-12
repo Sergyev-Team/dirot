@@ -108,6 +108,8 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(
 .sendbar input{flex:1 1 100%;max-width:640px;font:inherit;font-size:14px;padding:8px;border-radius:6px;border:0;direction:ltr}
 body.broker{padding-bottom:140px}
 .item{position:relative}
+#toast{position:fixed;inset-inline:16px;bottom:16px;z-index:60;max-width:560px;margin:0 auto;background:var(--navy);color:var(--on-navy);border:1px solid var(--brass);border-radius:10px;padding:12px 14px;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.3);opacity:0;transform:translateY(12px);transition:.25s;pointer-events:none}
+#toast.show{opacity:1;transform:none}
 .soon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);background:linear-gradient(135deg,var(--chip),var(--brass-soft));font-weight:700;font-size:17px}
 .soon svg{opacity:.7}
 .photo.soonimg{background:#000}
@@ -269,6 +271,8 @@ function match(x){
   return true;
 }
 const ST = x => x.street ? x.street+(x.hn?" "+x.hn:"") : "";
+function toast(msg){ let t=document.getElementById("toast"); if(!t){ t=document.createElement("div"); t.id="toast"; t.setAttribute("role","status"); document.body.appendChild(t); }
+  t.textContent=msg; t.className="show"; clearTimeout(t._h); t._h=setTimeout(()=>t.className="",7000); }
 function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 const SOON_IMG="soon.jpg";
 const SOON_SVG='<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
@@ -317,6 +321,9 @@ function row(x, full){
   link("wa","לפרטים בוואטסאפ", wa("שלום, רציתי לקבל פרטים על נכס מס' "+x.id+addr));
   link("photos","בקשת תמונות", wa("שלום, רציתי לקבל תמונות של נכס מס' "+x.id+addr));
   link("visit","קביעת פגישה בנכס", BOOK_URL || wa("שלום, אשמח לתאם פגישה. ידוע לי שהפגישה תאושר רק לאחר אישור המתווך."));
+  { const vb=acts.lastChild, ref="נכס מס' "+x.id+(x.street?" – "+ST(x):(x.nb?" – "+x.nb:""));
+    vb.addEventListener("click",()=>{ try{ navigator.clipboard.writeText(ref).catch(()=>{}); }catch(e){}
+      toast("פרטי הנכס הועתקו: "+ref+" · הדביקו אותם בטופס הקביעה בשדה \"איזה נכס?\""); }); }
   { const t=(x.type||"נכס")+(x.rooms?" "+x.rooms+" חדרים":"")+(x.street?" ברחוב "+ST(x):(x.nb?" ב"+x.nb:""))+(x.city?", "+x.city:"")+(x.price?" – "+nf(x.price)+" ₪":"");
     const a=el("a","share"); a.href="https://wa.me/?text="+encodeURIComponent("היי, מצאתי לך דירה שיכולה להתאים:\n"+t+"\n"+BASE+"#p="+x.id);
     a.target="_blank"; a.rel="noopener"; a.title="שיתוף"; a.setAttribute("aria-label","שיתוף נכס מס' "+x.id+" בוואטסאפ (נפתח בחלון חדש)");
