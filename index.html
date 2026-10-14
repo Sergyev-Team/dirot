@@ -69,13 +69,21 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var
 .seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:inherit;font-weight:700;border:1.5px solid var(--muted);background:var(--chip);color:var(--ink);border-radius:999px;padding:9px 16px;min-height:46px;cursor:pointer}
-.widen{background:var(--card,#fff);border:1.5px solid #c9a24a;border-radius:14px;padding:12px;margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.widen{background:var(--surface);color:var(--ink);border:1.5px solid #c9a24a;border-radius:14px;padding:12px;margin:12px 0;display:flex;flex-direction:column;gap:8px}
 .widen .wl{font-weight:800}
 .wchips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .wchip{font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid #c9a24a;background:transparent;color:inherit;border-radius:12px;padding:8px 4px;min-height:64px;cursor:pointer;line-height:1.2}
 .wchip b{font-size:17px}.wchip span{font-size:12px;opacity:.85}.wchip small{font-size:12px;font-weight:800;color:#138a4e}
 .wchip[aria-pressed="true"]{background:#e9c25c;color:#111;border-color:#e9c25c}.wchip[aria-pressed="true"] small{color:#111}
 .item[data-over]::before{content:"מעל התקציב ב־" attr(data-over) "%";display:block;background:#fbefd9;color:#7a4a00;font-weight:800;font-size:14px;padding:6px 12px 6px 80px;border-radius:12px 12px 0 0}
+.widen .wl,.widen .wt{color:var(--ink)}
+.wchip,.rchip{color:var(--ink) !important}
+.wchip span{opacity:1 !important;color:var(--muted)}
+.wchip small,.rchip small{color:#138a4e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wchip small,:root:not([data-theme="light"]) .rchip small{color:#5fd897}}
+:root[data-theme="dark"] .wchip small,:root[data-theme="dark"] .rchip small{color:#5fd897}
+.wchip[aria-pressed="true"],.rchip[aria-pressed="true"]{color:#111 !important}
+.wchip[aria-pressed="true"] span,.wchip[aria-pressed="true"] small,.rchip[aria-pressed="true"] small{color:#111 !important}
 .chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
 .group{display:flex;flex-direction:column;gap:6px}
 .hint{font-size:15px;color:var(--muted);margin:0}
