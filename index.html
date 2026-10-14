@@ -131,6 +131,8 @@ body.broker{padding-bottom:140px}
 .share:hover,.share:focus-visible{color:var(--brass);outline:2px solid var(--brass)}
 .btn{flex:1 1 160px;display:inline-flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:17px;text-decoration:none;border-radius:8px;padding:11px 14px;min-height:48px;border:2px solid transparent}
 .btn.wa{background:var(--wa);color:var(--on-wa)}
+.btn.call:not(.ico){background:var(--surface,#fff);color:var(--fg,#111);border:1.5px solid var(--gold,#c9a24a)}
+.stickybar .btn.call{flex:0 1 120px}
 .btn.photos{background:transparent;color:var(--wa);border-color:var(--wa)}
 .btn.map{background:transparent;color:var(--ink);border-color:var(--muted)}
 .btn.visit{background:var(--navy);color:var(--on-navy);border-color:var(--brass)}
@@ -376,6 +378,7 @@ const IC={
  star:'<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z"/></svg>',
  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
+ tel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'};
 function row(x, full){
   const li = el("li","item");
@@ -417,7 +420,7 @@ function row(x, full){
   const pw = el("div"); pw.appendChild(pr); if(x.prev) pw.appendChild(el("div","was", nf(x.prev)+" ₪")); pw.appendChild(el("div","pid","נכס מס' "+x.id));
   side.appendChild(pw);
   const acts = el("div","actions");
-  const SHORT={photos:["תמונות",IC.cam],visit:["פגישה",IC.cal],map:["מפה",IC.pin]};
+  const SHORT={call:["חיוג",IC.tel],photos:["תמונות",IC.cam],visit:["פגישה",IC.cal],map:["מפה",IC.pin]};
   const link = (cls, label, href) => { let a;
     if(!full && SHORT[cls]){ a=el("a","btn ico "+cls); a.innerHTML=SHORT[cls][1]; a.appendChild(el("span",null,SHORT[cls][0])); a.title=label; }
     else a = el("a","btn "+cls,label);
@@ -426,6 +429,7 @@ function row(x, full){
   const wa = msg => "https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
   const addr = x.street ? " ברחוב "+ST(x) : (x.nb ? " בשכונת "+x.nb : "");
   link("wa","לפרטים בוואטסאפ", wa("שלום, רציתי לקבל פרטים על נכס מס' "+x.id+addr));
+  link("call","חיוג מהיר", "tel:+"+WA); { const cb=acts.lastChild; cb.removeAttribute("target"); cb.removeAttribute("rel"); cb.setAttribute("aria-label","חיוג מהיר – נכס מס' "+x.id); }
   link("photos","בקשת תמונות", wa("שלום, רציתי לקבל תמונות של נכס מס' "+x.id+addr));
   link("visit","קביעת פגישה בנכס", BOOK_URL || wa("שלום, אשמח לתאם פגישה. ידוע לי שהפגישה תאושר רק לאחר אישור המתווך."));
   { const vb=acts.lastChild, ref="נכס מס' "+x.id+(x.street?" – "+ST(x):(x.nb?" – "+x.nb:""));
@@ -504,7 +508,7 @@ function applyPreset(){
     else det.appendChild(el("p","empty","הנכס הזה כבר לא זמין. אפשר לראות את כל הדירות הזמינות בקישור למעלה."));
     document.querySelectorAll(".stickybar").forEach(s=>s.remove()); document.body.classList.remove("has-sticky");
     if(x){ const acts=det.querySelector(".actions"); const wa=acts&&acts.querySelector(".btn.wa"), vs=acts&&acts.querySelector(".btn.visit");
-      if(wa){ const sb=el("div","stickybar"); const a1=wa.cloneNode(true); sb.appendChild(a1); if(vs){ const a2=vs.cloneNode(true); a2.textContent="קביעת פגישה"; a2.addEventListener("click",()=>vs._copy&&vs._copy()); sb.appendChild(a2); }
+      if(wa){ const sb=el("div","stickybar"); const a1=wa.cloneNode(true); sb.appendChild(a1); const cl=acts.querySelector(".btn.call"); if(cl){ const a3=cl.cloneNode(true); a3.className="btn call"; a3.textContent="📞 חיוג"; sb.appendChild(a3); } if(vs){ const a2=vs.cloneNode(true); a2.textContent="קביעת פגישה"; a2.addEventListener("click",()=>vs._copy&&vs._copy()); sb.appendChild(a2); }
         document.body.appendChild(sb); document.body.classList.add("has-sticky"); } }
     if(!$("listview").hidden) listScroll=window.scrollY;
     det.hidden=false; $("listview").hidden=true; window.scrollTo(0,0); return; }
