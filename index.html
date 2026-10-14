@@ -70,12 +70,16 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:inherit;font-weight:700;border:1.5px solid var(--muted);background:var(--chip);color:var(--ink);border-radius:999px;padding:9px 16px;min-height:46px;cursor:pointer}
 .widen{background:var(--surface);color:var(--ink);border:1.5px solid #c9a24a;border-radius:14px;padding:12px;margin:12px 0;display:flex;flex-direction:column;gap:8px}
-.widen .wl{font-weight:800}
+.widen .wt{font-size:17px}.widen .wl{font-weight:800;font-size:15px;display:block;margin-bottom:4px}
+.rchips{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{font:inherit;display:flex;flex-direction:column;align-items:center;border:1.5px dashed #c9a24a;background:transparent;color:inherit;border-radius:12px;padding:6px 4px;min-height:52px;cursor:pointer;flex:1 1 28%;min-width:0}
+.rchip b{font-size:14px;white-space:nowrap}.rchip small{font-size:12px;font-weight:800;color:#138a4e}
+.rchip[aria-pressed="true"]{background:#e9c25c;color:#111;border-style:solid;border-color:#e9c25c}.rchip[aria-pressed="true"] small{color:#111}
 .wchips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .wchip{font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid #c9a24a;background:transparent;color:inherit;border-radius:12px;padding:8px 4px;min-height:64px;cursor:pointer;line-height:1.2}
 .wchip b{font-size:17px}.wchip span{font-size:12px;opacity:.85}.wchip small{font-size:12px;font-weight:800;color:#138a4e}
 .wchip[aria-pressed="true"]{background:#e9c25c;color:#111;border-color:#e9c25c}.wchip[aria-pressed="true"] small{color:#111}
-.item[data-over]::before{content:"מעל התקציב ב־" attr(data-over) "%";display:block;background:#fbefd9;color:#7a4a00;font-weight:800;font-size:14px;padding:6px 12px 6px 80px;border-radius:12px 12px 0 0}
+.item[data-over]::before{content:attr(data-over);display:block;background:#fbefd9;color:#7a4a00;font-weight:800;font-size:14px;padding:6px 12px 6px 80px;border-radius:12px 12px 0 0}
 .widen .wl,.widen .wt{color:var(--ink)}
 .wchip,.rchip{color:var(--ink) !important}
 .wchip span{opacity:1 !important;color:var(--muted)}
@@ -269,7 +273,14 @@ html[dir=ltr] .where{direction:rtl;text-align:left;unicode-bidi:isolate}
 html[dir=ltr] .where{text-align:left}
 html[dir=ltr] .stickybar{gap:6px;padding-inline:8px}
 html[dir=ltr] .stickybar a{min-width:0;white-space:normal;line-height:1.2;font-size:15px;padding-inline:6px;text-align:center}
-.lang{font:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:6px 8px;min-height:40px;max-width:150px;margin-inline-start:auto;margin-inline-end:8px}
+.langw{position:relative;margin-inline-start:auto;margin-inline-end:8px}
+.langb{font:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;min-height:40px;display:flex;align-items:center;gap:7px;cursor:pointer}
+.langb svg,.langm svg{width:26px;height:19px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.25);flex:none}
+.langb i{font-style:normal;font-size:11px;opacity:.7}
+.langm{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:50;list-style:none;margin:0;padding:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);min-width:160px}
+.langm button{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:none;border:0;border-radius:8px;width:100%;display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;min-height:44px;text-align:start}
+.langm button[aria-current="true"]{background:var(--chip,#eee)}
+.langm button:hover{background:var(--chip,#eee)}
 html[lang=am] body{font-family:"Noto Sans Ethiopic",var(--body)}
 </style>
 
@@ -327,7 +338,7 @@ html[lang=am] body{font-family:"Noto Sans Ethiopic",var(--body)}
     </div>
   </div>
 
-  <div class="widen" id="widen" hidden><span class="wl">רוצים לראות עוד דירות? הרחבת התקציב:</span><div class="wchips" id="wchips" role="group" aria-label="הרחבת התקציב"></div></div>
+  <div class="widen" id="widen" hidden><strong class="wt">רוצים לראות עוד דירות? הרחיבו את החיפוש</strong><div id="wbud"><span class="wl">תקציב:</span><div class="wchips" id="wchips" role="group" aria-label="הרחבת התקציב"></div></div><div id="wrm"><span class="wl">חדרים:</span><div class="rchips" id="rmchips" role="group" aria-label="גמישות בחדרים"></div></div><div id="wrel"><span class="wl">גמישות בדרישות:</span><div class="rchips" id="rchips" role="group" aria-label="גמישות בדרישות"></div></div></div>
   <ul class="list" id="list" tabindex="-1" aria-label="רשימת הנכסים"></ul>
   <div class="empty" id="empty" hidden>לא נמצאו דירות בסינון הזה. נסו להעלות את התקציב או להסיר אחת מהדרישות.</div>
   <button type="button" class="more" id="more" hidden>הצגת דירות נוספות</button>
@@ -349,7 +360,7 @@ const ART = "https://sergyev-team.github.io/dirot/";
 const BASE = (/claude|^$/.test(location.hostname) || location.protocol=="file:") ? ART : location.origin+location.pathname;
 const BROKER_KEY = "sochen";
 let broker = false, pickIds = null; const picked = new Set();
-const st = { q:"", deal:"מכירה", budget:0, widen:0, city:"", nb:"", rooms:new Set(), must:new Set(), sort:"new", shown:30 };
+const st = { q:"", deal:"מכירה", budget:0, widen:0, relax:new Set(), rmore:new Set(), city:"", nb:"", rooms:new Set(), must:new Set(), sort:"new", shown:30 };
 const $ = id => document.getElementById(id);
 const nf = n => n.toLocaleString("en-US");
 // ---- i18n: Hebrew (source) / Russian / Amharic. Addresses, neighborhoods and city names stay in Hebrew.
@@ -459,6 +470,7 @@ const M = {
      area:"በአካባቢ",with:"ከ",unk:"ይህ ያልተጠቀሰባቸው ንብረቶችም ይታያሉ – እናጣራልዎታለን።",photosOf:"የንብረት ፎቶዎች ቁ.",details:"የንብረቱ ሙሉ ዝርዝር ቁ.",
      newWin:"(በአዲስ መስኮት ይከፈታል)",pick:"ለደንበኛ ምረጥ – ንብረት ቁ.",shareA:"ንብረቱን አጋራ ቁ.",inWa:"በዋትስአፕ"}}[LANG] || {};
 const TY = s => (T_TYPES[LANG]||{})[s] || s;
+const APTS = n => { n=+n; if(LANG!="ru") return M.apts; const a=n%10,b=n%100; return (a==1&&b!=11)?"квартира":(a>=2&&a<=4&&!(b>=12&&b<=14))?"квартиры":"квартир"; };
 const RX = LANG=="he" ? [] : [
   [/^נכס מס' (\d+)$/, (_,n)=>M.id+" "+n],
   [/^(.+?) (\d+(?:\.\d)?) חדרים$/, (_,t,n)=>TY(t)+" · "+n+" "+M.roomsL],
@@ -469,8 +481,8 @@ const RX = LANG=="he" ? [] : [
   [/^✓ מרפסת (\d+) מ["״]ר$/, (_,n)=>"✓ "+I18N[LANG]["מרפסת"]+" "+n+" "+M.sqm],
   [/^✓ (.+)$/, (_,t)=>"✓ "+tr(t)],
   [/^עד (\d+(?:\.\d+)?) מיליון$/, (_,n)=>M.upTo+" "+n+" "+M.mil],
-  [/^\+(\d+) דירות$/, (_,n)=>"+"+n+" "+M.apts],
-  [/^(\d+) דירות$/, (_,n)=>n+" "+M.apts],
+  [/^\+(\d+) דירות$/, (_,n)=>"+"+n+" "+APTS(n)],
+  [/^(\d+) דירות$/, (_,n)=>n+" "+APTS(n)],
   [/^מעל התקציב ב־(\d+)%$/, (_,n)=>M.over+" "+n+"%"],
   [/^גם בלי (.+)$/, (_,t)=>M.alsoNo+" "+tr(t).replace(/ \(.*\)$/,"")],
   [/^גם (.+) חד׳$/, (_,t)=>M.also+" "+tr(t)+" "+M.rooms],
@@ -508,10 +520,18 @@ function trNode(n){
   n.childNodes.forEach(trNode); }
 function i18nStart(){
   document.documentElement.lang=LANG; document.documentElement.dir = LANG=="he"?"rtl":"ltr";
-  const top=document.querySelector(".top-in"); if(top){ const s=document.createElement("select"); s.id="lang"; s.className="lang"; s.setAttribute("aria-label","שפה / Язык / ቋንቋ");
-    for(const [k,v] of Object.entries(LANGS)){ const o=document.createElement("option"); o.value=k; o.textContent="🌐 "+v; s.appendChild(o); } s.value=LANG;
-    s.addEventListener("change",()=>{ try{ localStorage.setItem("site_lang",s.value); }catch(e){} const u=new URL(location.href); u.searchParams.set("lang",s.value); location.replace(u.toString()); });
-    top.insertBefore(s, document.getElementById("big")); }
+  const FL={he:'<svg viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="22" fill="#fff"/><rect y="2.5" width="30" height="3" fill="#0038b8"/><rect y="16.5" width="30" height="3" fill="#0038b8"/><path d="M15 6.6l3.7 6.4h-7.4zM15 15.4l-3.7-6.4h7.4z" fill="none" stroke="#0038b8" stroke-width="1"/></svg>',
+    ru:'<svg viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="7.34" fill="#fff"/><rect y="7.33" width="30" height="7.34" fill="#0039a6"/><rect y="14.66" width="30" height="7.34" fill="#d52b1e"/></svg>',
+    am:'<svg viewBox="0 0 30 22" aria-hidden="true"><rect width="30" height="7.34" fill="#078930"/><rect y="7.33" width="30" height="7.34" fill="#fcdd09"/><rect y="14.66" width="30" height="7.34" fill="#da121a"/><circle cx="15" cy="11" r="5" fill="#0f47af"/><path d="M15 7.4l1 3h3.2l-2.6 1.9 1 3.1-2.6-1.9-2.6 1.9 1-3.1-2.6-1.9h3.2z" fill="none" stroke="#fcdd09" stroke-width=".8"/></svg>'};
+  const top=document.querySelector(".top-in"); if(top){ const w=document.createElement("div"); w.className="langw"; w.id="lang";
+    const btn=document.createElement("button"); btn.type="button"; btn.className="langb"; btn.setAttribute("aria-haspopup","true"); btn.setAttribute("aria-expanded","false"); btn.setAttribute("aria-label","שפה / Язык / ቋንቋ");
+    btn.innerHTML=FL[LANG]+'<span>'+LANGS[LANG]+'</span><i aria-hidden="true">▾</i>';
+    const menu=document.createElement("ul"); menu.className="langm"; menu.hidden=true;
+    for(const [k,v] of Object.entries(LANGS)){ const li=document.createElement("li"); const a=document.createElement("button"); a.type="button"; a.lang=k; a.setAttribute("aria-current",k==LANG); a.innerHTML=FL[k]+'<span>'+v+'</span>';
+      a.addEventListener("click",()=>{ try{ localStorage.setItem("site_lang",k); }catch(e){} const u=new URL(location.href); u.searchParams.set("lang",k); location.replace(u.toString()); }); li.appendChild(a); menu.appendChild(li); }
+    btn.addEventListener("click",e=>{ e.stopPropagation(); menu.hidden=!menu.hidden; btn.setAttribute("aria-expanded",!menu.hidden); });
+    document.addEventListener("click",()=>{ menu.hidden=true; btn.setAttribute("aria-expanded","false"); });
+    w.appendChild(btn); w.appendChild(menu); top.insertBefore(w, document.getElementById("big")); }
   if(LANG=="he") return;
   document.title=tr(document.title); trNode(document.body);
   new MutationObserver(ms=>{ for(const m of ms){ if(m.type=="characterData") trNode(m.target); else if(m.type=="attributes") trNode(m.target); else m.addedNodes.forEach(trNode); } })
@@ -547,8 +567,8 @@ function match(x){
   if(st.budget && !(x.price>0 && x.price<=st.budget*(1+st.widen/100))) return false;
   if(st.city && x.city!=st.city) return false;
   if(st.nb && x.nb!=st.nb) return false;
-  if(st.rooms.size){ if(!x.rooms) return false; let ok=false; for(const i of st.rooms) if(ROOMS[i][1](x.rooms)) ok=true; if(!ok) return false; }
-  for(const k of st.must) if(x[k]!="כן") return false;
+  if(st.rooms.size){ if(!x.rooms) return false; let ok=false; for(const i of [...st.rooms,...st.rmore]) if(ROOMS[i][1](x.rooms)) ok=true; if(!ok) return false; }
+  for(const k of st.must) if(x[k]!="כן" && !st.relax.has(k)) return false;
   return true;
 }
 const ST = x => x.street ? x.street+(x.hn?" "+x.hn:"") : "";
@@ -611,7 +631,10 @@ function row(x, full){
   if(tags.children.length) main.appendChild(tags);
   const side = el("div","side");
   const pr = el("div", x.price? "price":"price ask");
-  if(!full && st.budget && st.widen && x.price>st.budget){ const over=Math.ceil((x.price/st.budget-1)*100); li.dataset.over=over; }
+  { const notes=[]; if(!full && st.budget && st.widen && x.price>st.budget) notes.push("מעל התקציב ב־"+Math.ceil((x.price/st.budget-1)*100)+"%");
+    if(!full && st.rmore.size && x.rooms && ![...st.rooms].some(i=>ROOMS[i][1](x.rooms))) notes.push(x.rooms+" חדרים (חיפשת "+[...st.rooms].map(i=>ROOMS[i][0]).join("/")+")");
+    if(!full) for(const k of st.relax){ if(x[k]!="כן") notes.push((x[k]=="לא"?"בלי ":"לא צוין ")+({el:"מעלית",pk:"חניה",mm:"ממ\"ד",bal:"מרפסת"})[k]); }
+    if(notes.length) li.dataset.over=notes.join(" · "); }
   if(x.price){ pr.textContent = nf(x.price)+" ₪"; if(x.deal=="השכרה"){ pr.appendChild(document.createTextNode(" ")); pr.appendChild(el("small",null,"לחודש")); } }
   else pr.textContent = "מחיר: לפי פנייה";
   const pw = el("div"); pw.appendChild(pr); if(x.prev) pw.appendChild(el("div","was", nf(x.prev)+" ₪")); pw.appendChild(el("div","pid","נכס מס' "+x.id));
@@ -657,9 +680,23 @@ function render(){
   if(st.sort=="up") r.sort((a,b)=>(a.price||9e15)-(b.price||9e15));
   else if(st.sort=="down") r.sort((a,b)=>(b.price||0)-(a.price||0));
   else r.sort((a,b)=>((b.imgs&&b.imgs.length?1:0)-(a.imgs&&a.imgs.length?1:0)) || a.id-b.id);
-  if(st.budget&&st.widen) r.sort((a,b)=>((a.price>st.budget)-(b.price>st.budget)));
+  { const ex=x=>((st.budget&&st.widen&&x.price>st.budget)?1:0)+[...st.relax].filter(k=>x[k]!="כן").length+((st.rmore.size&&x.rooms&&![...st.rooms].some(i=>ROOMS[i][1](x.rooms)))?1:0); if(st.widen||st.relax.size||st.rmore.size) r.sort((a,b)=>ex(a)-ex(b)); }
   $("n").textContent = r.length;
-  { const w=$("widen"), wc=$("wchips"); w.hidden=!st.budget||!!preset||!!pickIds; wc.innerHTML="";
+  for(const k of [...st.relax]) if(!st.must.has(k)) st.relax.delete(k);
+  for(const i of [...st.rmore]) if(st.rooms.has(i)||!st.rooms.size) st.rmore.delete(i);
+  { const w=$("widen"), wc=$("wchips"); w.hidden=(!st.budget&&!st.must.size&&!st.rooms.size)||!!preset||!!pickIds; $("wrm").hidden=!st.rooms.size; wc.innerHTML=""; $("wbud").hidden=!st.budget; $("wrel").hidden=!st.must.size;
+    const rmc=$("rmchips"); rmc.innerHTML="";
+    if(st.rooms.size){ const base=D.filter(match).length; const nb=new Set(); st.rooms.forEach(i=>{ [i-1,i+1].forEach(j=>{ if(j>=0&&j<ROOMS.length&&!st.rooms.has(j)) nb.add(j); }); });
+      [...nb].sort((a,b)=>a-b).forEach(j=>{ const on=st.rmore.has(j); on?st.rmore.delete(j):st.rmore.add(j); const alt=D.filter(match).length; on?st.rmore.add(j):st.rmore.delete(j);
+        const b=el("button","rchip"); b.type="button"; b.setAttribute("aria-pressed",on); b.append(el("b",null,"גם "+ROOMS[j][0]+" חד׳"));
+        const d=on?base-alt:alt-base; b.append(el("small",null,on?"מוצג":(d>0?"+"+d+" דירות":"אין נוספות")));
+        b.addEventListener("click",()=>{ on?st.rmore.delete(j):st.rmore.add(j); st.shown=30; render(); }); rmc.appendChild(b); }); }
+    const rc=$("rchips"); rc.innerHTML=""; const NM={el:"מעלית",pk:"חניה",mm:"ממ\"ד",bal:"מרפסת"};
+    if(st.must.size){ const base=D.filter(match).length;
+      [...st.must].forEach(k=>{ const on=st.relax.has(k); on?st.relax.delete(k):st.relax.add(k); const alt=D.filter(match).length; on?st.relax.add(k):st.relax.delete(k);
+        const b=el("button","rchip"); b.type="button"; b.setAttribute("aria-pressed",on); b.append(el("b",null,"גם בלי "+NM[k]));
+        const d=on?base-alt:alt-base; b.append(el("small",null, on?"מוצג":(d>0?"+"+d+" דירות":"אין נוספות")));
+        b.addEventListener("click",()=>{ on?st.relax.delete(k):st.relax.add(k); st.shown=30; render(); }); rc.appendChild(b); }); }
     if(st.budget){ const save=st.widen; const cnt={}; [0,10,20,30].forEach(p=>{ st.widen=p; cnt[p]=D.filter(match).length; }); st.widen=save;
       [0,10,20,30].forEach(p=>{ const b=el("button","wchip"); b.type="button"; b.setAttribute("aria-pressed",st.widen==p);
         b.append(el("b",null,p?"+"+p+"%":"בדיוק"), el("span",null,"עד "+(Math.round(st.budget*(1+p/100)/10000)/100).toString()+" מיליון"));
@@ -694,7 +731,7 @@ $("q").addEventListener("input",e=>{ st.q=e.target.value; st.shown=30; render();
 $("sort").addEventListener("change",e=>{ st.sort=e.target.value; render(); });
 $("more").addEventListener("click",()=>{ st.shown+=30; render(); });
 $("reset").addEventListener("click",()=>{
-  st.q=""; $("q").value=""; st.widen=0; st.rooms.clear(); st.must.clear(); st.city=""; st.sort="new"; $("sort").value="new";
+  st.q=""; $("q").value=""; st.widen=0; st.relax.clear(); st.rmore.clear(); st.rooms.clear(); st.must.clear(); st.city=""; st.sort="new"; $("sort").value="new";
   document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed","false"));
   setDeal("מכירה");
 });
