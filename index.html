@@ -69,6 +69,13 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var
 .seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:inherit;font-weight:700;border:1.5px solid var(--muted);background:var(--chip);color:var(--ink);border-radius:999px;padding:9px 16px;min-height:46px;cursor:pointer}
+.widen{background:var(--card,#fff);border:1.5px solid #c9a24a;border-radius:14px;padding:12px;margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.widen .wl{font-weight:800}
+.wchips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.wchip{font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid #c9a24a;background:transparent;color:inherit;border-radius:12px;padding:8px 4px;min-height:64px;cursor:pointer;line-height:1.2}
+.wchip b{font-size:17px}.wchip span{font-size:12px;opacity:.85}.wchip small{font-size:12px;font-weight:800;color:#138a4e}
+.wchip[aria-pressed="true"]{background:#e9c25c;color:#111;border-color:#e9c25c}.wchip[aria-pressed="true"] small{color:#111}
+.item[data-over]::before{content:"מעל התקציב ב־" attr(data-over) "%";display:block;background:#fbefd9;color:#7a4a00;font-weight:800;font-size:14px;padding:6px 12px 6px 80px;border-radius:12px 12px 0 0}
 .chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
 .group{display:flex;flex-direction:column;gap:6px}
 .hint{font-size:15px;color:var(--muted);margin:0}
@@ -302,6 +309,7 @@ body.has-sticky{padding-bottom:84px}
     </div>
   </div>
 
+  <div class="widen" id="widen" hidden><span class="wl">רוצים לראות עוד דירות? הרחבת התקציב:</span><div class="wchips" id="wchips" role="group" aria-label="הרחבת התקציב"></div></div>
   <ul class="list" id="list" tabindex="-1" aria-label="רשימת הנכסים"></ul>
   <div class="empty" id="empty" hidden>לא נמצאו דירות בסינון הזה. נסו להעלות את התקציב או להסיר אחת מהדרישות.</div>
   <button type="button" class="more" id="more" hidden>הצגת דירות נוספות</button>
@@ -323,7 +331,7 @@ const ART = "https://sergyev-team.github.io/dirot/";
 const BASE = (/claude|^$/.test(location.hostname) || location.protocol=="file:") ? ART : location.origin+location.pathname;
 const BROKER_KEY = "sochen";
 let broker = false, pickIds = null; const picked = new Set();
-const st = { q:"", deal:"מכירה", budget:0, city:"", nb:"", rooms:new Set(), must:new Set(), sort:"new", shown:30 };
+const st = { q:"", deal:"מכירה", budget:0, widen:0, city:"", nb:"", rooms:new Set(), must:new Set(), sort:"new", shown:30 };
 const $ = id => document.getElementById(id);
 const nf = n => n.toLocaleString("en-US");
 
@@ -351,7 +359,7 @@ function match(x){
     for(const k of p.must) if(x[k]=="לא") return false; for(const k of (p.strict||[])) if(x[k]!="כן") return false; return true; }
   if(x.deal!=st.deal) return false;
   if(st.q){ const hay=norm([ST(x),x.nb,x.city,x.type,x.cond,x.ren,"נכס "+x.id,x.id].join(" ")); for(const w of norm(st.q).split(" ")) if(w && !hay.includes(w)) return false; }
-  if(st.budget && !(x.price>0 && x.price<=st.budget)) return false;
+  if(st.budget && !(x.price>0 && x.price<=st.budget*(1+st.widen/100))) return false;
   if(st.city && x.city!=st.city) return false;
   if(st.nb && x.nb!=st.nb) return false;
   if(st.rooms.size){ if(!x.rooms) return false; let ok=false; for(const i of st.rooms) if(ROOMS[i][1](x.rooms)) ok=true; if(!ok) return false; }
@@ -418,6 +426,7 @@ function row(x, full){
   if(tags.children.length) main.appendChild(tags);
   const side = el("div","side");
   const pr = el("div", x.price? "price":"price ask");
+  if(!full && st.budget && st.widen && x.price>st.budget){ const over=Math.ceil((x.price/st.budget-1)*100); li.dataset.over=over; }
   if(x.price){ pr.textContent = nf(x.price)+" ₪"; if(x.deal=="השכרה"){ pr.appendChild(document.createTextNode(" ")); pr.appendChild(el("small",null,"לחודש")); } }
   else pr.textContent = "מחיר: לפי פנייה";
   const pw = el("div"); pw.appendChild(pr); if(x.prev) pw.appendChild(el("div","was", nf(x.prev)+" ₪")); pw.appendChild(el("div","pid","נכס מס' "+x.id));
@@ -463,7 +472,14 @@ function render(){
   if(st.sort=="up") r.sort((a,b)=>(a.price||9e15)-(b.price||9e15));
   else if(st.sort=="down") r.sort((a,b)=>(b.price||0)-(a.price||0));
   else r.sort((a,b)=>((b.imgs&&b.imgs.length?1:0)-(a.imgs&&a.imgs.length?1:0)) || a.id-b.id);
+  if(st.budget&&st.widen) r.sort((a,b)=>((a.price>st.budget)-(b.price>st.budget)));
   $("n").textContent = r.length;
+  { const w=$("widen"), wc=$("wchips"); w.hidden=!st.budget||!!preset||!!pickIds; wc.innerHTML="";
+    if(st.budget){ const save=st.widen; const cnt={}; [0,10,20,30].forEach(p=>{ st.widen=p; cnt[p]=D.filter(match).length; }); st.widen=save;
+      [0,10,20,30].forEach(p=>{ const b=el("button","wchip"); b.type="button"; b.setAttribute("aria-pressed",st.widen==p);
+        b.append(el("b",null,p?"+"+p+"%":"בדיוק"), el("span",null,"עד "+(Math.round(st.budget*(1+p/100)/10000)/100).toString()+" מיליון"));
+        const extra=cnt[p]-cnt[0]; b.append(el("small",null,p? (extra>0?"+"+extra+" דירות":"אין נוספות") : cnt[0]+" דירות"));
+        b.addEventListener("click",()=>{ st.widen=p; st.shown=30; render(); }); wc.appendChild(b); }); } }
   $("hero-n").textContent = D.length;
   { const k=(st.budget?1:0)+(st.city?1:0)+(st.nb?1:0)+st.rooms.size+st.must.size+(st.deal!="מכירה"?1:0); const fc=$("fcount"); fc.hidden=!k; fc.textContent=k; }
   $("n-label").textContent = r.length==1 ? "נכס מתאים" : "נכסים מתאימים";
@@ -486,14 +502,14 @@ ROOMS.forEach(([t],i)=>{
 document.querySelectorAll("#must .chip").forEach(b=>b.addEventListener("click",()=>{
   const k=b.dataset.k; st.must.has(k)?st.must.delete(k):st.must.add(k); b.setAttribute("aria-pressed",st.must.has(k)); st.shown=30; render(); }));
 document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>setDeal(b.dataset.deal)));
-$("budget").addEventListener("change",e=>{ st.budget=+e.target.value||0; st.shown=30; render(); });
+$("budget").addEventListener("change",e=>{ st.budget=+e.target.value||0; st.widen=0; st.shown=30; render(); });
 $("city").addEventListener("change",e=>{ st.city=e.target.value; st.nb=""; st.shown=30; fillNb(); render(); });
 $("nb").addEventListener("change",e=>{ st.nb=e.target.value; st.shown=30; render(); });
 $("q").addEventListener("input",e=>{ st.q=e.target.value; st.shown=30; render(); });
 $("sort").addEventListener("change",e=>{ st.sort=e.target.value; render(); });
 $("more").addEventListener("click",()=>{ st.shown+=30; render(); });
 $("reset").addEventListener("click",()=>{
-  st.q=""; $("q").value=""; st.rooms.clear(); st.must.clear(); st.city=""; st.sort="new"; $("sort").value="new";
+  st.q=""; $("q").value=""; st.widen=0; st.rooms.clear(); st.must.clear(); st.city=""; st.sort="new"; $("sort").value="new";
   document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed","false"));
   setDeal("מכירה");
 });
