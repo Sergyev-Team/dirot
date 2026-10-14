@@ -133,6 +133,9 @@ body.broker{padding-bottom:140px}
 .btn.wa{background:var(--wa);color:var(--on-wa)}
 .btn.call:not(.ico){background:var(--surface,#fff);color:var(--fg,#111);border:1.5px solid var(--gold,#c9a24a)}
 .stickybar .btn.call{flex:0 1 120px}
+.list .item .actions{flex-wrap:wrap}
+.list .item .actions .btn.wa,.list .item .actions .btn.call{flex:1 1 40%;min-width:0}
+.list .item .actions .btn.ico{flex:1 1 0}
 .btn.photos{background:transparent;color:var(--wa);border-color:var(--wa)}
 .btn.map{background:transparent;color:var(--ink);border-color:var(--muted)}
 .btn.visit{background:var(--navy);color:var(--on-navy);border-color:var(--brass)}
@@ -420,7 +423,7 @@ function row(x, full){
   const pw = el("div"); pw.appendChild(pr); if(x.prev) pw.appendChild(el("div","was", nf(x.prev)+" ₪")); pw.appendChild(el("div","pid","נכס מס' "+x.id));
   side.appendChild(pw);
   const acts = el("div","actions");
-  const SHORT={call:["חיוג",IC.tel],photos:["תמונות",IC.cam],visit:["פגישה",IC.cal],map:["מפה",IC.pin]};
+  const SHORT={photos:["תמונות",IC.cam],visit:["פגישה",IC.cal],map:["מפה",IC.pin]};
   const link = (cls, label, href) => { let a;
     if(!full && SHORT[cls]){ a=el("a","btn ico "+cls); a.innerHTML=SHORT[cls][1]; a.appendChild(el("span",null,SHORT[cls][0])); a.title=label; }
     else a = el("a","btn "+cls,label);
@@ -428,8 +431,8 @@ function row(x, full){
     a.setAttribute("aria-label", label+" – נכס מס' "+x.id+" (נפתח בחלון חדש)"); acts.appendChild(a); };
   const wa = msg => "https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
   const addr = x.street ? " ברחוב "+ST(x) : (x.nb ? " בשכונת "+x.nb : "");
-  link("wa",full?"לפרטים בוואטסאפ":"וואטסאפ", wa("שלום, רציתי לקבל פרטים על נכס מס' "+x.id+addr));
-  link("call","חיוג מהיר", "tel:+"+WA); { const cb=acts.lastChild; cb.removeAttribute("target"); cb.removeAttribute("rel"); cb.setAttribute("aria-label","חיוג מהיר – נכס מס' "+x.id); }
+  link("wa",full?"לפרטים בוואטסאפ":"פרטים בוואטסאפ", wa("שלום, רציתי לקבל פרטים על נכס מס' "+x.id+addr));
+  link("call","📞 חיוג מהיר", "tel:+"+WA); { const cb=acts.lastChild; cb.removeAttribute("target"); cb.removeAttribute("rel"); cb.setAttribute("aria-label","חיוג מהיר – נכס מס' "+x.id); }
   link("photos","בקשת תמונות", wa("שלום, רציתי לקבל תמונות של נכס מס' "+x.id+addr));
   link("visit","קביעת פגישה בנכס", BOOK_URL || wa("שלום, אשמח לתאם פגישה. ידוע לי שהפגישה תאושר רק לאחר אישור המתווך."));
   { const vb=acts.lastChild, ref="נכס מס' "+x.id+(x.street?" – "+ST(x):(x.nb?" – "+x.nb:""));
