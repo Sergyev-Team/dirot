@@ -510,7 +510,7 @@ function presetTexts(p, hoods){ // personal page header for a buyer profile (non
   const rm = p.rmin==p.rmax ? p.rmin+" "+M.roomsL : p.rmin+"–"+p.rmax+" "+M.roomsL;
   const names={el:I18N[LANG]["מעלית"],pk:I18N[LANG]["חניה"],mm:I18N[LANG]["ממ\"ד"]};
   const title=(p.name? M.hello+", "+p.name+" – "+M.these+" " : "")+I18N[LANG]["הנכסים שמתאימים לחיפוש שלך"];
-  const text = rm+", "+M.upTo+" "+nf(p.budget)+" ₪"+(hoods.length?", "+M.area+" "+hoods.join(" / "):"")+(p.must.length?", "+M.with+" "+p.must.map(k=>names[k]).join(", ")+". "+M.unk:".");
+  const text = rm+(p.budget<1e11?", "+M.upTo+" "+nf(p.budget)+" ₪":"")+(hoods.length?", "+M.area+" "+hoods.join(" / "):"")+(p.must.length?", "+M.with+" "+p.must.map(k=>names[k]).join(", ")+". "+M.unk:".");
   return [title,text]; }
 const I18N_ATTRS=["placeholder","aria-label","title","alt","data-over"];
 function trNode(n){
@@ -736,6 +736,9 @@ $("reset").addEventListener("click",()=>{
   setDeal("מכירה");
 });
 $("big").addEventListener("click",e=>{ const on=document.documentElement.classList.toggle("big"); e.currentTarget.setAttribute("aria-pressed",on); e.currentTarget.textContent = on ? "טקסט רגיל" : "הגדלת טקסט"; });
+// personal search link from the buyers board: #s=<m|r>~<rmin>-<rmax>~<budget>~<el|pk|mm letters>~<hood|hood>
+function parseSearch(key){ const m=/^s=([mr])~([\d.]+)-([\d.]+)~(\d*)~([a-z]*)~(.*)$/.exec(key); if(!m) return null;
+  return {deal:m[1]=="r"?"השכרה":"מכירה", rmin:+m[2], rmax:+m[3], budget:+m[4]||1e12, must:(m[5].match(/el|pk|mm/g)||[]), hoods:m[6]?m[6].split("|").filter(Boolean):[]}; }
 function applyPreset(){
   const key=decodeURIComponent((location.hash||"").replace("#","")).toLowerCase();
   broker = key==BROKER_KEY; document.body.classList.toggle("broker",broker); $("sendbar").hidden=!broker; if(broker) updBar();
@@ -756,14 +759,14 @@ function applyPreset(){
   if(!$("detail").hidden) restoreScroll=true;
   $("detail").hidden=true; $("listview").hidden=false; document.title=TITLE0; lastList=location.hash||"";
   const m = key.match(/^n=([\d,]+)$/); pickIds = m ? m[1].split(",").filter(Boolean).map(Number) : null;
-  preset = pickIds ? null : (PRESETS[key] || null);
+  preset = pickIds ? null : (PRESETS[key] || parseSearch(key));
   $("personal").hidden = !(preset||pickIds); $("filters").hidden = !!(preset||pickIds);
   if(pickIds){ $("personal-title").textContent = pickIds.length==1 ? "הנכס שנבחר עבורך" : "הנכסים שנבחרו עבורך";
     $("personal-text").textContent = "לפרטים נוספים, תמונות או תיאום ביקור – השתמשו בכפתורים שליד כל נכס."; }
   if(preset){ $("personal-title").textContent = (preset.name ? "שלום "+preset.name+", אלה " : "") + "הנכסים שמתאימים לחיפוש שלך";
-    const rm = preset.rmin==preset.rmax ? preset.rmin+" חדרים" : preset.rmin+" עד "+preset.rmax+" חדרים";
+    const rm = preset.rmin==preset.rmax ? preset.rmin+" חדרים" : preset.rmax>=99 ? preset.rmin+" חדרים ומעלה" : preset.rmin+" עד "+preset.rmax+" חדרים";
     const names = {el:"מעלית",pk:"חניה",mm:"ממ\"ד"};
-    $("personal-text").textContent = rm + ", עד " + nf(preset.budget) + " ₪" + (preset.hoods.length ? ", באזור " + preset.hoods.join(" / ") : "") + (preset.must.length ? ", עם " + preset.must.map(k=>names[k]).join(", ") + ". נכסים שפרט בהם לא צוין מוצגים גם כן, ונברר עבורך." : ".");
+    $("personal-text").textContent = rm + (preset.budget<1e11 ? ", עד " + nf(preset.budget) + " ₪" + (preset.deal=="השכרה"?" לחודש":"") : "") + (preset.hoods.length ? ", באזור " + preset.hoods.join(" / ") : "") + (preset.must.length ? ", עם " + preset.must.map(k=>names[k]).join(", ") + ". נכסים שפרט בהם לא צוין מוצגים גם כן, ונברר עבורך." : ".");
     if(LANG!="he"){ const [pt,px]=presetTexts(preset,preset.hoods); $("personal-title").textContent=pt; $("personal-text").textContent=px; } }
   if(restoreScroll){ render(); window.scrollTo(0,listScroll); restoreScroll=false; } else { st.shown=30; render(); }
 }
