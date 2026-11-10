@@ -296,7 +296,7 @@ function build(id,body){
     d.onclick=()=>{let a=P(id).pick.slice();const j=a.indexOf(i);if(j>=0)a.splice(j,1);else{a.push(i);}LS.set("pick_"+id,a);thumbs();body.querySelector(".head img")};t.appendChild(d)});
     q(".pc").textContent=P(id).pick.length}
   function groups(){const g=q(".glist");g.innerHTML="";const G=getGroups();if(!G.length){g.innerHTML='<p class="hint">עוד אין קבוצות. הוסף אותן ב"הגדרות" למעלה.</p>';return}
-    G.forEach(([nm,u])=>{const a=document.createElement("a");a.className="btn fb sm";a.textContent="👥 "+nm+" ↗";a.href=u;a.onclick=e=>{e.preventDefault();openApp("grp",u)};g.appendChild(a)})}
+    G.forEach(([nm,u])=>{const a=document.createElement("a");a.className="btn fb sm";a.textContent="👥 "+nm+" ↗";a.href=u;if(!MOB){a.target="_blank";a.rel="noopener"}else{const m=u.match(/groups\/(\d+)/);if(m&&IOS)a.onclick=e=>{e.preventDefault();const t=setTimeout(()=>{if(!document.hidden)location.href=u},1600);document.addEventListener("visibilitychange",()=>{if(document.hidden)clearTimeout(t)},{once:true});location.href="fb://group/?id="+m[1]}}g.appendChild(a)})}
   qa('.tog input').forEach(x=>x.onchange=()=>{LS.set(x.dataset.k+"_"+id,x.checked);fill();q(".prev").innerHTML="";q(".fl").hidden=true});
   let F={};
   body.onclick=async e=>{const a=e.target.closest("[data-a]");if(!a)return;const k=a.dataset.a,p=P(id);
