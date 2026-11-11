@@ -1,0 +1,78 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>פורטל הנכס – צוות סרגייב</title><meta name="theme-color" content="#f4f0e6">
+<style>
+@font-face{font-family:Heebo;font-weight:400;src:url(heebo-hebrew-400-normal.woff2) format("woff2");unicode-range:U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:Heebo;font-weight:400;src:url(heebo-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC,U+2122}
+@font-face{font-family:Heebo;font-weight:700;src:url(heebo-hebrew-700-normal.woff2) format("woff2");unicode-range:U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:Heebo;font-weight:700;src:url(heebo-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC,U+2122}
+:root{--bg:#f4f0e6;--card:#fffdf8;--fg:#1b1912;--muted:#6b6455;--line:#e3dbc8;--gold:#a87b1e;--gold2:#d9b45c;--ok:#1f7a48;--wa:#1c9b55}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11100c;--card:#1b1914;--fg:#f3eee2;--muted:#a9a08c;--line:#332e24;--gold:#d4af5a;--gold2:#e8c877}}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--fg);font-family:Heebo,Arial,sans-serif;font-size:16px;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding:14px 16px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.top img{height:48px;background:#fff;border-radius:10px;padding:3px 6px}.top small{color:var(--muted);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.hero{padding:0;overflow:hidden}.hero .ph{aspect-ratio:16/9;background:#ddd center/cover no-repeat}.hero .in{padding:14px 16px}
+h1{font-size:22px;margin:0 0 2px}.sub{color:var(--muted);margin:0}.price{font-size:22px;font-weight:700;color:var(--gold);margin-top:6px}
+.hi{font-size:17px;margin:0 0 4px}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:520px){.kpi{grid-template-columns:repeat(2,1fr)}}
+.kpi div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}.kpi b{display:block;font-size:28px;color:var(--gold);line-height:1.1}.kpi span{font-size:13px;color:var(--muted);font-weight:700}
+h2{font-size:18px;margin:0 0 10px}
+.tl{list-style:none;margin:0;padding:0}.tl li{display:grid;grid-template-columns:38px 1fr;gap:8px;padding:9px 0;border-bottom:1px dashed var(--line)}.tl li:last-child{border:0}
+.tl .ic{width:38px;height:38px;border-radius:50%;background:rgba(168,123,30,.12);display:grid;place-items:center;font-size:18px}.tl b{display:block}.tl small{color:var(--muted)}
+.day{font-weight:700;color:var(--gold);font-size:14px;margin:12px 0 0}
+.msg{max-width:86%;padding:9px 12px;border-radius:14px;margin:6px 0;white-space:pre-wrap}.msg small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.me{background:rgba(168,123,30,.14);margin-inline-start:auto}.of{background:var(--bg);border:1px solid var(--line)}
+textarea{width:100%;font:inherit;font-size:16px;min-height:90px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:700;font-size:16px;border:0;border-radius:12px;padding:12px 16px;background:var(--gold);color:#fff;cursor:pointer;text-decoration:none;min-height:46px}
+.btn.wa{background:var(--wa)}.btn.gh{background:transparent;color:var(--fg);border:1.5px solid var(--line)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.row .btn{flex:1}
+.hint{color:var(--muted);font-size:14px}.empty{color:var(--muted);text-align:center;padding:14px}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+</style></head><body><div class="wrap" id="app"><p class="hint">טוען…</p></div>
+<script>
+const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
+const K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);
+const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
+const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],other:["📌","פעולה"]};
+const OGROUPS={"https://www.facebook.com/groups/331634257248250/":"דירות למכירה בפתח תקווה (1)","https://www.facebook.com/groups/1444861819075775/":"דירות למכירה בפתח תקווה (2)","https://www.facebook.com/groups/224967760988658/":"פתח תקווה העיר שלי","https://www.facebook.com/groups/370244223604031/":"דירות להשכרה ומכירה בפתח תקווה והסביבה"};
+function mkEvents(mk,fromTs){const out=[];Object.entries(mk||{}).forEach(([ch,arr])=>{let type=null,text="";
+  if(ch.startsWith("g:")){type="fbgroup";text=OGROUPS[ch.slice(2)]||"קבוצת פייסבוק"}else if(["fb","ig","story","y2","md"].includes(ch)){type=ch;text=""}else return;
+  (arr||[]).forEach(ts=>{if(!fromTs||ts>=fromTs)out.push({ts,type,text,auto:1})})});return out}
+const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);if(m)return new Date(+m[1],m[2]-1,+m[3],+(m[4]||12),+(m[5]||0)).getTime();const m2=String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m2?new Date(+m2[3],m2[2]-1,+m2[1],12).getTime():0};
+
+const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"}),heT=ts=>new Date(ts).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
+let P=null,L=null;
+async function load(){
+ if(!K){$("#app").innerHTML='<div class="card">הקישור לא תקין.</div>';return}
+ try{P=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){$("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
+ if(!P.ok){$("#app").innerHTML='<div class="card">הפורטל לא נמצא או שאינו פעיל. פנו אלינו לקבלת קישור.</div>';return}
+ try{const t=await (await fetch("../index.html",{cache:"no-store"})).text();const i=t.indexOf("const D = (");if(i>=0){const D=JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)));L=D.find(x=>String(x.id)===String(P.p.id))||null}}catch(e){}
+ render()}
+function render(){const p=P.p,from=dt(p.from)||0,to=dt(p.to)||0,now=Date.now();
+ const ev=mkEvents(P.mk,from?from-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
+ const posts=ev.filter(x=>["fbgroup","fb","ig","story","y2","md"].includes(x.type)).length,acts=ev.filter(x=>x.type!=="start").length;
+ const days=from?Math.max(1,Math.ceil((now-from)/DAY)):"–",left=to?Math.max(0,Math.ceil((to-now)/DAY)):"–",pct=from&&to?Math.min(100,Math.round((now-from)/(to-from)*100)):0;
+ const addr=L?(L.street+" "+L.hn+", "+L.city):"נכס #"+p.id,img=L&&L.imgs&&L.imgs[0]?"../"+L.imgs[0]:"";
+ let tl="",last="";ev.forEach(x=>{const d=heD(x.ts);if(d!==last){tl+=`<p class="day">${E(d)}</p>`;last=d}const t=OTYPES[x.type]||OTYPES.other;
+  tl+=`<li><span class="ic">${t[0]}</span><span><b>${E(t[1])}</b>${x.text?`<span>${E(x.text)}</span><br>`:""}${x.auto?`<small>${heT(x.ts)}</small>`:""}</span></li>`});
+ const ms=(P.msgs||[]).map(m=>`<div class="msg ${m.from==="בעלים"?"me":"of"}">${E(m.text)}<small>${m.from==="בעלים"?"אתם":E(P.broker.name)} · ${E(new Date(dt(m.d)).toLocaleDateString("he-IL"))}</small></div>`).join("");
+ const wa="https://wa.me/972"+String(P.broker.phone).replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent("שלום, אני "+(p.name||"")+" – בעל/ת הנכס ב"+addr);
+ $("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל הנכס</small></div>
+ <p class="hi">שלום ${E(p.name||"")} 👋</p>
+ <div class="card hero">${img?`<div class="ph" style="background-image:url('${E(img)}')"></div>`:""}<div class="in"><h1>${E(addr)}</h1>
+  ${L?`<p class="sub">${E(L.deal)} · ${E(L.type)}${L.rooms?" · "+L.rooms+" חד׳":""}${L.sqm?" · "+L.sqm+" מ״ר":""}${L.floor!==""&&L.floor!=null?" · קומה "+L.floor:""}</p><div class="price">${E(fm(L.price))}</div>`:""}
+  ${L?`<div class="row"><a class="btn gh" href="../d/${E(p.id)}.html" target="_blank" rel="noopener">לדף הנכס באתר ↗</a></div>`:""}</div></div>
+ <div class="kpi"><div><b>${days}</b><span>ימים בשיווק</span></div><div><b>${posts}</b><span>פרסומים</span></div><div><b>${acts}</b><span>פעולות שיווק</span></div><div><b>${left}</b><span>ימים לסיום בלעדיות</span></div></div>
+ ${from&&to?`<div class="card" style="margin-top:14px"><b>תקופת הבלעדיות</b><div class="hint">${E(new Date(from).toLocaleDateString("he-IL"))} – ${E(new Date(to).toLocaleDateString("he-IL"))}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`:""}
+ <div class="card"><h2>📋 מה עשינו בשבילכם</h2>${tl?`<ul class="tl">${tl}</ul>`:'<p class="empty">פעולות השיווק יופיעו כאן ברגע שיתבצעו.</p>'}</div>
+ <div class="card"><h2>💬 כתבו לנו</h2>${ms||'<p class="hint">יש לכם הערה, שאלה או עדכון לגבי הנכס? כתבו כאן ונחזור אליכם.</p>'}
+  <textarea id="tx" placeholder="כתבו הודעה…"></textarea><div class="row"><button class="btn" id="snd">שליחה</button><a class="btn wa" href="${E(wa)}" target="_blank" rel="noopener">💬 וואטסאפ ל${E(P.broker.name.split(" ")[0])}</a></div><p class="hint" id="st"></p></div>
+ ${p.pdf?`<div class="card"><h2>📄 מסמכים</h2><a class="btn gh" href="${E(p.pdf)}" target="_blank" rel="noopener">הסכם התיווך והבלעדיות (PDF)</a></div>`:""}
+ <p class="hint" style="text-align:center">${E(P.broker.name)} · צוות סרגייב · ${E(P.broker.phone)}</p>`;
+ $("#snd").onclick=async()=>{const t=$("#tx").value.trim();if(!t)return;const b=$("#snd");b.disabled=true;b.textContent="שולח…";
+  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"omsg",k:K,text:t})});const j=await r.json();if(!j.ok)throw 0;
+   P.msgs=(P.msgs||[]).concat([{d:new Date().toISOString().slice(0,16).replace("T"," "),from:"בעלים",text:t}]);render();$("#st").textContent="✓ ההודעה נשלחה, נחזור אליכם בהקדם."}
+  catch(e){b.disabled=false;b.textContent="שליחה";$("#st").textContent="לא נשלח – נסו שוב."}}}
+load();
+</script></body></html>

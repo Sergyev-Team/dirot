@@ -11,7 +11,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px
 h1{font-size:28px;margin:8px 0 2px}h1 b{color:var(--gold)}.sub{color:var(--muted);margin:0 0 14px}
 .btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 16px;min-height:46px;cursor:pointer;background:var(--gold);color:#fff;display:inline-flex;align-items:center;gap:8px;justify-content:center}
 .btn.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line)}.btn.sm{min-height:38px;padding:6px 12px;font-size:15px}.btn.big{width:100%;font-size:20px;min-height:56px}
-.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:10px 6px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tabs{flex-wrap:wrap;display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:10px 6px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .tabs button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
 .sec,.mode>.card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 .hint{color:var(--muted);font-size:15px;margin:6px 0}
@@ -53,11 +53,18 @@ input[type=date],select{-webkit-appearance:none;appearance:none;display:block;wi
 select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:16px 21px,22px 21px;background-size:6px 6px;background-repeat:no-repeat;padding-left:34px}
 input[type=date]::-webkit-date-and-time-value{text-align:right}
 .ex{overflow:hidden}.ex label.chk{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;line-height:1.35;margin-bottom:6px}
+.oc{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}.oc h3{margin:0;font-size:17px}.oc .meta{color:var(--muted);font-size:14px}
+.oc .acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.oc .acts .btn{width:100%}
+.nb{display:inline-block;background:#c0392b;color:#fff;border-radius:99px;font-size:12px;font-weight:800;padding:1px 8px;margin-inline-start:6px}
+.lg{font-size:14px;border-top:1px dashed var(--line);padding:6px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}.lg label{display:flex;gap:4px;align-items:center;font-size:13px;color:var(--muted);white-space:nowrap}
+.mm{padding:7px 10px;border-radius:12px;margin:5px 0;font-size:14px;white-space:pre-wrap}.mm.o{background:var(--gold-soft)}.mm.f{background:var(--bg);border:1px solid var(--line)}.mm small{display:block;color:var(--muted);font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{font:inherit;font-size:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:99px;padding:6px 10px;cursor:pointer}.chips button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold);font-weight:800}
 </style></head><body>
 <div class="wrap">
  <h1>לוח <b>החתמות</b></h1><p class="sub">שליחת טפסי תיווך לחתימה דיגיטלית בוואטסאפ</p>
- <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button></div>
+ <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button><button data-m="own" id="ownT">🏠 פורטל בעלים</button></div>
  <section class="mode" id="m-new"><div class="card" id="nw"></div></section>
+ <section class="mode" id="m-own"><div class="card"><div class="row"><button class="btn" id="oNewT" style="flex:1">➕ פורטל חדש לבעל נכס</button><button class="btn ghost sm" id="oR">🔄</button></div><div id="oNew" hidden></div></div><div id="oLs"><p class="hint">טוען…</p></div></section>
  <section class="mode" id="m-list"><div class="card"><div class="row"><input id="lq" placeholder="חיפוש לפי שם או טלפון" style="flex:1"><button class="btn ghost sm" id="lr">🔄 רענון</button></div><div id="ls"></div></div></section>
 </div>
 <div class="toast" id="toast"></div>
@@ -106,7 +113,7 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
   ns.querySelectorAll("button").forEach(x=>x.onclick=()=>{if(!x.dataset.new){const b=r[+x.dataset.i];nn.value=b.name;np.value=b.phone||"";toast("✓ נבחר "+b.name)}ns.innerHTML="";F.name=nn.value.trim();F.phone=np.value.trim()})};
  nn.oninput=bsug;np.oninput=bsug;
  const sa=$("#nA"),sg=$("#nS");
- const pick=a=>{const p={addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"};if(own)F.props=[p];else F.props.push(p);sa.value="";sg.innerHTML="";drawProps();toast("✓ נוסף נכס #"+a.id)};
+ const pick=a=>{const p={id:a.id,addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"};if(own)F.props=[p];else F.props.push(p);sa.value="";sg.innerHTML="";drawProps();toast("✓ נוסף נכס #"+a.id)};
  const find=q=>{q=q.trim().replace(/^#/,"");if(!q)return [];const n=q.replace(/\D/g,"");if(n&&n===q)return A.filter(x=>String(x.id)===n).concat(A.filter(x=>String(x.id).startsWith(n)&&String(x.id)!==n)).slice(0,6);return A.filter(x=>(x.street+" "+x.hn+" "+(x.nb||"")+" "+x.city).includes(q)).slice(0,6)};
  sa.oninput=()=>{const r=find(sa.value);sg.innerHTML=r.map(a=>`<button type="button" data-id="${a.id}">#${a.id} · ${E(a.street+" "+a.hn)}, ${E(a.city)}${a.floor!==""&&a.floor!=null?" · קומה "+a.floor:""}${a.price?" · "+fm(a.price):""}</button>`).join("")||(sa.value.trim()?'<p class="hint">לא נמצא נכס פעיל – אפשר להוסיף ידנית</p>':"");sg.querySelectorAll("button").forEach(x=>x.onclick=()=>pick(A.find(a=>a.id==x.dataset.id)))};
  const first=()=>{const r=find(sa.value);if(r.length)pick(r[0]);else toast("לא נמצא נכס כזה")};
@@ -123,7 +130,7 @@ async function create(){keep();const s=U.sync,o=$("#nOut");const err=t=>{o.inner
  if(owner()&&F.excl&&!(F.from&&F.to&&F.to>F.from))return err("בדוק את תאריכי הבלעדיות");
  const b=$("#nGo");b.disabled=true;b.textContent="יוצר…";
  const c={type:F.type,name:F.name,phone:F.phone,props:F.props,notes:F.notes.trim(),date:iso(new Date())};
- if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}
+ if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}if(owner()&&F.props[0]&&F.props[0].id)c.lid=F.props[0].id;
  try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
   const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";
   o.innerHTML=`<div class="box nw"><b>✓ טופס מס' ${pad(j.n)} מוכן${c.excl?" (הסכמה + בלעדיות)":""}</b></div><div class="row"><a class="btn wa" style="flex:1" target="_blank" rel="noopener" href="${E(wa(F.phone,msg(F.name,link,c.excl)))}">💬 שלח ללקוח בוואטסאפ</a><button type="button" class="btn ghost" id="nCp">📋 העתק קישור</button></div><button type="button" class="btn ghost big" id="nAg">➕ טופס חדש נוסף</button>`;
@@ -135,10 +142,57 @@ async function loadList(){const s=U.sync,h=$("#ls");h.innerHTML='<p class="hint"
 function drawList(){const q=$("#lq").value.trim(),h=$("#ls");if(!LIST)return;const L=LIST.filter(c=>!q||String(c.name).includes(q)||String(c.phone).replace(/\D/g,"").includes(q.replace(/\D/g,"")||"~"));
  h.innerHTML=L.length?L.map(c=>{const ok=!!c.signed,link=SITE+"s/?k="+c.k;return `<div class="ct"><span><b>${pad(c.n)}</b><span class="tp">${TL[c.type]||c.type}</span>${c.agent&&!U.agent?`<span class="tp">👤 ${E(c.agent)}</span>`:""} ${E(c.name)}<br><small class="hint">נשלח ${E(c.created)}</small></span><span class="stt ${ok?"ok":""}">${ok?"✓ נחתם "+E(c.signed):"⏳ ממתין לחתימה"}</span>
   <span>${ok&&c.pdf?`<a class="btn ghost sm" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:`<a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(c.phone,msg(c.name,link,c.type==="sell"||c.type==="let")))}">💬 שלח שוב</a>`}</span></div>`}).join(""):'<p class="hint">אין טפסים.</p>'}
-function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="list")loadList()}
+const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],other:["📌","פעולה"]};
+const OGROUPS={"https://www.facebook.com/groups/331634257248250/":"דירות למכירה בפתח תקווה (1)","https://www.facebook.com/groups/1444861819075775/":"דירות למכירה בפתח תקווה (2)","https://www.facebook.com/groups/224967760988658/":"פתח תקווה העיר שלי","https://www.facebook.com/groups/370244223604031/":"דירות להשכרה ומכירה בפתח תקווה והסביבה"};
+function mkEvents(mk,fromTs){const out=[];Object.entries(mk||{}).forEach(([ch,arr])=>{let type=null,text="";
+  if(ch.startsWith("g:")){type="fbgroup";text=OGROUPS[ch.slice(2)]||"קבוצת פייסבוק"}else if(["fb","ig","story","y2","md"].includes(ch)){type=ch;text=""}else return;
+  (arr||[]).forEach(ts=>{if(!fromTs||ts>=fromTs)out.push({ts,type,text,auto:1})})});return out}
+const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);if(m)return new Date(+m[1],m[2]-1,+m[3],+(m[4]||12),+(m[5]||0)).getTime();const m2=String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m2?new Date(+m2[3],m2[2]-1,+m2[1],12).getTime():0};
+
+/* ===== פורטל בעלים (מנהל) ===== */
+let OWN=null,OOPEN={};
+const MANUAL=["letters","sign","open","tour","offer","buyers","call","price","photo","y2","md","other"],PRIV=["tour","offer","call"];
+async function oPost(op,extra){const s=U.sync;const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:s.token,op},extra))});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");return j}
+async function loadOwn(){const s=U.sync,h=$("#oLs");h.innerHTML='<p class="hint">טוען…</p>';
+ try{const j=await (await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=olist")).json();if(!j.ok)throw new Error(j.error||"שגיאה");OWN=j.items;drawOwn()}catch(e){h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+' (אם זה "auth" – צריך לעדכן את קוד הגיליון)</p>'}}
+const oLink=k=>SITE+"o/?k="+k;
+const oMsg=(o,a)=>"שלום "+(o.name||"")+",\nפתחנו עבורך פורטל אישי לנכס"+(a?" ב"+a:"")+" – כאן אפשר לראות בכל רגע את כל פעולות השיווק שלנו ולכתוב לנו:\n"+oLink(o.k)+"\n\nמשה מאיר כהן – צוות סרגייב";
+function aAddr(id){const a=(U.apts||[]).find(x=>String(x.id)===String(id));return a?a.street+" "+a.hn+", "+a.city:""}
+function drawOwn(){const h=$("#oLs");if(!OWN)return;if(!OWN.length){h.innerHTML='<p class="hint">עוד אין פורטלים. פורטל נוצר אוטומטית כשבעל נכס חותם על בלעדיות (מנכס שנבחר מהלוח), או ידנית בכפתור למעלה.</p>';return}
+ h.innerHTML=OWN.map((o,i)=>{const un=o.msgs.filter(m=>m.from==="בעלים"&&!m.read).length,ad=aAddr(o.id),mkc=mkEvents(o.mk,dt(o.from)?dt(o.from)-864e5:0).length,lc=o.log.filter(x=>x.type!=="start").length;
+  return `<div class="oc" data-i="${i}"><h3>#${E(o.id)} ${E(ad)}${un?`<span class="nb">${un} חדשות</span>`:""}</h3>
+  <div class="meta">👤 ${E(o.name)} · ${E(o.phone)}${o.to?` · בלעדיות עד ${E(o.to)}`:""}<br>📊 ${mkc} פרסומים אוטומטיים · ${lc} פעולות ידניות${o.seen?` · נכנס לאחרונה ${E(o.seen)}`:" · עוד לא נכנס"}</div>
+  <div class="acts"><a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(o.phone,oMsg(o,ad)))}">💬 שלח קישור</a><a class="btn ghost sm" target="_blank" rel="noopener" href="${E(oLink(o.k))}">👁️ צפה בפורטל</a>
+   <button class="btn sm" data-x="act">➕ פעולה</button><button class="btn ghost sm" data-x="msg">💬 הודעות (${o.msgs.length})</button><button class="btn ghost sm" data-x="log" style="grid-column:1/-1">📜 יומן ומה מוצג לבעלים</button></div><div class="ox"></div></div>`}).join("");
+ h.querySelectorAll(".oc").forEach(c=>{const o=OWN[+c.dataset.i],x=c.querySelector(".ox");c.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const k=b.dataset.x;if(OOPEN[o.id]===k){OOPEN[o.id]=null;x.innerHTML="";return}OOPEN[o.id]=k;panel(o,k,x)});if(OOPEN[o.id])panel(o,OOPEN[o.id],x)})}
+function panel(o,k,x){
+ if(k==="act"){let ty="letters";x.innerHTML=`<p class="lbl">סוג הפעולה</p><div class="chips">${MANUAL.map(t=>`<button type="button" data-t="${t}" class="${t===ty?"on":""}">${OTYPES[t][0]} ${OTYPES[t][1]}</button>`).join("")}</div>
+  <div class="g2"><label class="l">תאריך<input type="date" id="aD" value="${iso(new Date())}"></label><span></span></div><label class="l">פירוט (מה בעל הנכס יקרא)<textarea id="aT" placeholder="למשל: חולקו 40 מכתבים בבניינים הסמוכים"></textarea></label>
+  <label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:800;margin:8px 0"><input type="checkbox" id="aS" checked style="width:22px;height:22px"> להציג לבעל הנכס</label><button class="btn big" id="aGo">שמור פעולה</button>`;
+  const sync=()=>{x.querySelectorAll(".chips button").forEach(b=>b.classList.toggle("on",b.dataset.t===ty));x.querySelector("#aS").checked=!PRIV.includes(ty)};
+  x.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>{ty=b.dataset.t;sync()});
+  x.querySelector("#aGo").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="שומר…";try{await oPost("olog",{e:{id:o.id,type:ty,date:x.querySelector("#aD").value,text:x.querySelector("#aT").value.trim(),show:x.querySelector("#aS").checked}});toast("✓ הפעולה נשמרה");OOPEN[o.id]="log";await loadOwn()}catch(err){toast("שגיאה: "+err.message);b.disabled=false;b.textContent="שמור פעולה"}};return}
+ if(k==="msg"){x.innerHTML=(o.msgs.length?o.msgs.map(m=>`<div class="mm ${m.from==="בעלים"?"o":"f"}">${E(m.text)}<small>${m.from==="בעלים"?"👤 "+E(o.name):"🏢 המשרד"} · ${E(m.d)}</small></div>`).join(""):'<p class="hint">אין הודעות עדיין.</p>')+`<textarea id="rT" placeholder="תשובה לבעל הנכס (תופיע אצלו בפורטל)"></textarea><button class="btn" id="rGo">שלח תשובה</button>`;
+  x.querySelector("#rGo").onclick=async e=>{const t=x.querySelector("#rT").value.trim();if(!t)return;const b=e.target;b.disabled=true;try{await oPost("oreply",{id:o.id,text:t});toast("✓ נשלח לפורטל");await loadOwn()}catch(err){toast("שגיאה: "+err.message);b.disabled=false}};return}
+ if(k==="log"){const auto=mkEvents(o.mk,dt(o.from)?dt(o.from)-864e5:0).sort((a,b)=>b.ts-a.ts);
+  x.innerHTML=`<p class="lbl">פעולות שנוספו ידנית</p>`+(o.log.length?o.log.slice().reverse().map(l=>`<div class="lg"><span>${(OTYPES[l.type]||OTYPES.other)[0]} <b>${E((OTYPES[l.type]||OTYPES.other)[1])}</b> ${E(l.text)}<br><small class="hint">${E(l.d)}</small></span><label><input type="checkbox" data-r="${l.row}" ${l.show?"checked":""}> מוצג</label></div>`).join(""):'<p class="hint">אין.</p>')
+   +`<p class="lbl">מלוח השיווק (אוטומטי, תמיד מוצג)</p>`+(auto.length?auto.map(a=>`<div class="lg"><span>${OTYPES[a.type][0]} ${E(OTYPES[a.type][1])}${a.text?" – "+E(a.text):""}</span><small class="hint">${new Date(a.ts).toLocaleDateString("he-IL")}</small></div>`).join(""):'<p class="hint">עוד לא סומנו פרסומים בלוח השיווק לנכס הזה.</p>');
+  x.querySelectorAll("[data-r]").forEach(c=>c.onchange=async()=>{try{await oPost("oshow",{row:+c.dataset.r,show:c.checked});toast(c.checked?"✓ מוצג לבעלים":"✓ הוסתר מהבעלים")}catch(err){toast("שגיאה");c.checked=!c.checked}})}}
+function drawONew(){const w=$("#oNew");if(!w.hidden){w.hidden=true;return}w.hidden=false;const t=iso(new Date());
+ w.innerHTML=`<label class="l">מספר נכס (מהלוח)<input id="oI" inputmode="numeric" placeholder="למשל 399"></label><p class="hint" id="oIa"></p>
+ <div class="g2 st"><label class="l">שם בעל הנכס<input id="oN"></label><label class="l">טלפון<input id="oP" type="tel"></label></div>
+ <label class="l">מייל (לדוח השבועי)<input id="oE" type="email"></label>
+ <div class="g2"><label class="l">בלעדיות מ<input type="date" id="oF" value="${t}"></label><label class="l">עד<input type="date" id="oT" value="${addM(t,6)}"></label></div>
+ <button class="btn big" id="oGo">צור פורטל</button>`;
+ const oi=$("#oI");oi.oninput=()=>{$("#oIa").textContent=aAddr(oi.value.trim())||""};
+ $("#oF").onchange=()=>{$("#oT").value=addM($("#oF").value,6)};
+ $("#oGo").onclick=async e=>{const id=oi.value.replace(/\D/g,"");if(!id){toast("חסר מספר נכס");return}const b=e.target;b.disabled=true;b.textContent="יוצר…";
+  try{const j=await oPost("onew",{p:{id,name:$("#oN").value.trim(),phone:$("#oP").value.trim(),email:$("#oE").value.trim(),from:$("#oF").value,to:$("#oT").value}});toast(j.existed?"✓ הפורטל עודכן":"✓ פורטל נוצר");w.hidden=true;await loadOwn()}catch(err){toast("שגיאה: "+err.message);b.disabled=false;b.textContent="צור פורטל"}}}
+
+function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="list")loadList();if(m==="own")loadOwn()}
 let BUY=[];
 function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
- if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList}
+ if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){const t=$("#ownT");if(t)t.remove()}else{$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn}}
 
 (function(){
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec",KEY="sergyev_agent_code";
