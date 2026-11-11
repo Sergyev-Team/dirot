@@ -43,7 +43,7 @@ def render(ds,R,S):
     from PIL import Image
     os.makedirs(R+'/img/og',exist_ok=True); tmp=S+'/og_tmp.html'; png=S+'/og_tmp.png'
     with sync_playwright() as p:
-        b=p.chromium.launch(); pg=b.new_page(viewport={'width':1200,'height':630})
+        b=p.chromium.launch(channel=os.environ['OG_CHANNEL']) if os.environ.get('OG_CHANNEL') else p.chromium.launch(); pg=b.new_page(viewport={'width':1200,'height':630})
         for d in ds:
             open(tmp,'w').write(page(d,R,S)); pg.goto('file://'+tmp); pg.wait_for_timeout(250)
             pg.screenshot(path=png); Image.open(png).convert('RGB').save(f"{R}/img/og/p{d['id']}.jpg",quality=86)
