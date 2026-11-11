@@ -12,7 +12,7 @@
 .doc{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px 18px}
 .hd{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--gold);padding-bottom:10px;margin-bottom:12px;font-size:15px}
 .hd b{font-size:18px}.team{color:var(--gold);font-weight:800}
-h1{font-size:21px;text-align:center;margin:8px 0 2px}.num{text-align:center;color:var(--muted);margin-bottom:12px}
+h1{font-size:20px;text-align:center;margin:8px 0 2px}.num{text-align:center;color:var(--muted);margin-bottom:12px}
 .f{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}@media(max-width:560px){.f{grid-template-columns:1fr}}
 label{display:block;font-size:14px;font-weight:700;color:var(--muted)}
 input{width:100%;font:inherit;font-size:17px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fffdf8;color:var(--fg);margin-top:3px}
@@ -32,48 +32,79 @@ ol{padding-inline-start:22px;margin:6px 0}li{margin-bottom:6px}.sub{list-style:n
 <script>
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
 const BROKER={name:"משה מאיר כהן",lic:"3165866",phone:"054-9071916",team:"צוות סרגייב"};
-const TITLES={buy:"הזמנת שירותי תיווך לקניית נכס מקרקעין"};
+const TITLES={buy:"הזמנת שירותי תיווך לקניית נכס מקרקעין",rentin:"הזמנת שירותי תיווך לשכירת נכס מקרקעין",sell:"הזמנת שירותי תיווך למכירת נכס מקרקעין",let:"הזמנת שירותי תיווך להשכרת נכס מקרקעין",excl:"הזמנת שירותי תיווך בבלעדיות"};
 const K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const fmt=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
 const pad=n=>("0000"+n).slice(-5);
+const dmy=s=>{if(!s)return "";const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+"/"+m[2]+"/"+m[1]:s};
 function idOk(v){v=String(v).replace(/\D/g,"");if(v.length<5||v.length>9)return false;v=v.padStart(9,"0");let s=0;for(let i=0;i<9;i++){let x=+v[i]*((i%2)+1);s+=x>9?x-9:x}return s%10===0}
-function clauses(c){const fee=c.fee||2;return [
- "הלקוח מזמין שרותי תיווך מקרקעין מהמתווך, כדי לקבל שרותי תיווך בקשר לנכסים המפורטים לעיל.",
- "הלקוח מאשר כי המתווך הציג בפניו את הנכסים המפורטים לעיל, והוא מתחייב לדווח למתווך מיד על כל משא ומתן המתנהל עמו ו/או עם שולחו בקשר לאחד או יותר מהנכסים, וכן מיד עם חתימת הסכם מחייב ו/או התחייבות לביצוע העסקה, המוקדם מביניהם, ביחס לאחד או יותר מהנכסים לעיל.",
- "למען הסר ספק, הלקוח מצהיר כי מובן לו וכי הוא מסכים, כי כל הסכם אשר ייחתם בין הלקוח ו/או מי מטעמו לבין בעל הנכס, בנוגע לכל אחד מהנכסים המפורטים לעיל, יחייב את הלקוח בדמי התיווך כמפורט בסעיף 5 להלן.",
- "הלקוח מתחייב לא למסור לגורם כלשהו מידע שקיבל מהמתווך בנוגע לנכסים המפורטים לעיל ומתחייב לפצות את המתווך על כל נזק שייגרם לו באם יפר התחייבות זו.",
- ["הלקוח מתחייב לשלם למתווך את דמי התיווך כמפורט להלן, מיד עם חתימת הסכם מחייב או עם התחייבות לביצוע העסקה, המוקדם מביניהם, בנוגע לאחד או יותר מהנכסים המפורטים לעיל. דמי התיווך ישולמו כדלקמן:",
-  "5.1 בקנייה: "+fee+" אחוז ממחיר הקנייה הכולל של הנכס בתוספת מע\"מ.",
-  "5.2 דמי התיווך ישולמו למתווך מיד עם חתימת הסכם מחייב ו/או עם התחייבות לביצוע העסקה, המוקדם מביניהם.",
-  "5.3 האמור לעיל בא בנוסף לזכותו של המתווך לגבות דמי תיווך מהמוכר / המשכיר."],
- "הלקוח מאשר כי עם מכירת הנכס, המתווך יוכל להודיע לציבור כי הנכס נמכר בכל דרך שהמתווך ימצא לנכון.",
- "הלקוח מאשר שהומלץ לו על ידי המתווך להסתייע בשירותי עורך דין ו/או מומחים אחרים לפי העניין והצורך במהלך העסקה.",
- "שום ויתור, ארכה, הנחה או שינוי בתנאי כלשהוא בהסכם זה, לא יהיו בני תוקף, אלא אם יעשו בכתב. שום איחור בשימוש בזכויותיו של צד כלשהוא לא ייחשב כויתור והוא יהיה רשאי להשתמש בזכויותיו כולן או בכל אחת מהן לחוד, הן לפי הסכם זה והן לפי כל דין, בכל עת שימצא לנכון.",
- "יחידי הצדדים יהיו אחראים על פי הסכם זה ביחד ולחוד. כל אימת שאחד מיחידי הצדדים יחתום על כל מסמך, כתב, מכתב, או אישור מכל סוג שהוא בכל עניין ודבר הקשור בהסכם זה, ביצועו או הנובע הימנו, תחייב חתימתו את יתר יחידי אותו צד."]}
-const CONSENT="אני מאשר/ת שקראתי את ההזמנה, שהפרטים שמילאתי נכונים, ושחתימתי האלקטרונית להלן היא חתימתי לכל דבר ועניין.";
-let DOC=null;
+function docs(D){const c=D.c,t=D.type||c.type||"buy",num=pad(D.n),date=dmy(c.date)||new Date().toLocaleDateString("he-IL"),rent=t==="let"||t==="rentin";
+ const mo=+c.months||1,rentFee="דמי שכירות של "+(mo===1?"חודש אחד":mo+" חודשים")+" בתוספת מע\"מ",fee=c.fee||2;
+ const tbl={head:["כתובת",rent?"שכר דירה חודשי":"מחיר מבוקש","סוג הנכס"],rows:(c.props||[]).map(p=>[p.addr||"",fmt(p.price),p.type||"דירה"])};
+ const common8=["שום ויתור, ארכה, הנחה או שינוי בתנאי כלשהוא בהסכם זה, לא יהיו בני תוקף, אלא אם יעשו בכתב. שום איחור בשימוש בזכויותיו של צד כלשהוא לא ייחשב כויתור והוא יהיה רשאי להשתמש בזכויותיו כולן או בכל אחת מהן לחוד, הן לפי הסכם זה והן לפי כל דין, בכל עת שימצא לנכון.",
+  "יחידי הצדדים יהיו אחראים על פי הסכם זה ביחד ולחוד. כל אימת שאחד מיחידי הצדדים יחתום על כל מסמך, כתב, מכתב, או אישור מכל סוג שהוא בכל עניין ודבר הקשור בהסכם זה, ביצועו או הנובע הימנו, תחייב חתימתו את יתר יחידי אותו צד."];
+ if(t==="buy"||t==="rentin"){return [{title:TITLES[t],num,tbl,cl:[
+  "הלקוח מזמין שרותי תיווך מקרקעין מהמתווך, כדי לקבל שרותי תיווך בקשר לנכסים המפורטים לעיל.",
+  "הלקוח מאשר כי המתווך הציג בפניו את הנכסים המפורטים לעיל, והוא מתחייב לדווח למתווך מיד על כל משא ומתן המתנהל עמו ו/או עם שולחו בקשר לאחד או יותר מהנכסים, וכן מיד עם חתימת הסכם מחייב ו/או התחייבות לביצוע העסקה, המוקדם מביניהם, ביחס לאחד או יותר מהנכסים לעיל.",
+  "למען הסר ספק, הלקוח מצהיר כי מובן לו וכי הוא מסכים, כי כל הסכם אשר ייחתם בין הלקוח ו/או מי מטעמו לבין בעל הנכס, בנוגע לכל אחד מהנכסים המפורטים לעיל, יחייב את הלקוח בדמי התיווך כמפורט בסעיף 5 להלן.",
+  "הלקוח מתחייב לא למסור לגורם כלשהו מידע שקיבל מהמתווך בנוגע לנכסים המפורטים לעיל ומתחייב לפצות את המתווך על כל נזק שייגרם לו באם יפר התחייבות זו.",
+  ["הלקוח מתחייב לשלם למתווך את דמי התיווך כמפורט להלן, מיד עם חתימת הסכם מחייב או עם התחייבות לביצוע העסקה, המוקדם מביניהם, בנוגע לאחד או יותר מהנכסים המפורטים לעיל. דמי התיווך ישולמו כדלקמן:",
+   t==="buy"?"5.1 בקנייה: "+fee+" אחוז ממחיר הקנייה הכולל של הנכס בתוספת מע\"מ.":"5.1 בשכירות: "+rentFee+".",
+   "5.2 דמי התיווך ישולמו למתווך מיד עם חתימת הסכם מחייב ו/או עם התחייבות לביצוע העסקה, המוקדם מביניהם.",
+   "5.3 האמור לעיל בא בנוסף לזכותו של המתווך לגבות דמי תיווך מהמוכר / המשכיר."],
+  t==="buy"?"הלקוח מאשר כי עם מכירת הנכס, המתווך יוכל להודיע לציבור כי הנכס נמכר בכל דרך שהמתווך ימצא לנכון.":"הלקוח מאשר כי עם השכרת הנכס, המתווך יוכל להודיע לציבור כי הנכס הושכר בכל דרך שהמתווך ימצא לנכון.",
+  "הלקוח מאשר שהומלץ לו על ידי המתווך להסתייע בשירותי עורך דין ו/או מומחים אחרים לפי העניין והצורך במהלך העסקה.",...common8]}]}
+ const own={title:TITLES[t]||TITLES.sell,num,tbl,cl:[
+  "הלקוח מצהיר בזאת כי הינו המחזיק החוקי ובעל הזכויות המלאות והחוקיות בנכס המקרקעין המתואר לעיל והמהווה חלק בלתי נפרד מהסכם זה (להלן: \"הנכס\") או שהינו מורשה מטעם בעל/י הזכויות למוכרו ו/או להשכירו ו/או למסרו בדמי מפתח. הלקוח מצהיר כי הובהר לו כי פרטי הנכס יועמדו לידיעת קונים/שוכרים/מתווכים כדי לקדם את שיווק הנכס וכן שפרטי הנכס שמסר למתווך והרשומים לעיל הינם הפרטים המהותיים, הנכונים והמלאים.",
+  "הלקוח מתחייב להמציא למתווך מידית נסח רישום או אישור זכויות מרשות מקרקעי ישראל ו/או החברה המשכנת, עדכניים.",
+  "הלקוח ישלם למתווך עבור פעולת התיווך, מיד עם חתימת הסכם מחייב למכירת או השכרת הנכס בשיעורים המפורטים בסעיף 4 להלן.",
+  ["דמי התיווך שהלקוח מתחייב בזה לשלמם בהתאם לאמור בסעיף 3 לעיל ישולמו כדלקמן:",
+   t==="let"?"4.1 בהשכרה: "+rentFee+".":"4.1 במכירה: "+fee+" אחוז ממחיר המכירה כקבוע בהסכם המכר של הנכס בתוספת מע\"מ.",
+   "4.2 אין באמור לעיל כדי לגרוע מזכותו של המתווך לגבות דמי תיווך מהקונה/שוכר."],
+  "הלקוח מאשר שהומלץ לו על ידי המתווך להסתייע בשירותי עורך דין ו/או מומחים אחרים לפי העניין והצורך במהלך העסקה.",
+  "הלקוח מצהיר כי ידוע לו כי דמי התיווך ייגבו ע\"י המתווך וכנגד חשבונית מס כחוק מטעם המתווך.",...common8]};
+ if(!c.excl)return [own];
+ const ex={title:TITLES.excl,num,tbl,intro:"הסכם והזמנה זו מתייחסים לנכס שפרטיו רשומים לעיל וכן לכל עסקת מקרקעין אחרת שתתפתח מהזמנה זו, ומהווה חלק בלתי נפרד מהסכם הזמנת שירותי תיווך מספר "+num+" מיום "+date+".",cl:[
+  "הלקוח מצהיר בזאת כי הינו בעל הזכויות המלאות בנכס המקרקעין בכתובת המפורטת בהזמנת שירותי תיווך במקרקעין ומהווה חלק בלתי נפרד מהסכם זה (להלן: \"הנכס\") או שהינו מורשה מטעם בעל/י הזכויות בנכס למוכרו ו/או להשכירו ו/או למסרו בדמי מפתח. הלקוח מצהיר כי הובהר לו כי פרטי הנכס יועברו לידיעת קונים/שוכרים/מתווכים כדי לקדם את שיווק הנכס וכן שפרטי הנכס שמסר למתווך והרשומים לעיל הינם הפרטים המהותיים, הנכונים והמלאים.",
+  "הלקוח מתחייב להמציא למתווך מיידית נסח רישום או אישור זכויות מהמנהל ו/או החברה המשכנת, עדכניים. הלקוח מייפה בזה את כוחו של המתווך או באי כוחו לפנות ולקבל בשמו ועבורו את כל המידע הדרוש לשיווק הנכס מכל רשות, משרד, עירייה, אדם או גוף כלשהוא ולמסרם ללקוחות פוטנציאליים לצורך שיווק הנכס.",
+  "הלקוח מזמין מהמתווך שירותי תיווך ומסמיך אותו לפעול עבורו באופן בלעדי לשיווק הנכס לתקופה מיום "+dmy(c.from)+" ועד יום "+dmy(c.to)+" (להלן: \"תקופת הבלעדיות\"). עם גמר תקופת הבלעדיות יהווה הסכם זה הזמנת שירותי תיווך רגילה, ללא בלעדיות, של הלקוח מהמתווך. המתווך יוכל אז לשווק את הנכס ואם הנכס יירכש/יושכר כתוצאה מטיפול המתווך יהיה המתווך זכאי לדמי תיווך כמפורט להלן בסעיף 5.",
+  ["הלקוח ישלם למתווך עבור פעולת התיווך, מיד עם חתימת הסכם מחייב למכירת או השכרת הנכס, דמי תיווך בשיעורים המפורטים בסעיף 5 להלן, וזאת בכל מקרה אם ההסכם ייחתם:",
+   "א) במהלך תקופת הבלעדיות (אפילו אם יימכר/יושכר שלא באמצעות המתווך).",
+   "ב) לאחר תקופת הבלעדיות עם גורם, אשר נודע לו על הנכס, או שהנכס הוצג בפניו, במהלך תקופת הבלעדיות."],
+  "דמי התיווך שהלקוח מתחייב בזה לשלמם, בהתאם לאמור בסעיף 4 לעיל, יהיו כמפורט ומוסכם בהסכם הזמנת שירותי תיווך מספר "+num+" מיום "+date+".",
+  "הלקוח מצהיר כי ידוע לו כי דמי התיווך ייגבו על ידי המתווך הח\"מ וכנגד חשבונית מס כחוק מטעם המתווך הח\"מ.",
+  "הלקוח מאשר שהומלץ לו ע\"י המתווך להסתייע בשירותי עורך דין ו/או מומחים אחרים לפי העניין והצורך במהלך העסקה.",
+  "המתווך ירכז את כל הפעולות לשיווקו של הנכס בתקופת הבלעדיות. הלקוח מתחייב כי בתקופה זו לא יבקש ו/או יקבל שירותי תיווך לשיווק הנכס מכל מתווך אחר וכי כל קשר ו/או משא ומתן בינו לבין מתווכים אחרים ו/או קונים ו/או שוכרים מיועדים יעשה אך ורק דרך המתווך ובאמצעותו. הלקוח מצהיר כי ידוע לו שהפרת סעיף זה עלולה לפגוע ביכולתו של המתווך לשמש כגורם היעיל בעסקה, וכי במקרה של הפרה יהיה המתווך זכאי כפיצוי למלוא העמלה שהייתה מגיעה לו, בנוסף לכיסוי כל נזק אחר אשר נגרם לו כתוצאה מההפרה.",
+  "הלקוח יביא את עובדת התקשרותו בהסכם זה לידיעת הפונים אליו ישירות ובמיוחד לכל מתווך אחר ו/או קונה ו/או שוכר עמם היה קשור בעבר. כמו כן יביא לסיומה המיידי כל התחייבות קיימת הסותרת התחייבויותיו עפ\"י הסכם זה.",
+  "המתווך מתחייב ללקוח להעניק למאמצי השיווק של הנכס עדיפות עליונה, לפעול בשקידה, במסירות ובנאמנות ולשתף מתווכים ומשרדי תיווך אחרים במציאת קונים/שוכרים מעוניינים ולבנות ולבצע תכנית שיווקית ופרסומית לקידום שיווק הנכס, כל זאת בהתאם לשיקול דעתו המקצועית.",
+  "מובן וידוע ללקוח בזאת שהלקוח ממנה את המתווך להיות הגורם הפעיל והיחיד שיפעל לקידום מכירת ו/או השכרת הנכס, הרי שכל פנייה ו/או עסקה שתקשר הינה תוצאה של פעילות ויעילות המתווך בלבד."]};
+ return [own,ex]}
+const CONSENT1="אני מאשר/ת שקראתי את ההזמנה, שהפרטים שמילאתי נכונים, ושחתימתי האלקטרונית להלן היא חתימתי לכל דבר ועניין.";
+const CONSENT2="אני מאשר/ת שקראתי את שני המסמכים (הזמנת שירותי תיווך והזמנת שירותי תיווך בבלעדיות), שהפרטים שמילאתי נכונים, ושחתימתי האלקטרונית להלן היא חתימתי על שניהם לכל דבר ועניין.";
+let DOC=null,DS=[];
 async function load(){
  if(!K){$("#app").innerHTML='<div class="msg bad">הקישור לא תקין.</div>';return}
  try{const r=await fetch(API+"?op=cget&k="+encodeURIComponent(K));DOC=await r.json()}catch(e){$("#app").innerHTML='<div class="msg bad">לא הצלחנו לטעון את המסמך. בדקו את החיבור ונסו שוב.</div>';return}
  if(!DOC.ok){$("#app").innerHTML='<div class="msg bad">המסמך לא נמצא. פנו למתווך לקבלת קישור חדש.</div>';return}
  if(DOC.signed){$("#app").innerHTML=`<div class="msg ok">✓ המסמך נחתם ב-${esc(DOC.signed)}. העתק נשלח למייל שלכם.</div>`;return}
- render()}
-function render(){const c=DOC.c,cl=clauses(c);
+ DS=docs(DOC);render()}
+const consent=()=>DS.length>1?CONSENT2:CONSENT1;
+function docHTML(d){return `<h1>${esc(d.title)}</h1><div class="num">מס' ${d.num}</div>
+ <b>פרטי ${d.tbl.rows.length>1?"הנכסים":"הנכס"}:</b><table><tr>${d.tbl.head.map(h=>`<th>${h}</th>`).join("")}</tr>${d.tbl.rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</table>
+ ${d.intro?`<p>${esc(d.intro)}</p>`:""}<ol>${d.cl.map(x=>Array.isArray(x)?`<li>${esc(x[0])}<ul class="sub">${x.slice(1).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></li>`:`<li>${esc(x)}</li>`).join("")}</ol>
+ ${DOC.c.notes?`<b>הערות ותוספות להסכם:</b><div class="notes">${esc(DOC.c.notes)}</div>`:""}`}
+function render(){const c=DOC.c;
  $("#app").innerHTML=`<div class="doc">
  <div class="hd"><div><b>${BROKER.name}</b><br>רישיון תיווך מס' ${BROKER.lic}<br>טלפון: ${BROKER.phone}</div><div class="team">${BROKER.team}</div></div>
- <h1>${TITLES[DOC.type]||TITLES.buy}</h1><div class="num">מס' ${pad(DOC.n)}</div>
- <p class="hint">נא למלא את הפרטים, לקרוא את ההזמנה ולחתום בתחתית העמוד.</p>
+ <p class="hint">נא למלא את הפרטים, לקרוא את ${DS.length>1?"שני המסמכים":"ההזמנה"} ולחתום בתחתית העמוד.</p>
  <div class="f"><label>שם מלא<input id="nm" value="${esc(c.name)}" autocomplete="name"></label>
  <label>תעודת זהות<input id="idn" inputmode="numeric" autocomplete="off"></label>
  <label>כתובת מגורים<input id="ad" autocomplete="street-address"></label>
  <label>מייל (לקבלת העתק חתום)<input id="em" type="email" inputmode="email" autocomplete="email"></label>
  <label>טלפון<input id="ph" type="tel" value="${esc(c.phone)}" autocomplete="tel"></label></div>
- <b>פרטי הנכסים:</b>
- <table><tr><th>כתובת</th><th>מחיר מבוקש</th><th>סוג הנכס</th></tr>${(c.props||[]).map(p=>`<tr><td>${esc(p.addr)}</td><td>${esc(fmt(p.price))}</td><td>${esc(p.type||"דירה")}</td></tr>`).join("")}</table>
- <ol>${cl.map(x=>Array.isArray(x)?`<li>${esc(x[0])}<ul class="sub">${x.slice(1).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></li>`:`<li>${esc(x)}</li>`).join("")}</ol>
- ${c.notes?`<b>הערות ותוספות להסכם:</b><div class="notes">${esc(c.notes)}</div>`:""}
- <label class="chk"><input type="checkbox" id="ok"> ${CONSENT}</label>
+ ${DS.map(docHTML).join('<hr style="border:0;border-top:2px solid var(--gold);margin:22px 0">')}
+ <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label>
  <div class="row" style="justify-content:space-between"><b>חתימה:</b><button class="btn ghost" id="clr" type="button">נקה חתימה</button></div>
  <canvas class="sigbox" id="sig"></canvas><p class="hint">חותמים עם האצבע בתוך המסגרת.</p>
  <div id="err"></div><button class="btn" id="go">✍️ חתימה ושליחה</button></div>`;
@@ -95,7 +126,7 @@ async function submit(){const {v,m}=val(),E=$("#err");if(m.length){E.innerHTML=`
   const pdf=await makePdf(v,when);b.textContent="שולח…";
   const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"csign",k:K,pdf,d:Object.assign({},v,{ua:navigator.userAgent})})});
   const j=await r.json();if(!j.ok)throw new Error(j.error==="signed"?"המסמך כבר נחתם":j.error||"שגיאה");
-  $("#app").innerHTML=`<div class="msg ok">✓ תודה ${esc(v.name)}! המסמך נחתם בהצלחה.<br>העתק חתום נשלח למייל ${esc(v.email)}.</div><button class="btn" id="dl">📄 הורדת העתק</button>`;
+  $("#app").innerHTML=`<div class="msg ok">✓ תודה ${esc(v.name)}! ${DS.length>1?"המסמכים נחתמו":"המסמך נחתם"} בהצלחה.<br>העתק חתום נשלח למייל ${esc(v.email)}.</div><button class="btn" id="dl">📄 הורדת העתק</button>`;
   $("#dl").onclick=()=>{const a=document.createElement("a");a.href="data:application/pdf;base64,"+pdf;a.download="הזמנת-שירותי-תיווך-"+pad(DOC.n)+".pdf";a.click()};window.scrollTo(0,0)}
  catch(e){E.innerHTML=`<div class="msg bad">לא הצלחנו לשלוח: ${esc(e.message)}. נסו שוב.</div>`;b.disabled=false;b.textContent="✍️ חתימה ושליחה"}}
 /* ---- PDF: drawn on canvas (keeps Hebrew correct) ---- */
@@ -105,28 +136,29 @@ async function makePdf(v,when){try{for(const w of ["400","700"]){await document.
  const font=(s,b)=>g.font=(b?"700 ":"400 ")+s+"px "+FF;
  const wrap=(t,w)=>{const out=[];String(t).split("\n").forEach(par=>{let line="";par.split(/\s+/).forEach(wd=>{const tt=line?line+" "+wd:wd;if(g.measureText(tt).width>w&&line){out.push(line);line=wd}else line=tt});out.push(line)});return out};
  const para=(t,o={})=>{const s=o.size||24,lh=Math.round(s*1.55);font(s,o.bold);const ind=o.ind||0;const lines=wrap(t,R-M-ind);
-  lines.forEach((l,i)=>{if(y+lh>H-M-40)np(),font(s,o.bold);g.fillStyle=o.color||"#17150f";if(o.center){g.textAlign="center";g.fillText(l,W/2,y+s)}else{g.textAlign="right";g.fillText(l,R-ind,y+s)}y+=lh});y+=o.gap??8};
- np();
- // header
- g.textAlign="right";font(30,1);g.fillStyle="#17150f";g.fillText(BROKER.name,R,y+30);font(22);g.fillText("רישיון תיווך מס' "+BROKER.lic,R,y+64);g.fillText("טלפון: "+BROKER.phone,R,y+94);
- g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30);y+=112;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
- para(TITLES[DOC.type]||TITLES.buy,{size:34,bold:1,center:1,gap:0});para("מס' "+pad(DOC.n),{size:24,center:1,gap:14});
- para("שם הלקוח: "+v.name+"   ת.ז: "+v.idn+"   כתובת: "+v.addr,{size:23,gap:2});para("מייל: "+v.email+"   טלפון: "+v.phone,{size:23,gap:14});
- para("פרטי הנכסים:",{size:24,bold:1,gap:6});
- // table
- const cols=[[R,R-560,"כתובת"],[R-560,R-820,"מחיר מבוקש"],[R-820,M,"סוג הנכס"]];
- const rowT=(cells,b)=>{font(22,b);const ls=cells.map((t,i)=>wrap(t,cols[i][0]-cols[i][1]-24));const h=Math.max(...ls.map(l=>l.length))*34+16;if(y+h>H-M-40)np();
-  if(b){g.fillStyle="#f7f2e6";g.fillRect(M,y,R-M,h)}g.strokeStyle="#cfc6b2";g.lineWidth=1.5;
-  cols.forEach((c,i)=>{g.strokeRect(c[1],y,c[0]-c[1],h);font(22,b);g.fillStyle="#17150f";g.textAlign="right";ls[i].forEach((l,j)=>g.fillText(l,c[0]-12,y+30+j*34))});y+=h};
- rowT(cols.map(c=>c[2]),1);(DOC.c.props||[]).forEach(p=>rowT([p.addr||"",fmt(p.price),p.type||"דירה"]));y+=18;
- clauses(DOC.c).forEach((x,i)=>{if(Array.isArray(x)){para((i+1)+". "+x[0],{size:22,gap:2});x.slice(1).forEach(s=>para(s,{size:22,ind:34,gap:2}));y+=6}else para((i+1)+". "+x,{size:22,gap:6})});
- if(DOC.c.notes){y+=6;para("הערות ותוספות להסכם:",{size:23,bold:1,gap:2});para(DOC.c.notes,{size:22,gap:8})}
- y+=8;font(22);if(y+wrap("☑ "+CONSENT,R-M).length*34+20+250>H-M-40)np();
- para("☑ "+CONSENT,{size:22,gap:16});const sc=$("#sig");const bw=420,bh=Math.round(bw*sc.height/sc.width);
- g.drawImage(sc,M,y,bw,bh);g.strokeStyle="#17150f";g.beginPath();g.moveTo(M,y+bh+4);g.lineTo(M+bw,y+bh+4);g.stroke();
- g.textAlign="left";font(20);g.fillStyle="#5f594b";g.fillText("חתימת הלקוח",M+bw/2-50,y+bh+30);
- g.textAlign="right";font(22,1);g.fillStyle="#17150f";g.fillText("תאריך ושעה: "+when,R,y+40);font(20);g.fillStyle="#5f594b";
- g.fillText("נחתם אלקטרונית ע\"י "+v.name+", ת.ז "+v.idn,R,y+76);g.fillText("מסמך מס' "+pad(DOC.n),R,y+108);
+  lines.forEach(l=>{if(y+lh>H-M-40)np(),font(s,o.bold);g.fillStyle=o.color||"#17150f";if(o.center){g.textAlign="center";g.fillText(l,W/2,y+s)}else{g.textAlign="right";g.fillText(l,R-ind,y+s)}y+=lh});y+=o.gap??8};
+ const sc=$("#sig");
+ DS.forEach((d,di)=>{np();
+  g.textAlign="right";font(30,1);g.fillStyle="#17150f";g.fillText(BROKER.name,R,y+30);font(22);g.fillText("רישיון תיווך מס' "+BROKER.lic,R,y+64);g.fillText("טלפון: "+BROKER.phone,R,y+94);
+  g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30);y+=112;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
+  para(d.title,{size:34,bold:1,center:1,gap:0});para("מס' "+d.num,{size:24,center:1,gap:14});
+  para("שם הלקוח: "+v.name+"   ת.ז: "+v.idn+"   כתובת: "+v.addr,{size:23,gap:2});para("מייל: "+v.email+"   טלפון: "+v.phone,{size:23,gap:14});
+  para(d.tbl.rows.length>1?"פרטי הנכסים:":"פרטי הנכס:",{size:24,bold:1,gap:6});
+  const cols=[[R,R-560],[R-560,R-820],[R-820,M]];
+  const rowT=(cells,b)=>{font(22,b);const ls=cells.map((t,i)=>wrap(t,cols[i][0]-cols[i][1]-24));const h=Math.max(...ls.map(l=>l.length))*34+16;if(y+h>H-M-40)np();
+   if(b){g.fillStyle="#f7f2e6";g.fillRect(M,y,R-M,h)}g.strokeStyle="#cfc6b2";g.lineWidth=1.5;
+   cols.forEach((c,i)=>{g.strokeRect(c[1],y,c[0]-c[1],h);font(22,b);g.fillStyle="#17150f";g.textAlign="right";ls[i].forEach((l,j)=>g.fillText(l,c[0]-12,y+30+j*34))});y+=h};
+  rowT(d.tbl.head,1);d.tbl.rows.forEach(r=>rowT(r));y+=18;
+  if(d.intro)para(d.intro,{size:22,gap:10});
+  d.cl.forEach((x,i)=>{if(Array.isArray(x)){para((i+1)+". "+x[0],{size:22,gap:2});x.slice(1).forEach(s=>para(s,{size:22,ind:34,gap:2}));y+=6}else para((i+1)+". "+x,{size:22,gap:6})});
+  if(DOC.c.notes){y+=6;para("הערות ותוספות להסכם:",{size:23,bold:1,gap:2});para(DOC.c.notes,{size:22,gap:8})}
+  y+=8;font(22);if(y+wrap("☑ "+consent(),R-M).length*34+20+250>H-M-40)np();
+  para("☑ "+consent(),{size:22,gap:16});
+  const bw=420,bh=Math.round(bw*sc.height/sc.width);
+  g.drawImage(sc,M,y,bw,bh);g.strokeStyle="#17150f";g.beginPath();g.moveTo(M,y+bh+4);g.lineTo(M+bw,y+bh+4);g.stroke();
+  g.textAlign="left";font(20);g.fillStyle="#5f594b";g.fillText("חתימת הלקוח",M+bw/2-50,y+bh+30);
+  g.textAlign="right";font(22,1);g.fillStyle="#17150f";g.fillText("תאריך ושעה: "+when,R,y+40);font(20);g.fillStyle="#5f594b";
+  g.fillText("נחתם אלקטרונית ע\"י "+v.name+", ת.ז "+v.idn,R,y+76);g.fillText("מסמך מס' "+d.num,R,y+108)});
  pages.forEach((p,i)=>{const x=p.getContext("2d");x.direction="rtl";x.textAlign="center";x.font="400 18px "+FF;x.fillStyle="#8a8270";x.fillText("עמוד "+(i+1)+" מתוך "+pages.length+" · "+BROKER.team+" · "+BROKER.name,W/2,H-50)});
  const pdf=new jspdf.jsPDF({unit:"pt",format:"a4",compress:true});
  pages.forEach((p,i)=>{if(i)pdf.addPage();pdf.addImage(p.toDataURL("image/jpeg",0.86),"JPEG",0,0,595.28,841.89)});
