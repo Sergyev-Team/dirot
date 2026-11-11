@@ -417,6 +417,10 @@ async function share(p,text){
   files.forEach((f,i)=>setTimeout(()=>dl(f,f.name),i*400));toast("הטקסט הועתק והתמונות ירדו ✓");
 }
 
+async function toPortal(id,blob,kind,name){if(!SYNC){toast("אין חיבור לגיליון");return}toast("מעלה לפורטל של בעל הנכס…");
+ try{const b64=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=no;r.readAsDataURL(blob)});
+  const r=await fetch(SYNC.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:SYNC.token,op:"omedia",id:String(id),kind,name,mime:blob.type||"image/jpeg",b64})});
+  const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");toast("✓ עלה לפורטל של בעל הנכס")}catch(e){toast("שגיאה: "+e.message+" (אם אין פורטל לנכס – צור אותו בלוח ההחתמות)")}}
 /* ---------- story & reel ---------- */
 async function story(p,mode,o){
   await fontsReady();const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");c.direction="rtl";
@@ -596,7 +600,7 @@ function build(id,body){
   const y2u=esc(LS.get("ly2",D.links.yad2)),mdu=esc(LS.get("lmd",D.links.madlan));
   body.innerHTML=
    `<div class="tog"><label><input type="checkbox" data-k="hn" ${p.showHn?"checked":""}> להציג מספר בית</label><label><input type="checkbox" data-k="pr" ${p.showPr?"checked":""}> להציג מחיר בפליירים</label></div>`+
-   sec("✨ פליירים",`<div class="row"><button class="btn sm" data-a="mkf">צור פליירים</button></div>${flyEditor(p)}<div class="prev pp"></div><div class="row fp" hidden><button class="btn sm" data-a="dprem">⬇ הורד פלייר פרימיום</button></div><div class="prev pf"></div><div class="row fl" hidden><button class="btn sm ghost" data-a="dlux">⬇ הורד יוקרתי</button><button class="btn sm ghost" data-a="dwarm">⬇ הורד חמים</button></div><p class="hint">התמונות בפליירים הן התמונות האמיתיות של הדירה (עם שיפור קל של תאורה וצבע). בפליירים היוקרתי והחם יש קוד QR לדף הדירה.</p>`)+
+   sec("✨ פליירים",`<div class="row"><button class="btn sm" data-a="mkf">צור פליירים</button></div>${flyEditor(p)}<div class="prev pp"></div><div class="row fp" hidden><button class="btn sm" data-a="dprem">⬇ הורד פלייר פרימיום</button><button class="btn sm ghost" data-a="pprem">📤 לפורטל בעל הנכס</button></div><div class="prev pf"></div><div class="row fl" hidden><button class="btn sm ghost" data-a="dlux">⬇ הורד יוקרתי</button><button class="btn sm ghost" data-a="dwarm">⬇ הורד חמים</button></div><p class="hint">התמונות בפליירים הן התמונות האמיתיות של הדירה (עם שיפור קל של תאורה וצבע). בפליירים היוקרתי והחם יש קוד QR לדף הדירה.</p>`)+
    sec("🖼️ תמונות",`<p class="hint">סמן כמה תמונות שרוצים. התמונה הראשונה שסימנת היא התמונה הראשית בפליירים ובסטורי, והתמונות המסומנות הן אלה שיוצאות בשיתוף ובסרטון.</p><div class="row"><button class="btn sm ghost" data-a="all">סמן הכל</button><button class="btn sm ghost" data-a="none">נקה סימון</button></div><div class="thumbs"></div><div class="row"><button class="btn wa" data-a="gal">📲 שמור לגלריה (<span class="pc">0</span>)</button><button class="btn ghost sm" data-a="col">⬇ תמונה משולבת (2 הראשונות)</button></div>`)+
    sec("👥 קבוצות בפייסבוק",`<p class="hint">לחיצה על קבוצה מעתיקה את הנוסח הנוכחי, מסמנת שפורסם ופותחת את הקבוצה. אחרי כל קבוצה הנוסח מתחלף לבד, כדי שכל קבוצה תקבל טקסט אחר.</p><div class="glist"></div>${vsel("gr")}<textarea data-t="gr"></textarea><div class="row"><button class="btn fb sm" data-a="cgr">העתק טקסט</button></div>`)+
    sec("📘 פייסבוק – הדף",`${stLine(id,"fb")}${vsel("fb")}<textarea data-t="fb"></textarea><div class="row"><button class="btn fb sm" data-a="sfb">שתף (טקסט + תמונות)</button><button class="btn ghost sm" data-a="cfb">העתק טקסט</button><button class="btn ghost sm" data-a="ofb">העתק ופתח את הדף באפליקציה ↗</button>${markBtn("fb")}</div><p class="soon">⚡ פרסום אוטומטי לדף – יופעל אחרי חיבור הדף ל-Meta Business.</p>`)+
@@ -649,6 +653,7 @@ function build(id,body){
   body.onclick=async e=>{const a=e.target.closest("[data-a]");if(!a)return;const k=a.dataset.a,p=P(id);
     if(k==="mkf"){a.disabled=true;a.textContent="יוצר…";await mkPrem();const pv=q(".pf");pv.innerHTML="";F.lux=await flyerLux(p);F.warm=await flyerWarm(p);pv.append(F.lux,F.warm);q(".fl").hidden=false;a.disabled=false;a.textContent="צור מחדש"}
     if(k==="dprem")saveGallery([new File([await toBlob(F.prem)],"פלייר_"+p.street+".jpg",{type:"image/jpeg"})]);
+    if(k==="pprem")toPortal(id,await toBlob(F.prem),"flyer","פלייר_"+p.street+".jpg");
     if(k==="fsave"){LS.set("fly_"+id,readFly());toast("נשמר ✓");await mkPrem()}
     if(k==="freset"){LS.set("fly_"+id,{});const d=q(".fed");d.outerHTML=flyEditor(P(id));bindFly();toast("אופס לברירת מחדל");await mkPrem()}
     if(k==="dlux")saveGallery([new File([await toBlob(F.lux)],"פלייר_יוקרתי_"+p.street+".jpg",{type:"image/jpeg"})]);
@@ -658,7 +663,7 @@ function build(id,body){
     if(k==="mkr"){a.disabled=true;const old=a.textContent;const w=q(".rvw");w.innerHTML="";
       try{const blob=await makeReel(p,f=>a.textContent="מקליט… "+Math.round(f*100)+"%");const ext=blob.type.includes("mp4")?"mp4":"webm";const file=new File([blob],"רילס_"+p.street+"."+ext,{type:blob.type});
         const v=document.createElement("video");v.className="rv";v.src=URL.createObjectURL(blob);v.controls=true;v.playsInline=true;v.muted=true;w.append(v);
-        const b=document.createElement("button");b.className="btn wa sm";b.textContent="📲 שמור סרטון לגלריה";b.onclick=()=>{saveGallery([file]);logPost(id,"story")};w.append(b);
+        const b=document.createElement("button");b.className="btn wa sm";b.textContent="📲 שמור סרטון לגלריה";b.onclick=()=>{saveGallery([file]);logPost(id,"story")};w.append(b);const bp=document.createElement("button");bp.className="btn sm ghost";bp.textContent="📤 לפורטל בעל הנכס";bp.onclick=()=>toPortal(id,blob,"reel",file.name);w.append(bp);
         if(ext==="webm")w.insertAdjacentHTML("beforeend",'<p class="hint">נשמר כ-WEBM. באייפון הסרטון נשמר כ-MP4.</p>')}
       catch(err){toast("לא הצלחתי ליצור סרטון: "+err.message)}a.disabled=false;a.textContent=old}
     if(k==="cy2")copy(q('[data-t="y2"]').value);if(k==="cmd")copy(q('[data-t="md"]').value);

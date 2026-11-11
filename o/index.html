@@ -15,7 +15,8 @@
 .hero{padding:0;overflow:hidden}.hero .ph{aspect-ratio:16/9;background:#ddd center/cover no-repeat}.hero .in{padding:14px 16px}
 h1{font-size:22px;margin:0 0 2px}.sub{color:var(--muted);margin:0}.price{font-size:22px;font-weight:700;color:var(--gold);margin-top:6px}
 .hi{font-size:17px;margin:0 0 4px}
-.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:420px){.kpi b{font-size:24px}}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:620px){.kpi{grid-template-columns:repeat(2,1fr)}}
+.med{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.med img,.med iframe{width:100%;border:0;border-radius:12px;background:#000}.med iframe{aspect-ratio:9/16}@media(max-width:420px){.kpi b{font-size:24px}}
 .rq{border:2px solid var(--gold);background:rgba(168,123,30,.08)}.rq h2{margin-bottom:4px}.rq .st{font-weight:700}.ok{color:var(--ok)}.no{color:#b42318}
 .kpi div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}.kpi b{display:block;font-size:28px;color:var(--gold);line-height:1.1}.kpi span{font-size:13px;color:var(--muted);font-weight:700}
 h2{font-size:18px;margin:0 0 10px}
@@ -36,7 +37,7 @@ let K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);cons
 try{if(K)localStorage.setItem(OK,K);else K=localStorage.getItem(OK)||""}catch(e){}
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
-const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],lead:["📞","פנייה מקונה מתעניין"],other:["📌","פעולה"]};
+const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],lead:["📞","פנייה מקונה מתעניין"],media:["🎬","חומר שיווק חדש"],other:["📌","פעולה"]};
 const OGROUPS={"https://www.facebook.com/groups/331634257248250/":"דירות למכירה בפתח תקווה (1)","https://www.facebook.com/groups/1444861819075775/":"דירות למכירה בפתח תקווה (2)","https://www.facebook.com/groups/224967760988658/":"פתח תקווה העיר שלי","https://www.facebook.com/groups/370244223604031/":"דירות להשכרה ומכירה בפתח תקווה והסביבה"};
 function mkEvents(mk,fromTs){const out=[];Object.entries(mk||{}).forEach(([ch,arr])=>{let type=null,text="";
   if(ch.startsWith("g:")){type="fbgroup";text=OGROUPS[ch.slice(2)]||"קבוצת פייסבוק"}else if(["fb","ig","story","y2","md"].includes(ch)){type=ch;text=""}else return;
@@ -63,12 +64,14 @@ async function load(){
  try{const t=await (await fetch("../index.html",{cache:"no-store"})).text();const i=t.indexOf("const D = (");if(i>=0){const D=JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)));L=D.find(x=>String(x.id)===String(P.p.id))||null}}catch(e){}
  render()}
 function render(){const p=P.p,from=dt(p.from)||0,to=dt(p.to)||0,now=Date.now();
- const ev=mkEvents(P.mk,from?from-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text}))).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",text:"קונה חדש פנה אלינו לגבי הנכס ונוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
- const RQ=(P.reqs||[]),tours=ev.filter(x=>x.type==="tour").length+RQ.filter(r=>r.type==="tourplan"&&r.st==="approved"&&dt(r.data.when)<now).length;
+ const ev=mkEvents(P.mk,from?from-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.type==="offer"&&x.data&&x.data.amount?"התקבלה הצעה בסך "+fm(x.data.amount)+(x.text?" – "+x.text:""):x.text}))).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",text:"קונה חדש פנה אלינו לגבי הנכס ונוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
+ const RQ=(P.reqs||[]),CAL=P.cal||{past:0,next:[]},tours=ev.filter(x=>x.type==="tour").length+(CAL.past||0),offers=ev.filter(x=>x.type==="offer").length,MT=P.match||{buyers:0};
  const reqH=RQ.filter(r=>r.st==="pending").map(r=>`<div class="card rq" data-row="${r.row}"><h2>${r.type==="tourplan"?"📅 בקשה לאישור סיור":"🔻 הצעה לעדכון מחיר"}</h2>
   <p style="margin:4px 0"><b>${r.type==="tourplan"?E(r.data.when?new Date(dt(r.data.when)).toLocaleString("he-IL",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):""):"מחיר חדש מוצע: "+E(fm(r.data.price))}</b></p>${r.text?`<p class="hint" style="margin:0 0 6px">${E(r.text)}</p>`:""}
   <textarea placeholder="הערה (לא חובה)" style="min-height:56px"></textarea><div class="row"><button class="btn" data-a="yes">✅ ${r.type==="tourplan"?"מאשר/ת":"מאשר/ת את המחיר"}</button><button class="btn gh" data-a="no">${r.type==="tourplan"?"לא מתאים":"לא מאשר/ת"}</button></div></div>`).join("")
   +RQ.filter(r=>r.st!=="pending").slice(-3).reverse().map(r=>`<p class="hint">${r.type==="tourplan"?"📅 סיור":"🔻 מחיר"} ${r.type==="pricereq"?E(fm(r.data.price)):""} – <span class="${r.st==="approved"?"ok":"no"}">${r.st==="approved"?"אישרתם":"דחיתם"}</span></p>`).join("");
+ const MED=(P.log||[]).filter(x=>x.type==="media"&&x.data&&x.data.fid).reverse();
+ const mediaH=MED.length?`<div class="card"><h2>🖼️ חומרי השיווק של הנכס</h2><div class="med">${MED.map(m=>m.data.kind==="reel"?`<iframe src="https://drive.google.com/file/d/${E(m.data.fid)}/preview" allow="autoplay" loading="lazy" title="רילס"></iframe>`:`<a href="https://drive.google.com/file/d/${E(m.data.fid)}/view" target="_blank" rel="noopener"><img src="https://drive.google.com/thumbnail?id=${E(m.data.fid)}&sz=w1000" alt="פלייר" loading="lazy"></a>`).join("")}</div></div>`:"";
  const leads=ev.filter(x=>x.type==="lead").length,posts=ev.filter(x=>["fbgroup","fb","ig","story","y2","md"].includes(x.type)).length,acts=ev.filter(x=>x.type!=="start").length;
  const days=from?Math.max(1,Math.ceil((now-from)/DAY)):"–",left=to?Math.max(0,Math.ceil((to-now)/DAY)):"–",pct=from&&to?Math.min(100,Math.round((now-from)/(to-from)*100)):0;
  const addr=L?(L.street+" "+L.hn+", "+L.city):"נכס #"+p.id,img=L&&L.imgs&&L.imgs[0]?"../"+L.imgs[0]:"";
@@ -81,7 +84,10 @@ function render(){const p=P.p,from=dt(p.from)||0,to=dt(p.to)||0,now=Date.now();
  <div class="card hero">${img?`<div class="ph" style="background-image:url('${E(img)}')"></div>`:""}<div class="in"><h1>${E(addr)}</h1>
   ${L?`<p class="sub">${E(L.deal)} · ${E(L.type)}${L.rooms?" · "+L.rooms+" חד׳":""}${L.sqm?" · "+L.sqm+" מ״ר":""}${L.floor!==""&&L.floor!=null?" · קומה "+L.floor:""}</p><div class="price">${E(fm(L.price))}</div>`:""}
   ${L?`<div class="row"><a class="btn gh" href="../d/${E(p.id)}.html" target="_blank" rel="noopener">לדף הנכס באתר ↗</a></div>`:""}</div></div>
- <div class="kpi"><div><b>${days}</b><span>ימים בשיווק</span></div><div><b>${(P.views||{}).total||0}</b><span>צפיות בדף הנכס</span></div><div><b>${posts}</b><span>פרסומים</span></div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${tours}</b><span>סיורים בנכס</span></div><div><b>${left}</b><span>ימים לסיום בלעדיות</span></div></div>
+ <div class="kpi"><div><b>${days}</b><span>ימים בשיווק</span></div><div><b>${(P.views||{}).total||0}</b><span>צפיות בדף הנכס</span></div><div><b>${posts}</b><span>פרסומים</span></div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${MT.buyers}</b><span>קונים מתאימים במאגר</span></div><div><b>${tours}</b><span>סיורים ופגישות בנכס</span></div><div><b>${offers}</b><span>הצעות שהתקבלו</span></div><div><b>${left}</b><span>ימים לסיום בלעדיות</span></div></div>
+ ${MT.buyers?`<div class="card" style="margin-top:14px">🎯 <b>${MT.buyers} קונים</b> מהמאגר הפעיל שלנו מחפשים בדיוק נכס כמו שלכם (לפי חדרים, תקציב ודרישות) – והנכס מוצג להם באופן אישי.</div>`:""}
+ ${(CAL.next||[]).length?`<div class="card"><h2>📅 פגישות קרובות בנכס</h2>${CAL.next.map(d=>`<p style="margin:4px 0">• ${E(new Date(dt(d)).toLocaleString("he-IL",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))}</p>`).join("")}</div>`:""}
+ ${mediaH}
  ${reqH}
  ${from&&to?`<div class="card" style="margin-top:14px"><b>תקופת הבלעדיות</b><div class="hint">${E(new Date(from).toLocaleDateString("he-IL"))} – ${E(new Date(to).toLocaleDateString("he-IL"))}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`:""}
  <div class="card"><h2>📋 מה עשינו בשבילכם <small class="hint">· ${acts} פעולות</small></h2>${tl?`<ul class="tl">${tl}</ul>`:'<p class="empty">פעולות השיווק יופיעו כאן ברגע שיתבצעו.</p>'}</div>
