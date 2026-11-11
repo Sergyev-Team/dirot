@@ -784,6 +784,9 @@ $("big").addEventListener("click",e=>{ const on=document.documentElement.classLi
 // personal search link from the buyers board: #s=<m|r>~<rmin>-<rmax>~<budget>~<el|pk|mm letters>~<hood|hood>
 function parseSearch(key){ const m=/^s=([mr])~([\d.]+)-([\d.]+)~(\d*)~([a-z]*)~(.*)$/.exec(key); if(!m) return null;
   return {deal:m[1]=="r"?"השכרה":"מכירה", rmin:+m[2], rmax:+m[3], budget:+m[4]||1e12, must:(m[5].match(/el|pk|mm/g)||[]), hoods:m[6]?m[6].split("|").filter(Boolean):[]}; }
+const TRK="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
+function trk(id,w){ try{ if(!id||broker) return; const k="trk_"+id+"_"+(w||"v"); if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,"1"); fetch(TRK+"?op=view&id="+id+(w?"&w="+w:""),{mode:"no-cors",keepalive:true}).catch(()=>{}); }catch(e){} }
+document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest("a.btn"); if(!a) return; const m=(a.getAttribute("aria-label")||"").match(/נכס מס' (\d+)/); if(!m) return; const c=a.classList; trk(+m[1], c.contains("call")?"call":c.contains("visit")?"visit":c.contains("photos")?"photos":c.contains("wa")?"wa":""); },true);
 function applyPreset(){
   const key=decodeURIComponent((location.hash||"").replace("#","")).toLowerCase();
   broker = key==BROKER_KEY; document.body.classList.toggle("broker",broker); $("sendbar").hidden=!broker; if(broker) updBar();
@@ -792,7 +795,7 @@ function applyPreset(){
     const back=el("button","back","› לכל הדירות"); back.type="button";
     back.addEventListener("click",()=>{ if(lastList!==null){ location.hash=lastList; } else { history.replaceState(null,"",location.pathname+location.search); applyPreset(); } });
     det.appendChild(back);
-    if(x){ const ul=el("ul","list"); ul.appendChild(row(x,true)); det.appendChild(ul); document.title=(x.type||"נכס")+(x.rooms?" "+x.rooms+" חדרים":"")+(x.street?" ברחוב "+ST(x):"")+" – צוות סרגייב"; }
+    if(x){ trk(x.id); const ul=el("ul","list"); ul.appendChild(row(x,true)); det.appendChild(ul); document.title=(x.type||"נכס")+(x.rooms?" "+x.rooms+" חדרים":"")+(x.street?" ברחוב "+ST(x):"")+" – צוות סרגייב"; }
     else det.appendChild(el("p","empty","הנכס הזה כבר לא זמין. אפשר לראות את כל הדירות הזמינות בקישור למעלה."));
     document.querySelectorAll(".stickybar").forEach(s=>s.remove()); document.body.classList.remove("has-sticky");
     if(x){ const acts=det.querySelector(".actions"); const wa=acts&&acts.querySelector(".btn.wa"), vs=acts&&acts.querySelector(".btn.visit");
