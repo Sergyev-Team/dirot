@@ -40,4 +40,15 @@ jobs:
           git add -A
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -q -m "עדכון אוטומטי של האתר"
-          git pull -q --rebase && git push -q
+          for i in 1 2 3; do
+            if git pull -q --rebase && git push -q; then exit 0; fi
+            echo "conflict – rebuilding on top of latest main (try $i)"
+            git rebase --abort 2>/dev/null || true
+            git reset -q --hard origin/main
+            if [ "${{ steps.prep.outputs.build }}" = "true" ]; then python engine/run.py build; fi
+            python engine/run.py finish
+            git add -A
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -q -m "עדכון אוטומטי של האתר"
+          done
+          exit 1
