@@ -31,7 +31,7 @@ ol{padding-inline-start:22px;margin:6px 0}li{margin-bottom:6px}.sub{list-style:n
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
-const BROKER={name:"משה מאיר כהן",lic:"3165866",phone:"054-9071916",team:"צוות סרגייב"};
+let BROKER={name:"משה מאיר כהן",lic:"3165866",phone:"054-9071916",team:"צוות סרגייב"};
 const TITLES={buy:"הזמנת שירותי תיווך לקניית נכס מקרקעין",rentin:"הזמנת שירותי תיווך לשכירת נכס מקרקעין",sell:"הזמנת שירותי תיווך למכירת נכס מקרקעין",let:"הזמנת שירותי תיווך להשכרת נכס מקרקעין",excl:"הזמנת שירותי תיווך בבלעדיות"};
 const K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -88,6 +88,7 @@ async function load(){
  try{const r=await fetch(API+"?op=cget&k="+encodeURIComponent(K));DOC=await r.json()}catch(e){$("#app").innerHTML='<div class="msg bad">לא הצלחנו לטעון את המסמך. בדקו את החיבור ונסו שוב.</div>';return}
  if(!DOC.ok){$("#app").innerHTML='<div class="msg bad">המסמך לא נמצא. פנו למתווך לקבלת קישור חדש.</div>';return}
  if(DOC.signed){$("#app").innerHTML=`<div class="msg ok">✓ המסמך נחתם ב-${esc(DOC.signed)}. העתק נשלח למייל שלכם.</div>`;return}
+ if(DOC.c&&DOC.c.broker&&DOC.c.broker.name)BROKER={name:DOC.c.broker.name,lic:DOC.c.broker.lic||"",phone:DOC.c.broker.phone||"",team:"צוות סרגייב"};
  DS=docs(DOC);render()}
 const consent=()=>DS.length>1?CONSENT2:CONSENT1;
 function docHTML(d){return `<h1>${esc(d.title)}</h1><div class="num">מס' ${d.num}</div>

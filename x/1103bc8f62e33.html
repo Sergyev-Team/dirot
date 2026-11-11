@@ -1,0 +1,164 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>משרד סרגייב – סוכן</title><link rel="apple-touch-icon" href="../f/app180.png"><meta name="theme-color" content="#0e0c09">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#f5f3ee;--surface:#fff;--fg:#17150f;--muted:#615b4c;--line:#e3ddcf;--gold:#a87b1e;--gold-soft:#f6ecd4;--wa:#138a4e;--off:#9b2c2c;--body:"Assistant","Arial Hebrew",Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12110e;--surface:#1c1a16;--fg:#f1ecdf;--muted:#b3ab98;--line:#322e26;--gold:#e3b858;--gold-soft:#2e2615;--wa:#1a9a5a;--off:#f19c9c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12110e;--surface:#1c1a16;--fg:#f1ecdf;--muted:#b3ab98;--line:#322e26;--gold:#e3b858;--gold-soft:#2e2615;--wa:#1a9a5a;--off:#f19c9c;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5;margin:0;direction:rtl}
+.wrap{max-width:820px;margin:0 auto;padding:16px 16px 90px}
+h1{font-size:28px;margin:8px 0 2px}h1 b{color:var(--gold)}.sub{color:var(--muted);margin:0 0 14px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 16px;min-height:46px;cursor:pointer;background:var(--gold);color:#fff;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line)}.btn.sm{min-height:38px;padding:6px 12px;font-size:15px}.btn.big{width:100%;font-size:20px;min-height:56px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{flex:1;font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:10px 6px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.tabs button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+.sec,.mode>.card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.hint{color:var(--muted);font-size:15px;margin:6px 0}
+textarea{font:inherit;width:100%;min-height:150px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);padding:10px}
+input,select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);width:100%}
+.frm .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:10px 0}
+.frm label{display:flex;flex-direction:column;gap:3px;font-size:14px;font-weight:700;color:var(--muted)}
+.frm label.req::after{content:" *";color:var(--off)}.frm label.req.empty input{border-color:var(--off)}
+.frm label.chk{flex-direction:row;align-items:center;gap:8px;grid-column:1/-1}.frm label.chk input{width:20px;height:20px}
+.sel2,.tri{display:flex;gap:6px}.sel2 button,.tri button{flex:1;font:inherit;font-weight:700;border-radius:10px;padding:8px 6px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;font-size:15px}
+.sel2 button.on,.tri button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+.feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:10px 0}.feat>div>span{font-size:14px;font-weight:700;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.chips button{font:inherit;font-size:14px;border-radius:20px;padding:5px 12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.chips button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold);font-weight:700}
+.lbl{font-weight:800;margin:14px 0 6px}
+.ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:8px}
+.pt{position:relative;aspect-ratio:4/3;border-radius:10px;background-size:cover;background-position:center}
+.pt i{position:absolute;top:4px;right:4px;background:var(--gold);color:#fff;font-style:normal;font-weight:800;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.pt span{position:absolute;bottom:4px;left:4px;right:4px;display:flex;justify-content:space-between}.pt span button{border:0;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;width:26px;height:24px;cursor:pointer}
+.upbtn{position:relative}
+.box{border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px}.box.bad{background:#fde2e2;color:#8a1c1c}.box.warn{background:#fff3d6;color:#7a5200}.box.nw{background:#e3f4ea;color:#17703f}.box.upd{background:#e3ecfb;color:#1d4fa0}.box.mrg{background:#efe6fb;color:#5a2a9c}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+
+.who{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.who button{font:inherit;font-weight:800;font-size:16px;border-radius:14px;padding:14px 8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;line-height:1.3}
+.who button small{display:block;font-weight:600;font-size:13px;color:var(--muted)}.who button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}@media(max-width:520px){.g2.st{grid-template-columns:1fr}}
+label.l{display:flex;flex-direction:column;gap:3px;font-size:14px;font-weight:700;color:var(--muted)}
+.ar{display:flex;gap:6px}.ar input{flex:1}
+.sug{display:flex;flex-direction:column;gap:4px;margin-top:6px}.sug button{font:inherit;font-size:15px;text-align:right;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 10px;cursor:pointer}
+.pr{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:15px;margin-top:6px}.pr button{border:0;background:none;color:var(--off);font-size:18px;cursor:pointer}
+.ex{background:var(--gold-soft);border-radius:12px;padding:10px 12px;margin:10px 0}.ex label.chk{display:flex;gap:8px;align-items:center;font-weight:800;color:var(--fg)}.ex label.chk input{width:22px;height:22px}
+.ct{border-bottom:1px solid var(--line);padding:10px 0;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.stt{font-size:13px;font-weight:800;border-radius:999px;padding:2px 9px;background:#fff3d6;color:#7a5200}.stt.ok{background:#e3f4ea;color:#17703f}
+.tp{font-size:12px;font-weight:800;border-radius:8px;padding:1px 7px;background:var(--gold-soft);color:var(--gold);margin-inline-start:4px}
+a.btn{text-decoration:none}.btn.wa{background:var(--wa)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#17150f;color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;z-index:9;opacity:0;transition:.25s;pointer-events:none;max-width:90vw;text-align:center}.toast.on{opacity:1}
+.g2>*{min-width:0}
+input[type=date],select{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;height:48px;line-height:30px;text-align:right}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:16px 21px,22px 21px;background-size:6px 6px;background-repeat:no-repeat;padding-left:34px}
+input[type=date]::-webkit-date-and-time-value{text-align:right}
+.ex{overflow:hidden}.ex label.chk{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;line-height:1.35;margin-bottom:6px}
+</style></head><body>
+<div class="wrap">
+ <h1>לוח <b>החתמות</b></h1><p class="sub">שליחת טפסי תיווך לחתימה דיגיטלית בוואטסאפ</p>
+ <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button></div>
+ <section class="mode" id="m-new"><div class="card" id="nw"></div></section>
+ <section class="mode" id="m-list"><div class="card"><div class="row"><input id="lq" placeholder="חיפוש לפי שם או טלפון" style="flex:1"><button class="btn ghost sm" id="lr">🔄 רענון</button></div><div id="ls"></div></div></section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== לוח החתמות – משרד סרגייב ===== */
+let U=null;
+const SITE="https://sergyev-team.github.io/dirot/";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
+const pad=n=>("0000"+n).slice(-5);
+function toast(t,ms){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),ms||2200)}
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const addM=(s,m)=>{const d=new Date(s+"T12:00:00");const day=d.getDate();d.setMonth(d.getMonth()+m);if(d.getDate()<day)d.setDate(0);return iso(d)};
+const WHO={sell:["🏷️ בעל נכס – מכירה","הסכמה + בלעדיות"],let:["🔑 בעל נכס – השכרה","הסכמה + בלעדיות"],buy:["🛒 קונה","הזמנת שירותי תיווך לקנייה"],rentin:["🏠 שוכר","הזמנת שירותי תיווך לשכירות"]};
+const TL={sell:"מוכר",let:"משכיר",buy:"קונה",rentin:"שוכר"};
+const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(/^972/,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
+const msg=(name,link,two)=>"שלום "+(name||"")+",\nמצורף קישור לחתימה על "+(two?"הזמנת שירותי תיווך והסכם בלעדיות":"הזמנת שירותי תיווך")+":\n"+link+"\n\nמשה מאיר כהן – צוות סרגייב";
+let F=null;
+function reset(t){const today=iso(new Date());F={type:t||F&&F.type||"sell",name:"",phone:"",props:[],fee:2,months:1,excl:true,from:today,mon:6,to:addM(today,6),notes:""}}
+const owner=()=>F.type==="sell"||F.type==="let",rent=()=>F.type==="let"||F.type==="rentin";
+function keep(){const g=id=>{const x=document.getElementById(id);return x?x.value:null};
+ if(g("nN")!=null){F.name=g("nN").trim();F.phone=g("nP").trim();F.notes=g("nT");if(rent())F.months=+g("nF")||1;else F.fee=+String(g("nF")).replace(/[^\d.]/g,"")||2;
+  if(owner()){const x=$("#nX");F.excl=x.checked;if(F.excl){F.from=g("nFr")||F.from;F.to=g("nTo")||F.to}}}}
+function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x.deal==="השכרה":x.deal!=="השכרה"));
+ $("#nw").innerHTML=`<p class="lbl" style="margin-top:0">מי חותם?</p><div class="who">${Object.entries(WHO).map(([k,v])=>`<button type="button" data-t="${k}" class="${F.type===k?"on":""}">${v[0]}<small>${v[1]}</small></button>`).join("")}</div>
+ <div class="g2 st"><label class="l">שם הלקוח (חיפוש בקונים שלך או לקוח חדש)<input id="nN" value="${E(F.name)}" autocomplete="off" placeholder="מתחילים להקליד שם…"></label><label class="l">טלפון (לוואטסאפ)<input id="nP" type="tel" value="${E(F.phone)}" autocomplete="off"></label></div><div class="sug" id="nNs"></div>
+ <p class="lbl">${own?"הנכס":"הנכסים שהוצגו ללקוח"}</p>
+ <div class="ar"><input id="nA" placeholder="מספר נכס או רחוב, למשל 416 או סוקולוב" autocomplete="off"><button type="button" class="btn ghost" id="nAadd">➕ הוסף</button></div><div class="sug" id="nS"></div>
+ <details style="margin-top:8px"><summary class="hint">או הוספה ידנית (נכס שלא בלוח)</summary><div class="g2 st"><label class="l">כתובת מלאה<input id="nMa" placeholder="רחוב, מספר, עיר, קומה"></label><label class="l">${rent()?"שכר דירה חודשי":"מחיר"}<input id="nMp" inputmode="numeric"></label></div><div class="g2"><label class="l">סוג<input id="nMt" value="דירה"></label><button type="button" class="btn ghost" id="nMadd" style="align-self:end">➕ הוסף</button></div></details>
+ <div id="nPr"></div>
+ ${own?`<div class="ex"><label class="chk"><input type="checkbox" id="nX" ${F.excl?"checked":""}> כולל הסכם בלעדיות (באותו קישור)</label>
+  <div id="nXw" ${F.excl?"":"hidden"}><div class="g2"><label class="l">מתאריך<input type="date" id="nFr" value="${F.from}"></label><label class="l">תקופה<select id="nMo">${[1,2,3,4,5,6,9,12].map(m=>`<option value="${m}" ${F.mon===m?"selected":""}>${m} חודשים</option>`).join("")}<option value="0" ${F.mon===0?"selected":""}>תאריך אחר…</option></select></label></div>
+  <label class="l">עד תאריך<input type="date" id="nTo" value="${F.to}"></label></div></div>`:""}
+ <div class="g2"><label class="l">${rent()?"דמי תיווך – מספר חודשי שכירות (+ מע״מ)":"אחוז דמי תיווך (+ מע״מ)"}<input id="nF" inputmode="decimal" value="${rent()?F.months:F.fee}"></label><span></span></div>
+ <label class="l">הערות ותוספות להסכם (לא חובה – יופיעו בטופס)<textarea id="nT" style="min-height:90px">${E(F.notes)}</textarea></label>
+ <p class="hint">הלקוח ימלא בעצמו ת״ז, כתובת ומייל ויחתום. העתק חתום יישלח אליו ואליך במייל, וה-PDF נשמר ב-Drive.</p>
+ <button type="button" class="btn big" id="nGo">🔗 צור קישור לחתימה</button><div id="nOut"></div>`;
+ $$(".who button").forEach(b=>b.onclick=()=>{keep();const was=owner();F.type=b.dataset.t;if(owner()!==was)F.props=[];if(rent()&&!F.months)F.months=1;drawNew()});
+ drawProps();
+ const nn=$("#nN"),np=$("#nP"),ns=$("#nNs");
+ const bfind=()=>{const q=nn.value.trim(),d=np.value.replace(/\D/g,"");const seen=new Set();
+  return BUY.filter(b=>{const ph=String(b.phone||"").replace(/\D/g,"");const ok=(q.length>=2&&String(b.name).includes(q))||(d.length>=3&&ph.includes(d));if(!ok||seen.has(ph+b.name))return false;seen.add(ph+b.name);return true}).slice(0,6)};
+ const bsug=()=>{const r=bfind(),q=nn.value.trim();if(!r.length){ns.innerHTML="";return}
+  ns.innerHTML=r.map((b,i)=>`<button type="button" data-i="${i}">👤 ${E(b.name)}${b.phone?" · "+E(b.phone):""}${b.profile?` <small class="hint">· ${E(b.profile)}</small>`:""}</button>`).join("")+`<button type="button" data-new="1">➕ לקוח חדש${q?": "+E(q):""}</button>`;
+  ns.querySelectorAll("button").forEach(x=>x.onclick=()=>{if(!x.dataset.new){const b=r[+x.dataset.i];nn.value=b.name;np.value=b.phone||"";toast("✓ נבחר "+b.name)}ns.innerHTML="";F.name=nn.value.trim();F.phone=np.value.trim()})};
+ nn.oninput=bsug;np.oninput=bsug;
+ const sa=$("#nA"),sg=$("#nS");
+ const pick=a=>{const p={addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"};if(own)F.props=[p];else F.props.push(p);sa.value="";sg.innerHTML="";drawProps();toast("✓ נוסף נכס #"+a.id)};
+ const find=q=>{q=q.trim().replace(/^#/,"");if(!q)return [];const n=q.replace(/\D/g,"");if(n&&n===q)return A.filter(x=>String(x.id)===n).concat(A.filter(x=>String(x.id).startsWith(n)&&String(x.id)!==n)).slice(0,6);return A.filter(x=>(x.street+" "+x.hn+" "+(x.nb||"")+" "+x.city).includes(q)).slice(0,6)};
+ sa.oninput=()=>{const r=find(sa.value);sg.innerHTML=r.map(a=>`<button type="button" data-id="${a.id}">#${a.id} · ${E(a.street+" "+a.hn)}, ${E(a.city)}${a.floor!==""&&a.floor!=null?" · קומה "+a.floor:""}${a.price?" · "+fm(a.price):""}</button>`).join("")||(sa.value.trim()?'<p class="hint">לא נמצא נכס פעיל – אפשר להוסיף ידנית</p>':"");sg.querySelectorAll("button").forEach(x=>x.onclick=()=>pick(A.find(a=>a.id==x.dataset.id)))};
+ const first=()=>{const r=find(sa.value);if(r.length)pick(r[0]);else toast("לא נמצא נכס כזה")};
+ $("#nAadd").onclick=first;sa.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();first()}};
+ $("#nMadd").onclick=()=>{const ad=$("#nMa").value.trim();if(!ad){toast("הקלד כתובת");return}const p={addr:ad,price:+$("#nMp").value.replace(/\D/g,"")||"",type:$("#nMt").value.trim()||"דירה"};if(own)F.props=[p];else F.props.push(p);$("#nMa").value="";$("#nMp").value="";drawProps()};
+ if(own){const x=$("#nX"),fr=$("#nFr"),mo=$("#nMo"),to=$("#nTo");
+  x.onchange=()=>{$("#nXw").hidden=!x.checked};
+  const upd=()=>{F.mon=+mo.value;if(F.mon)to.value=addM(fr.value,F.mon)};fr.onchange=upd;mo.onchange=upd;to.onchange=()=>{mo.value="0";F.mon=0}}
+ $("#nGo").onclick=create}
+function drawProps(){const h=$("#nPr");h.innerHTML=F.props.length?F.props.map((p,i)=>`<div class="pr"><span>${E(p.addr)}${p.price?" · "+E(fm(p.price)):""} · ${E(p.type)}</span><button type="button" data-i="${i}" aria-label="הסר">✕</button></div>`).join(""):'<p class="hint">עדיין לא נבחר נכס.</p>';
+ h.querySelectorAll("button").forEach(x=>x.onclick=()=>{F.props.splice(+x.dataset.i,1);drawProps()})}
+async function create(){keep();const s=U.sync,o=$("#nOut");const err=t=>{o.innerHTML=`<div class="box bad">${E(t)}</div>`};
+ if(!s||!s.url)return err("אין חיבור לגיליון");if(!F.name)return err("חסר שם לקוח");if(F.phone.replace(/\D/g,"").length<9)return err("חסר טלפון");if(!F.props.length)return err("לא נבחר נכס");
+ if(owner()&&F.excl&&!(F.from&&F.to&&F.to>F.from))return err("בדוק את תאריכי הבלעדיות");
+ const b=$("#nGo");b.disabled=true;b.textContent="יוצר…";
+ const c={type:F.type,name:F.name,phone:F.phone,props:F.props,notes:F.notes.trim(),date:iso(new Date())};
+ if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}
+ try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
+  const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";
+  o.innerHTML=`<div class="box nw"><b>✓ טופס מס' ${pad(j.n)} מוכן${c.excl?" (הסכמה + בלעדיות)":""}</b></div><div class="row"><a class="btn wa" style="flex:1" target="_blank" rel="noopener" href="${E(wa(F.phone,msg(F.name,link,c.excl)))}">💬 שלח ללקוח בוואטסאפ</a><button type="button" class="btn ghost" id="nCp">📋 העתק קישור</button></div><button type="button" class="btn ghost big" id="nAg">➕ טופס חדש נוסף</button>`;
+  $("#nCp").onclick=()=>{try{navigator.clipboard.writeText(link)}catch(e){}$("#nCp").textContent="✓ הועתק"};$("#nAg").onclick=()=>{reset(F.type);drawNew();window.scrollTo(0,0)}}
+ catch(e){err("שגיאה: "+e.message);b.disabled=false;b.textContent="🔗 צור קישור לחתימה"}}
+let LIST=null;
+async function loadList(){const s=U.sync,h=$("#ls");h.innerHTML='<p class="hint">טוען…</p>';
+ try{const r=await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=clist");const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");LIST=j.items;drawList()}catch(e){h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+'</p>'}}
+function drawList(){const q=$("#lq").value.trim(),h=$("#ls");if(!LIST)return;const L=LIST.filter(c=>!q||String(c.name).includes(q)||String(c.phone).replace(/\D/g,"").includes(q.replace(/\D/g,"")||"~"));
+ h.innerHTML=L.length?L.map(c=>{const ok=!!c.signed,link=SITE+"s/?k="+c.k;return `<div class="ct"><span><b>${pad(c.n)}</b><span class="tp">${TL[c.type]||c.type}</span>${c.agent&&!U.agent?`<span class="tp">👤 ${E(c.agent)}</span>`:""} ${E(c.name)}<br><small class="hint">נשלח ${E(c.created)}</small></span><span class="stt ${ok?"ok":""}">${ok?"✓ נחתם "+E(c.signed):"⏳ ממתין לחתימה"}</span>
+  <span>${ok&&c.pdf?`<a class="btn ghost sm" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:`<a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(c.phone,msg(c.name,link,c.type==="sell"||c.type==="let")))}">💬 שלח שוב</a>`}</span></div>`}).join(""):'<p class="hint">אין טפסים.</p>'}
+function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="list")loadList()}
+let BUY=[];
+function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
+ if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList}
+
+(function(){
+const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec",KEY="sergyev_agent_code";
+const wrap=document.querySelector(".wrap");wrap.hidden=true;
+const st=document.createElement("style");st.textContent='.lock{max-width:380px;margin:12vh auto 0;padding-inline:16px;display:flex;flex-direction:column;gap:10px;text-align:center}.lock img{height:70px;background:#fff;border-radius:12px;padding:4px 8px;align-self:center}.lock h1{font-size:28px;margin:6px 0 0}.lock input{font:inherit;font-size:22px;padding:12px;min-height:54px;border-radius:12px;border:2px solid var(--gold);background:var(--surface);color:var(--fg);text-align:center;direction:ltr;letter-spacing:2px;text-transform:uppercase}.lock .err{color:var(--off);font-weight:700;margin:0}.who2{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:15px}.who2 b{color:var(--gold)}';
+document.head.appendChild(st);
+const box=document.createElement("form");box.className="lock";
+box.innerHTML='<img src="../s/logo.jpg" alt="צוות סרגייב"><h1>משרד <b>סרגייב</b></h1><p class="hint">כניסת סוכן</p><input id="ac" autocomplete="off" placeholder="קוד סוכן" required><button class="btn big" type="submit">כניסה</button><p class="err" id="ae" hidden></p>';
+document.body.prepend(box);
+async function siteApts(){try{const t=await (await fetch("../index.html",{cache:"no-store"})).text();const i=t.indexOf("const D = (");if(i<0)return [];const j=t.indexOf(").filter(",i);return JSON.parse(t.slice(i+11,j)).map(x=>({id:x.id,deal:x.deal,type:x.type,city:x.city,nb:x.nb,street:x.street,hn:x.hn,floor:x.floor,price:x.price}))}catch(e){return []}}
+async function go(code,save){const e=document.getElementById("ae");e.hidden=true;
+ try{const r=await fetch(API+"?op=me&t="+encodeURIComponent(code));const j=await r.json();if(!j.ok||!j.agent)throw new Error("auth");
+  if(save)try{localStorage.setItem(KEY,code)}catch(x){}
+  box.remove();wrap.hidden=false;
+  const bar=document.createElement("div");bar.className="who2";bar.innerHTML='<span>מחובר: <b></b> · רישיון <span id="alic"></span></span><button class="btn ghost sm" type="button" id="aout">יציאה</button>';
+  bar.querySelector("b").textContent=j.agent.name;bar.querySelector("#alic").textContent=j.agent.lic;wrap.prepend(bar);
+  document.getElementById("aout").onclick=()=>{try{localStorage.removeItem(KEY)}catch(x){}location.reload()};
+  boot({sync:{url:API,token:code},apts:await siteApts(),buyers:[],agent:j.agent});return true}
+ catch(err){e.textContent=err.message==="auth"?"הקוד לא נכון":"אין חיבור, נסו שוב";e.hidden=false;return false}}
+box.onsubmit=ev=>{ev.preventDefault();go(document.getElementById("ac").value.trim().toUpperCase(),true)};
+let s=null;try{s=localStorage.getItem(KEY)}catch(e){}if(s)go(s,false);
+})();
+</script></body></html>
