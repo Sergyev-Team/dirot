@@ -15,7 +15,8 @@
 .hero{padding:0;overflow:hidden}.hero .ph{aspect-ratio:16/9;background:#ddd center/cover no-repeat}.hero .in{padding:14px 16px}
 h1{font-size:22px;margin:0 0 2px}.sub{color:var(--muted);margin:0}.price{font-size:22px;font-weight:700;color:var(--gold);margin-top:6px}
 .hi{font-size:17px;margin:0 0 4px}
-.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:520px){.kpi{grid-template-columns:repeat(2,1fr)}}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:420px){.kpi b{font-size:24px}}
+.rq{border:2px solid var(--gold);background:rgba(168,123,30,.08)}.rq h2{margin-bottom:4px}.rq .st{font-weight:700}.ok{color:var(--ok)}.no{color:#b42318}
 .kpi div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}.kpi b{display:block;font-size:28px;color:var(--gold);line-height:1.1}.kpi span{font-size:13px;color:var(--muted);font-weight:700}
 h2{font-size:18px;margin:0 0 10px}
 .tl{list-style:none;margin:0;padding:0}.tl li{display:grid;grid-template-columns:38px 1fr;gap:8px;padding:9px 0;border-bottom:1px dashed var(--line)}.tl li:last-child{border:0}
@@ -31,7 +32,8 @@ textarea{width:100%;font:inherit;font-size:16px;min-height:90px;padding:10px 12p
 </style></head><body><div class="wrap" id="app"><p class="hint">טוען…</p></div>
 <script>
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
-const K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);
+let K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);const OK="sg_owner_k";
+try{if(K)localStorage.setItem(OK,K);else K=localStorage.getItem(OK)||""}catch(e){}
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
 const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],lead:["📞","פנייה מקונה מתעניין"],other:["📌","פעולה"]};
@@ -43,14 +45,30 @@ const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:
 
 const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"}),heT=ts=>new Date(ts).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
 let P=null,L=null;
+function loginView(msg){$("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל בעלי נכסים</small></div>
+ <div class="card"><h2>כניסה לפורטל הנכס</h2><p class="hint">הקלידו את שם המשתמש (מספר הטלפון שלכם או מספר הנכס) ואת קוד הכניסה בן 6 הספרות שקיבלתם מאיתנו.</p>
+ <form id="lf"><label class="hint">שם משתמש<input id="lu" inputmode="numeric" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
+ <label class="hint">קוד כניסה<input id="lp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="width:100%;font:inherit;font-size:24px;letter-spacing:6px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
+ <button class="btn" style="width:100%" type="submit">כניסה</button><p class="hint" id="le">${msg||""}</p></form></div>
+ <p class="hint" style="text-align:center">שכחתם את הקוד? פנו אלינו: 054-9071916</p>`;
+ $("#lf").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;$("#le").textContent="";
+  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
+   if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"שם המשתמש או הקוד לא נכונים.";b.disabled=false;return}
+   K=j.items[0].k;try{localStorage.setItem(OK,K)}catch(x){}load()}catch(x){$("#le").textContent="אין חיבור, נסו שוב.";b.disabled=false}}}
+function logout(){try{localStorage.removeItem(OK)}catch(e){}K="";history.replaceState(null,"",location.pathname);loginView()}
 async function load(){
- if(!K){$("#app").innerHTML='<div class="card">הקישור לא תקין.</div>';return}
+ if(!K){loginView();return}
  try{P=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){$("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
- if(!P.ok){$("#app").innerHTML='<div class="card">הפורטל לא נמצא או שאינו פעיל. פנו אלינו לקבלת קישור.</div>';return}
+ if(!P.ok){try{localStorage.removeItem(OK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
  try{const t=await (await fetch("../index.html",{cache:"no-store"})).text();const i=t.indexOf("const D = (");if(i>=0){const D=JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)));L=D.find(x=>String(x.id)===String(P.p.id))||null}}catch(e){}
  render()}
 function render(){const p=P.p,from=dt(p.from)||0,to=dt(p.to)||0,now=Date.now();
  const ev=mkEvents(P.mk,from?from-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text}))).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",text:"קונה חדש פנה אלינו לגבי הנכס ונוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
+ const RQ=(P.reqs||[]),tours=ev.filter(x=>x.type==="tour").length+RQ.filter(r=>r.type==="tourplan"&&r.st==="approved"&&dt(r.data.when)<now).length;
+ const reqH=RQ.filter(r=>r.st==="pending").map(r=>`<div class="card rq" data-row="${r.row}"><h2>${r.type==="tourplan"?"📅 בקשה לאישור סיור":"🔻 הצעה לעדכון מחיר"}</h2>
+  <p style="margin:4px 0"><b>${r.type==="tourplan"?E(r.data.when?new Date(dt(r.data.when)).toLocaleString("he-IL",{weekday:"long",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}):""):"מחיר חדש מוצע: "+E(fm(r.data.price))}</b></p>${r.text?`<p class="hint" style="margin:0 0 6px">${E(r.text)}</p>`:""}
+  <textarea placeholder="הערה (לא חובה)" style="min-height:56px"></textarea><div class="row"><button class="btn" data-a="yes">✅ ${r.type==="tourplan"?"מאשר/ת":"מאשר/ת את המחיר"}</button><button class="btn gh" data-a="no">${r.type==="tourplan"?"לא מתאים":"לא מאשר/ת"}</button></div></div>`).join("")
+  +RQ.filter(r=>r.st!=="pending").slice(-3).reverse().map(r=>`<p class="hint">${r.type==="tourplan"?"📅 סיור":"🔻 מחיר"} ${r.type==="pricereq"?E(fm(r.data.price)):""} – <span class="${r.st==="approved"?"ok":"no"}">${r.st==="approved"?"אישרתם":"דחיתם"}</span></p>`).join("");
  const leads=ev.filter(x=>x.type==="lead").length,posts=ev.filter(x=>["fbgroup","fb","ig","story","y2","md"].includes(x.type)).length,acts=ev.filter(x=>x.type!=="start").length;
  const days=from?Math.max(1,Math.ceil((now-from)/DAY)):"–",left=to?Math.max(0,Math.ceil((to-now)/DAY)):"–",pct=from&&to?Math.min(100,Math.round((now-from)/(to-from)*100)):0;
  const addr=L?(L.street+" "+L.hn+", "+L.city):"נכס #"+p.id,img=L&&L.imgs&&L.imgs[0]?"../"+L.imgs[0]:"";
@@ -58,21 +76,27 @@ function render(){const p=P.p,from=dt(p.from)||0,to=dt(p.to)||0,now=Date.now();
   tl+=`<li><span class="ic">${t[0]}</span><span><b>${E(t[1])}</b>${x.text?`<span>${E(x.text)}</span><br>`:""}${x.auto?`<small>${heT(x.ts)}</small>`:""}</span></li>`});
  const ms=(P.msgs||[]).map(m=>`<div class="msg ${m.from==="בעלים"?"me":"of"}">${E(m.text)}<small>${m.from==="בעלים"?"אתם":E(P.broker.name)} · ${E(new Date(dt(m.d)).toLocaleDateString("he-IL"))}</small></div>`).join("");
  const wa="https://wa.me/972"+String(P.broker.phone).replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent("שלום, אני "+(p.name||"")+" – בעל/ת הנכס ב"+addr);
- $("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל הנכס</small></div>
+ $("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל הנכס · <a href="#" id="lo" style="color:inherit">יציאה</a></small></div>
  <p class="hi">שלום ${E(p.name||"")} 👋</p>
  <div class="card hero">${img?`<div class="ph" style="background-image:url('${E(img)}')"></div>`:""}<div class="in"><h1>${E(addr)}</h1>
   ${L?`<p class="sub">${E(L.deal)} · ${E(L.type)}${L.rooms?" · "+L.rooms+" חד׳":""}${L.sqm?" · "+L.sqm+" מ״ר":""}${L.floor!==""&&L.floor!=null?" · קומה "+L.floor:""}</p><div class="price">${E(fm(L.price))}</div>`:""}
   ${L?`<div class="row"><a class="btn gh" href="../d/${E(p.id)}.html" target="_blank" rel="noopener">לדף הנכס באתר ↗</a></div>`:""}</div></div>
- <div class="kpi"><div><b>${days}</b><span>ימים בשיווק</span></div><div><b>${posts}</b><span>פרסומים</span></div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${left}</b><span>ימים לסיום בלעדיות</span></div></div>
+ <div class="kpi"><div><b>${days}</b><span>ימים בשיווק</span></div><div><b>${(P.views||{}).total||0}</b><span>צפיות בדף הנכס</span></div><div><b>${posts}</b><span>פרסומים</span></div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${tours}</b><span>סיורים בנכס</span></div><div><b>${left}</b><span>ימים לסיום בלעדיות</span></div></div>
+ ${reqH}
  ${from&&to?`<div class="card" style="margin-top:14px"><b>תקופת הבלעדיות</b><div class="hint">${E(new Date(from).toLocaleDateString("he-IL"))} – ${E(new Date(to).toLocaleDateString("he-IL"))}</div><div class="bar"><i style="width:${pct}%"></i></div></div>`:""}
  <div class="card"><h2>📋 מה עשינו בשבילכם <small class="hint">· ${acts} פעולות</small></h2>${tl?`<ul class="tl">${tl}</ul>`:'<p class="empty">פעולות השיווק יופיעו כאן ברגע שיתבצעו.</p>'}</div>
  <div class="card"><h2>💬 כתבו לנו</h2>${ms||'<p class="hint">יש לכם הערה, שאלה או עדכון לגבי הנכס? כתבו כאן ונחזור אליכם.</p>'}
   <textarea id="tx" placeholder="כתבו הודעה…"></textarea><div class="row"><button class="btn" id="snd">שליחה</button><a class="btn wa" href="${E(wa)}" target="_blank" rel="noopener">💬 וואטסאפ ל${E(P.broker.name.split(" ")[0])}</a></div><p class="hint" id="st"></p></div>
  ${p.pdf?`<div class="card"><h2>📄 מסמכים</h2><a class="btn gh" href="${E(p.pdf)}" target="_blank" rel="noopener">הסכם התיווך והבלעדיות (PDF)</a></div>`:""}
  <p class="hint" style="text-align:center">${E(P.broker.name)} · צוות סרגייב · ${E(P.broker.phone)}</p>`;
+ document.querySelectorAll(".rq").forEach(c=>c.querySelectorAll("[data-a]").forEach(b=>b.onclick=async()=>{const all=c.querySelectorAll("button");all.forEach(x=>x.disabled=true);
+  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"oans",k:K,row:+c.dataset.row,ans:b.dataset.a,text:c.querySelector("textarea").value.trim()})});const j=await r.json();if(!j.ok)throw 0;
+   const q=P.reqs.find(x=>x.row===+c.dataset.row);if(q)q.st=b.dataset.a==="yes"?"approved":"declined";render();window.scrollTo(0,0)}catch(e){all.forEach(x=>x.disabled=false);alertBox("לא נשלח – נסו שוב")}}));
+ $("#lo").onclick=logout;
  $("#snd").onclick=async()=>{const t=$("#tx").value.trim();if(!t)return;const b=$("#snd");b.disabled=true;b.textContent="שולח…";
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"omsg",k:K,text:t})});const j=await r.json();if(!j.ok)throw 0;
    P.msgs=(P.msgs||[]).concat([{d:new Date().toISOString().slice(0,16).replace("T"," "),from:"בעלים",text:t}]);render();$("#st").textContent="✓ ההודעה נשלחה, נחזור אליכם בהקדם."}
   catch(e){b.disabled=false;b.textContent="שליחה";$("#st").textContent="לא נשלח – נסו שוב."}}}
+function alertBox(m){const s=$("#st");if(s)s.textContent=m}
 load();
 </script></body></html>
