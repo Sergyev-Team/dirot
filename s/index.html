@@ -142,7 +142,13 @@ async function makePdf(v,when){const LOGO=await new Promise(ok=>{const i=new Ima
   g.textAlign="right";font(30,1);g.fillStyle="#17150f";g.fillText(BROKER.name,R,y+30);font(22);g.fillText("רישיון תיווך מס' "+BROKER.lic,R,y+64);g.fillText("טלפון: "+BROKER.phone,R,y+94);
   if(LOGO){const lw=340,lh=Math.round(lw*LOGO.naturalHeight/LOGO.naturalWidth);g.drawImage(LOGO,M,y-6,lw,lh)}else{g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30)}y+=124;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
   para(d.title,{size:34,bold:1,center:1,gap:0});para("מס' "+d.num,{size:24,center:1,gap:14});
-  para("שם הלקוח: "+v.name+"   ת.ז: "+v.idn+"   כתובת: "+v.addr,{size:23,gap:2});para("מייל: "+v.email+"   טלפון: "+v.phone,{size:23,gap:14});
+  y+=6;{const cw=(R-M)/2,rh=56,F=[["שם הלקוח",v.name],["תעודת זהות",v.idn],["כתובת",v.addr],["טלפון",v.phone],["מייל",v.email],["תאריך",new Date().toLocaleDateString("he-IL")]];
+   font(24,1);g.textAlign="right";g.fillStyle="#17150f";g.fillText("פרטי הלקוח:",R,y+24);y+=38;
+   g.fillStyle="#faf6ec";g.fillRect(M,y,R-M,rh*3);g.strokeStyle="#cfc6b2";g.lineWidth=1.5;
+   F.forEach((f,i)=>{const col=i%2,row=Math.floor(i/2),x0=R-col*cw,yy=y+row*rh;g.strokeRect(x0-cw,yy,cw,rh);
+    g.textAlign="right";font(21,1);g.fillStyle="#7a6a45";const lb=f[0]+":";g.fillText(lb,x0-16,yy+36);const lw=g.measureText(lb).width;
+    font(23);g.fillStyle="#17150f";let val=String(f[1]||"");while(val.length>3&&g.measureText(val).width>cw-lw-48)val=val.slice(0,-1);g.fillText(val,x0-28-lw,yy+36)});
+   y+=rh*3+22}
   para(d.tbl.rows.length>1?"פרטי הנכסים:":"פרטי הנכס:",{size:24,bold:1,gap:6});
   const cols=[[R,R-560],[R-560,R-820],[R-820,M]];
   const rowT=(cells,b)=>{font(22,b);const ls=cells.map((t,i)=>wrap(t,cols[i][0]-cols[i][1]-24));const h=Math.max(...ls.map(l=>l.length))*34+16;if(y+h>H-M-40)np();
