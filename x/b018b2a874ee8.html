@@ -136,7 +136,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><h1>לוח <b>קונים</b></h1><span style="display:flex;gap:8px;align-items:center"><button type="button" id="fltT" class="fltT">⚙️ סינון ▾</button><span class="sync" id="sync">שמור בטלפון</span></span></div>
+    <div class="brand"><h1>לוח <b>קונים</b></h1><span style="display:flex;gap:8px;align-items:center"><button type="button" id="sgnT" class="fltT">✍️ החתמות</button><button type="button" id="fltT" class="fltT">⚙️ סינון ▾</button><span class="sync" id="sync">שמור בטלפון</span></span></div>
     <div class="mode" role="group" aria-label="מצב"><button type="button" id="mB" aria-pressed="true">קונים</button><button type="button" id="mA" aria-pressed="false">דירה ← קונים מתאימים</button></div>
     <div class="bar">
       <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="חיפוש לפי שם, טלפון או פרופיל" aria-label="חיפוש קונה">
@@ -165,6 +165,80 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
   <ul class="list" id="list" aria-live="polite"></ul>
 </div>
 <div id="toast" role="status"></div>
+<style>
+#sgD{border:0;border-radius:16px;padding:0;width:min(640px,96vw);max-height:92vh;background:var(--surface);color:var(--fg)}
+#sgD::backdrop{background:rgba(0,0,0,.5)}
+#sgD .in{padding:16px;display:flex;flex-direction:column;gap:10px;direction:rtl}
+#sgD h3{margin:0;font-size:20px}#sgD label{font-size:14px;font-weight:700;color:var(--muted);display:block}
+#sgD input,#sgD textarea,#sgD select{width:100%;font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;margin-top:3px}
+#sgD textarea{min-height:80px}
+#sgD .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#sgD .tb{display:flex;gap:6px}#sgD .tb button{flex:1}
+#sgD .b{font:inherit;font-weight:800;font-size:16px;border-radius:12px;padding:10px 14px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-decoration:none;text-align:center}
+#sgD .b.p{background:var(--gold);border-color:var(--gold);color:var(--ink-on)}#sgD .b.w{background:var(--wa);border-color:var(--wa);color:#fff}
+#sgD .b[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+#sgD .pr{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--bg);border-radius:10px;padding:7px 10px;font-size:15px}
+#sgD .pr button{border:0;background:none;color:var(--off);font-size:18px;cursor:pointer}
+#sgD .ct{border-bottom:1px solid var(--line);padding:8px 0;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+#sgD .st{font-size:13px;font-weight:800;border-radius:999px;padding:2px 9px;background:var(--warn-bg);color:var(--warn)}#sgD .st.ok{background:var(--ok-bg);color:var(--ok)}
+#sgD .hint{font-size:13px;color:var(--muted)}#sgD .x{position:absolute;left:10px;top:8px;border:0;background:none;font-size:24px;color:var(--muted);cursor:pointer}
+.sgB{font:inherit}
+</style>
+<dialog id="sgD"><button class="x" type="button" onclick="this.closest('dialog').close()" aria-label="סגור">×</button><div class="in" id="sgI"></div></dialog>
+<script>
+(function(){
+const SITE="https://sergyev-team.github.io/dirot/";
+const E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
+const pad=n=>("0000"+n).slice(-5);
+const sync=()=>(window.__KB&&window.__KB.DATA.sync)||null;
+const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(/^972/,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
+const msg=(name,link)=>"שלום "+(name||"")+",\nמצורף קישור לחתימה על הזמנת שירותי תיווך:\n"+link+"\n\nמשה מאיר כהן – צוות סרגייב";
+let F=null;
+function open(b){F={name:(b&&b.name)||"",phone:(b&&b.phone)||"",props:[],fee:2,notes:""};drawNew();$D().showModal()}
+const $D=()=>document.getElementById("sgD"),$I=()=>document.getElementById("sgI");
+function tabs(on){return `<h3>✍️ החתמת לקוח</h3><div class="tb"><button type="button" class="b" data-v="new" aria-pressed="${on=="new"}">➕ טופס חדש</button><button type="button" class="b" data-v="list" aria-pressed="${on=="list"}">📄 טפסים שנשלחו</button></div>`}
+function bindTabs(){$I().querySelectorAll(".tb .b").forEach(x=>x.onclick=()=>x.dataset.v=="new"?drawNew():drawList())}
+function drawNew(){const A=(window.__KB&&window.__KB.APTS)||[];
+ $I().innerHTML=tabs("new")+`
+ <label>סוג טופס<select disabled><option>🔑 קונה – הזמנת שירותי תיווך לקניית נכס</option></select></label>
+ <div class="g2"><label>שם הלקוח<input id="sgN" value="${E(F.name)}"></label><label>טלפון<input id="sgP" type="tel" value="${E(F.phone)}"></label></div>
+ <label>הוספת נכס מהלוח (מספר נכס או רחוב)<input id="sgA" list="sgL" placeholder="למשל 416 או סוקולוב"></label>
+ <datalist id="sgL">${A.map(a=>`<option value="#${a.id} · ${E(a.street+" "+a.hn)} · ${E(a.city)}${a.price?" · "+fm(a.price):""}">`).join("")}</datalist>
+ <details><summary class="hint">או הוספת נכס ידנית (שלא בלוח)</summary><div class="g2" style="margin-top:6px"><label>כתובת מלאה<input id="sgMa" placeholder="רחוב, מספר, עיר, קומה"></label><label>מחיר<input id="sgMp" inputmode="numeric"></label></div><div class="g2"><label>סוג<input id="sgMt" value="דירה"></label><button type="button" class="b" id="sgMadd" style="align-self:end">➕ הוסף</button></div></details>
+ <div id="sgPr"></div>
+ <div class="g2"><label>אחוז דמי תיווך (+ מע"מ)<input id="sgF" inputmode="decimal" value="${E(F.fee)}"></label><span></span></div>
+ <label>הערות ותוספות להסכם (לא חובה)<textarea id="sgT">${E(F.notes)}</textarea></label>
+ <p class="hint">הלקוח ימלא בעצמו ת״ז, כתובת ומייל, ויחתום. העתק חתום יישלח אליו ואליך במייל.</p>
+ <button type="button" class="b p" id="sgGo">🔗 צור קישור לחתימה</button><div id="sgOut"></div>`;
+ bindTabs();drawProps();
+ const sa=document.getElementById("sgA");sa.onchange=()=>{const id=+(sa.value.match(/#(\d+)/)||[])[1];const a=A.find(x=>x.id===id);if(a){addProp({addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"});sa.value=""}};
+ document.getElementById("sgMadd").onclick=()=>{const ad=document.getElementById("sgMa").value.trim();if(!ad){alertT("הקלד כתובת");return}addProp({addr:ad,price:+document.getElementById("sgMp").value.replace(/\D/g,"")||"",type:document.getElementById("sgMt").value.trim()||"דירה"});document.getElementById("sgMa").value="";document.getElementById("sgMp").value=""};
+ document.getElementById("sgGo").onclick=create}
+function addProp(p){F.props.push(p);drawProps()}
+function drawProps(){const h=document.getElementById("sgPr");h.innerHTML=F.props.length?F.props.map((p,i)=>`<div class="pr"><span>${E(p.addr)} · ${E(fm(p.price))} · ${E(p.type)}</span><button type="button" data-i="${i}" aria-label="הסר">✕</button></div>`).join(""):'<p class="hint">עדיין לא נוספו נכסים.</p>';
+ h.querySelectorAll("button").forEach(x=>x.onclick=()=>{F.props.splice(+x.dataset.i,1);drawProps()})}
+function alertT(t){const o=document.getElementById("sgOut");if(o)o.innerHTML=`<p class="st">${E(t)}</p>`}
+async function create(){const s=sync();F.name=document.getElementById("sgN").value.trim();F.phone=document.getElementById("sgP").value.trim();F.fee=+String(document.getElementById("sgF").value).replace(/[^\d.]/g,"")||2;F.notes=document.getElementById("sgT").value.trim();
+ if(!s){alertT("אין חיבור לגיליון – רענן את הלוח בעוד דקה");return}if(!F.name){alertT("חסר שם לקוח");return}if(F.phone.replace(/\D/g,"").length<9){alertT("חסר טלפון");return}if(!F.props.length){alertT("הוסף לפחות נכס אחד");return}
+ const b=document.getElementById("sgGo");b.disabled=true;b.textContent="יוצר…";
+ try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c:{type:"buy",name:F.name,phone:F.phone,props:F.props,fee:F.fee,notes:F.notes}})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
+  const link=SITE+"s/?k="+j.k;
+  document.getElementById("sgOut").innerHTML=`<p><b>✓ טופס מס' ${pad(j.n)} מוכן</b></p><a class="b w" target="_blank" rel="noopener" href="${wa(F.phone,msg(F.name,link))}">💬 שלח ללקוח בוואטסאפ</a> <button type="button" class="b" id="sgCp">📋 העתק קישור</button>`;
+  document.getElementById("sgCp").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(link);document.getElementById("sgCp").textContent="✓ הועתק"};b.textContent="✓ נוצר";}
+ catch(e){alertT("שגיאה: "+e.message);b.disabled=false;b.textContent="🔗 צור קישור לחתימה"}}
+async function drawList(){$I().innerHTML=tabs("list")+'<div id="sgLs"><p class="hint">טוען…</p></div>';bindTabs();const s=sync(),h=document.getElementById("sgLs");
+ if(!s){h.innerHTML='<p class="hint">אין חיבור לגיליון.</p>';return}
+ try{const r=await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=clist");const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
+  h.innerHTML=j.items.length?j.items.map(c=>{const ok=!!c.signed,link=SITE+"s/?k="+c.k;return `<div class="ct"><span><b>${pad(c.n)}</b> · ${E(c.name)} · <span class="hint">${E(c.created)}</span></span><span class="st ${ok?"ok":""}">${ok?"✓ נחתם "+E(c.signed):"⏳ ממתין לחתימה"}</span>
+   <span style="display:flex;gap:6px">${ok&&c.pdf?`<a class="b" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:`<a class="b w" target="_blank" rel="noopener" href="${E(wa(c.phone,msg(c.name,link)))}">💬 שלח שוב</a>`}</span></div>`}).join(""):'<p class="hint">עוד לא נשלחו טפסים.</p>'}
+ catch(e){h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+'</p>'}}
+window.SIGNBTN=function(b){const x=document.createElement("button");x.type="button";x.className="btn sgB";x.textContent="✍️ החתמה";x.onclick=()=>open(b);return x};
+window.SIGNOPEN=open;
+document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementById("sgnT");if(t)t.onclick=()=>open(null)});
+})();
+</script>
+
 <script>(function(){const b=document.getElementById("fltT"),f=document.getElementById("flt");let m;try{m=localStorage.getItem("kb_flt_min")}catch(e){}
 const set=v=>{f.classList.toggle("min",v);b.textContent=v?"⚙️ סינון ▾":"⚙️ סינון ▴";try{localStorage.setItem("kb_flt_min",v?"1":"0")}catch(e){}};
 set(m==null?true:m==="1");b.onclick=()=>set(!f.classList.contains("min"))})();</script>
@@ -180,7 +254,7 @@ const today=()=>{const d=new Date(); return d.getFullYear()+"-"+String(d.getMont
 const ddmm=()=>{const d=new Date(); return String(d.getDate()).padStart(2,"0")+String(d.getMonth()+1).padStart(2,"0");};
 const dd=s=>s?s.slice(8,10)+"/"+s.slice(5,7):"";
 function toast(m){const t=$("toast"); t.textContent=m; t.className="show"; clearTimeout(t._h); t._h=setTimeout(()=>t.className="",2400);}
-const APTS=DATA.apts;
+const APTS=DATA.apts; window.__KB={DATA:DATA,APTS:APTS};
 if(DATA.script) fetch(DATA.script+"?removed=1").then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; const rm=j.removed||{}; let n=0;
   for(let i=APTS.length-1;i>=0;i--) if(rm[String(APTS[i].id)]){ APTS.splice(i,1); n++; } if(n) render(); }).catch(()=>{});
 let S=store.get(K_CACHE,null) || {buyers:DATA.buyers, profiles:DATA.profiles, at:DATA.built};
@@ -348,7 +422,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
     send.href="https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(msg); send.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); }
   else { send.removeAttribute("href"); send.setAttribute("aria-disabled","true"); send.style.opacity=.5; send.textContent=link?"אין טלפון":"אין קישור לפרופיל"; }
   r.append(send);
-  const chat=el("a","btn","וואטסאפ"); chat.href="https://wa.me/972"+(b.phone||"").replace(/\D/g,"").replace(/^0/,""); chat.target="_blank"; chat.rel="noopener"; r.append(chat);
+  const chat=el("a","btn","וואטסאפ"); chat.href="https://wa.me/972"+(b.phone||"").replace(/\D/g,"").replace(/^0/,""); chat.target="_blank"; chat.rel="noopener"; r.append(chat); if(window.SIGNBTN) r.append(window.SIGNBTN(b));
   const call=el("a","btn","📞 התקשרות"); if(b.phone){ call.href="tel:"+b.phone.replace(/[^\d+]/g,""); call.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); } else { call.setAttribute("aria-disabled","true"); call.style.opacity=.5; } r.append(call);
   if(link){ const see=el("a","btn","הדירות שלו"); see.href=code?SITE+"#"+code:link; see.target="_blank"; see.rel="noopener"; r.append(see); }
   li.append(r);

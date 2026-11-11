@@ -145,7 +145,7 @@ def write_all():
     json.dump(man,open(mf,'w'))
     # encrypted boards
     encrypt_into(R+'/x/c84971d9f1d2f.html',dict(rows=console_rows(),**{k:v for k,v in json.load(open(S+'/rb/c84971d9f1d2f.json')).items() if k!='rows'}),pw)
-    b=json.load(open(S+'/buyers_snapshot.json')); b['apts']=apts(); b['built']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+    b=json.load(open(S+'/buyers_snapshot.json')); b['apts']=apts(); b['built']=datetime.datetime.now(datetime.timezone.utc).isoformat(); b['sync']=json.load(open(S+'/mkt.json')).get('sync')
     encrypt_into(R+'/x/b018b2a874ee8.html',b,pw)
     mk=json.load(open(S+'/mkt.json')); rows,alias=mkt_rows(); BL=buyer_match(rows)
     encrypt_into(R+'/x/eacbed7dad154.html',dict(rows=rows,alias=alias,buyers=BL,site='https://sergyev-team.github.io/dirot/',**mk),pw)
