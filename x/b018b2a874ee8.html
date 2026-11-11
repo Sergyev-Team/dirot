@@ -166,7 +166,11 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 </div>
 <div id="toast" role="status"></div>
 <style>
-#sgD{border:0;border-radius:16px;padding:0;width:min(640px,96vw);max-height:92vh;background:var(--surface);color:var(--fg)}
+#sgD{border:0;border-radius:16px;padding:0;width:min(640px,96vw);max-height:92vh;background:var(--surface);color:var(--fg);overflow:auto}
+@media(max-width:700px){#sgD{width:100vw;max-width:100vw;height:100%;max-height:100%;margin:0;border-radius:0}}
+#sgD .x{z-index:2;background:var(--surface)!important;border-radius:50%;width:40px;height:40px}@media(max-width:700px){#sgD .x{position:fixed!important;top:6px;left:6px}#sgD h3{padding-left:44px}}
+#sgD .sug{display:flex;flex-direction:column;gap:4px}#sgD .sug button{font:inherit;font-size:15px;text-align:right;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 10px;cursor:pointer}
+#sgD .ar{display:flex;gap:6px}#sgD .ar input{flex:1}
 #sgD::backdrop{background:rgba(0,0,0,.5)}
 #sgD .in{padding:16px;display:flex;flex-direction:column;gap:10px;direction:rtl}
 #sgD h3{margin:0;font-size:20px}#sgD label{font-size:14px;font-weight:700;color:var(--muted);display:block}
@@ -203,8 +207,8 @@ function drawNew(){const A=(window.__KB&&window.__KB.APTS)||[];
  $I().innerHTML=tabs("new")+`
  <label>סוג טופס<select disabled><option>🔑 קונה – הזמנת שירותי תיווך לקניית נכס</option></select></label>
  <div class="g2"><label>שם הלקוח<input id="sgN" value="${E(F.name)}"></label><label>טלפון<input id="sgP" type="tel" value="${E(F.phone)}"></label></div>
- <label>הוספת נכס מהלוח (מספר נכס או רחוב)<input id="sgA" list="sgL" placeholder="למשל 416 או סוקולוב"></label>
- <datalist id="sgL">${A.map(a=>`<option value="#${a.id} · ${E(a.street+" "+a.hn)} · ${E(a.city)}${a.price?" · "+fm(a.price):""}">`).join("")}</datalist>
+ <label>הוספת נכס מהלוח (מספר נכס או רחוב)</label><div class="ar"><input id="sgA" placeholder="למשל 416 או סוקולוב" autocomplete="off"><button type="button" class="b" id="sgAadd">➕ הוסף</button></div>
+ <div class="sug" id="sgS"></div>
  <details><summary class="hint">או הוספת נכס ידנית (שלא בלוח)</summary><div class="g2" style="margin-top:6px"><label>כתובת מלאה<input id="sgMa" placeholder="רחוב, מספר, עיר, קומה"></label><label>מחיר<input id="sgMp" inputmode="numeric"></label></div><div class="g2"><label>סוג<input id="sgMt" value="דירה"></label><button type="button" class="b" id="sgMadd" style="align-self:end">➕ הוסף</button></div></details>
  <div id="sgPr"></div>
  <div class="g2"><label>אחוז דמי תיווך (+ מע"מ)<input id="sgF" inputmode="decimal" value="${E(F.fee)}"></label><span></span></div>
@@ -212,10 +216,17 @@ function drawNew(){const A=(window.__KB&&window.__KB.APTS)||[];
  <p class="hint">הלקוח ימלא בעצמו ת״ז, כתובת ומייל, ויחתום. העתק חתום יישלח אליו ואליך במייל.</p>
  <button type="button" class="b p" id="sgGo">🔗 צור קישור לחתימה</button><div id="sgOut"></div>`;
  bindTabs();drawProps();
- const sa=document.getElementById("sgA");sa.onchange=()=>{const id=+(sa.value.match(/#(\d+)/)||[])[1];const a=A.find(x=>x.id===id);if(a){addProp({addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"});sa.value=""}};
+ const sa=document.getElementById("sgA"),sg=document.getElementById("sgS");
+ const addA=a=>{addProp({addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"});sa.value="";sg.innerHTML="";toastS("✓ נוסף נכס #"+a.id)};
+ const find=q=>{q=q.trim().replace(/^#/,"");if(!q)return [];const n=q.replace(/\D/g,"");if(n&&n===q)return A.filter(x=>String(x.id)===n).concat(A.filter(x=>String(x.id).startsWith(n)&&String(x.id)!==n)).slice(0,6);return A.filter(x=>(x.street+" "+x.hn+" "+(x.nb||"")+" "+x.city).includes(q)).slice(0,6)};
+ sa.oninput=()=>{const r=find(sa.value);sg.innerHTML=r.map(a=>`<button type="button" data-id="${a.id}">#${a.id} · ${E(a.street+" "+a.hn)}, ${E(a.city)}${a.floor!==""&&a.floor!=null?" · קומה "+a.floor:""}${a.price?" · "+fm(a.price):""}</button>`).join("")||(sa.value.trim()?'<p class="hint">לא נמצא נכס פעיל – אפשר להוסיף ידנית למטה</p>':"");
+  sg.querySelectorAll("button").forEach(x=>x.onclick=()=>addA(A.find(a=>a.id==x.dataset.id)))};
+ const addFirst=()=>{const r=find(sa.value);if(r.length)addA(r[0]);else toastS("לא נמצא נכס כזה")};
+ document.getElementById("sgAadd").onclick=addFirst;sa.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();addFirst()}};
  document.getElementById("sgMadd").onclick=()=>{const ad=document.getElementById("sgMa").value.trim();if(!ad){alertT("הקלד כתובת");return}addProp({addr:ad,price:+document.getElementById("sgMp").value.replace(/\D/g,"")||"",type:document.getElementById("sgMt").value.trim()||"דירה"});document.getElementById("sgMa").value="";document.getElementById("sgMp").value=""};
  document.getElementById("sgGo").onclick=create}
 function addProp(p){F.props.push(p);drawProps()}
+function toastS(m){const o=document.getElementById("sgPr");if(!o)return;const s=document.createElement("p");s.className="hint";s.textContent=m;o.prepend(s);setTimeout(()=>s.remove(),2000)}
 function drawProps(){const h=document.getElementById("sgPr");h.innerHTML=F.props.length?F.props.map((p,i)=>`<div class="pr"><span>${E(p.addr)} · ${E(fm(p.price))} · ${E(p.type)}</span><button type="button" data-i="${i}" aria-label="הסר">✕</button></div>`).join(""):'<p class="hint">עדיין לא נוספו נכסים.</p>';
  h.querySelectorAll("button").forEach(x=>x.onclick=()=>{F.props.splice(+x.dataset.i,1);drawProps()})}
 function alertT(t){const o=document.getElementById("sgOut");if(o)o.innerHTML=`<p class="st">${E(t)}</p>`}
