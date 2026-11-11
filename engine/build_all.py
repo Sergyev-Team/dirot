@@ -109,6 +109,10 @@ def encrypt_into(path,data,pw):
     for k,v in (('SALT',b(salt)),('IV',b(iv)),('CT',b(ct))):
         t,n=re.subn(k+r'="[^"]*"',lambda m:f'{k}="{v}"',t,count=1); assert n==1
     open(path,'w').write(t)
+def sign_data():
+    bs=json.load(open(S+'/buyers_snapshot.json'))
+    by=[dict(name=x.get('name',''),phone=x.get('phone',''),profile=x.get('profile',''),status=x.get('status','')) for x in bs.get('buyers',[]) if x.get('name')]
+    return dict(sync=json.load(open(S+'/mkt.json')).get('sync'),apts=apts(),buyers=by,bscript=bs.get('script'),btoken=bs.get('token'))
 def upload_data():
     import collections as C
     idx=[];street_nb=C.defaultdict(C.Counter);nbs=set();cities=set();br={};last=''
@@ -150,6 +154,6 @@ def write_all():
     mk=json.load(open(S+'/mkt.json')); rows,alias=mkt_rows(); BL=buyer_match(rows)
     encrypt_into(R+'/x/eacbed7dad154.html',dict(rows=rows,alias=alias,buyers=BL,site='https://sergyev-team.github.io/dirot/',**mk),pw)
     if os.path.exists(R+'/x/3a256a46e8e4d.html'): encrypt_into(R+'/x/3a256a46e8e4d.html',upload_data(),pw)
-    if os.path.exists(R+'/x/de7f766b5893b.html'): encrypt_into(R+'/x/de7f766b5893b.html',dict(sync=json.load(open(S+'/mkt.json')).get('sync'),apts=apts()),pw)
+    if os.path.exists(R+'/x/de7f766b5893b.html'): encrypt_into(R+'/x/de7f766b5893b.html',sign_data(),pw)
     print('built',len(D),'active; og rendered',len(todo))
 if __name__=='__main__': write_all()

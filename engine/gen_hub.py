@@ -27,6 +27,7 @@ html=r'''<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 .tabs button.on{color:#fff;border-bottom-color:var(--gold)}
 .frames{position:fixed;left:0;right:0;bottom:0;top:var(--bh,96px)}
 .frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#f5f3ee}
+@media (prefers-color-scheme: dark){html,body,.frames iframe{background:#12110e!important}}
 .lock{min-height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
 .lock form{background:#17140f;border:1px solid #3a3324;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;color:var(--fg);text-align:center}
 .lock img{height:64px;background:#fff;border-radius:10px;padding:4px 8px;margin-bottom:12px}
