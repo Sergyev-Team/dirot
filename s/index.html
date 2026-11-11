@@ -96,7 +96,7 @@ function docHTML(d){return `<h1>${esc(d.title)}</h1><div class="num">מס' ${d.n
  ${DOC.c.notes?`<b>הערות ותוספות להסכם:</b><div class="notes">${esc(DOC.c.notes)}</div>`:""}`}
 function render(){const c=DOC.c;
  $("#app").innerHTML=`<div class="doc">
- <div class="hd"><div><b>${BROKER.name}</b><br>רישיון תיווך מס' ${BROKER.lic}<br>טלפון: ${BROKER.phone}</div><div class="team">${BROKER.team}</div></div>
+ <div class="hd"><div><b>${BROKER.name}</b><br>רישיון תיווך מס' ${BROKER.lic}<br>טלפון: ${BROKER.phone}</div><img src="logo.jpg" alt="צוות סרגייב" style="height:62px;width:auto"></div>
  <p class="hint">נא למלא את הפרטים, לקרוא את ${DS.length>1?"שני המסמכים":"ההזמנה"} ולחתום בתחתית העמוד.</p>
  <div class="f"><label>שם מלא<input id="nm" value="${esc(c.name)}" autocomplete="name"></label>
  <label>תעודת זהות<input id="idn" inputmode="numeric" autocomplete="off"></label>
@@ -130,7 +130,7 @@ async function submit(){const {v,m}=val(),E=$("#err");if(m.length){E.innerHTML=`
   $("#dl").onclick=()=>{const a=document.createElement("a");a.href="data:application/pdf;base64,"+pdf;a.download="הזמנת-שירותי-תיווך-"+pad(DOC.n)+".pdf";a.click()};window.scrollTo(0,0)}
  catch(e){E.innerHTML=`<div class="msg bad">לא הצלחנו לשלוח: ${esc(e.message)}. נסו שוב.</div>`;b.disabled=false;b.textContent="✍️ חתימה ושליחה"}}
 /* ---- PDF: drawn on canvas (keeps Hebrew correct) ---- */
-async function makePdf(v,when){try{for(const w of ["400","700"]){await document.fonts.load(w+" 26px Heebo","אב12")}}catch(e){}
+async function makePdf(v,when){const LOGO=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src="logo.jpg"});try{for(const w of ["400","700"]){await document.fonts.load(w+" 26px Heebo","אב12")}}catch(e){}
  const W=1240,H=1754,M=100,R=W-M,FF="Heebo, Arial, sans-serif",pages=[];let cv,g,y;
  const np=()=>{cv=document.createElement("canvas");cv.width=W;cv.height=H;g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,W,H);g.direction="rtl";g.textBaseline="alphabetic";pages.push(cv);y=M};
  const font=(s,b)=>g.font=(b?"700 ":"400 ")+s+"px "+FF;
@@ -140,7 +140,7 @@ async function makePdf(v,when){try{for(const w of ["400","700"]){await document.
  const sc=$("#sig");
  DS.forEach((d,di)=>{np();
   g.textAlign="right";font(30,1);g.fillStyle="#17150f";g.fillText(BROKER.name,R,y+30);font(22);g.fillText("רישיון תיווך מס' "+BROKER.lic,R,y+64);g.fillText("טלפון: "+BROKER.phone,R,y+94);
-  g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30);y+=112;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
+  if(LOGO){const lw=340,lh=Math.round(lw*LOGO.naturalHeight/LOGO.naturalWidth);g.drawImage(LOGO,M,y-6,lw,lh)}else{g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30)}y+=124;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
   para(d.title,{size:34,bold:1,center:1,gap:0});para("מס' "+d.num,{size:24,center:1,gap:14});
   para("שם הלקוח: "+v.name+"   ת.ז: "+v.idn+"   כתובת: "+v.addr,{size:23,gap:2});para("מייל: "+v.email+"   טלפון: "+v.phone,{size:23,gap:14});
   para(d.tbl.rows.length>1?"פרטי הנכסים:":"פרטי הנכס:",{size:24,bold:1,gap:6});
