@@ -1,0 +1,41 @@
+name: build-site
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['engine/**']
+concurrency:
+  group: build-site
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SHEET_URL: https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec
+      SHEET_TOKEN: ${{ secrets.SHEET_TOKEN }}
+      DIROT_PW: ${{ secrets.DIROT_PW }}
+      DIROT_STATE: /tmp/dirot_state
+      FORCE: ${{ github.event_name != 'schedule' && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -q cryptography pillow
+      - id: prep
+        run: python engine/run.py prepare
+      - if: steps.prep.outputs.build == 'true'
+        run: pip install -q playwright && python -m playwright install --with-deps chromium
+      - if: steps.prep.outputs.build == 'true'
+        run: python engine/run.py build
+      - run: python engine/run.py finish
+      - run: |
+          git config user.name "Claude"
+          git config user.email "noreply@anthropic.com"
+          git add -A
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -q -m "עדכון אוטומטי של האתר"
+          git pull -q --rebase && git push -q

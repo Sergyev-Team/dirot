@@ -12,7 +12,7 @@
 .top b{font-size:18px;letter-spacing:.5px}.top b span{color:var(--gold)}
 .top img{height:30px;border-radius:6px;background:#fff;padding:2px 4px}
 .out{background:none;border:1px solid #4a4334;color:#cfc6b4;border-radius:8px;font:inherit;font-size:13px;padding:4px 10px;cursor:pointer}
-.tabs{display:flex}.tabs button{flex:1;background:none;border:0;color:#cfc6b4;font:inherit;font-weight:700;font-size:16px;padding:10px 4px 12px;cursor:pointer;border-bottom:3px solid transparent}
+.tabs{display:flex}.tabs button{flex:1;background:none;border:0;color:#cfc6b4;font:inherit;font-weight:700;font-size:15px;white-space:nowrap;padding:10px 4px 12px;cursor:pointer;border-bottom:3px solid transparent}
 .tabs button.on{color:#fff;border-bottom-color:var(--gold)}
 .frames{position:fixed;left:0;right:0;bottom:0;top:var(--bh,96px)}
 .frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#f5f3ee}
@@ -24,17 +24,17 @@
 .lock button{margin-top:14px;width:100%;font:inherit;font-size:19px;font-weight:800;padding:12px;border-radius:12px;border:0;background:linear-gradient(90deg,#b8902f,#f0d58a,#b8902f);color:#111;cursor:pointer}
 .err{color:#f19c9c!important;margin-top:10px!important}
 </style></head><body>
-<div class="lock" id="lock"><form id="lf"><img src="../f/logo.jpg" alt=""><h1>משרד <span>סרגייב</span></h1><p>לוח קונים · לוח מתווך · לוח שיווק</p>
+<div class="lock" id="lock"><form id="lf"><img src="../f/logo.jpg" alt=""><h1>משרד <span>סרגייב</span></h1><p>קונים · מתווך · שיווק · העלאה</p>
 <input id="pw" type="password" placeholder="קוד כניסה" autocomplete="current-password" required><button type="submit">כניסה</button><p class="err" id="err" hidden>הקוד לא נכון. נסו שוב.</p></form></div>
 <div id="app" hidden>
  <div class="bar" id="bar"><div class="top"><b>משרד <span>סרגייב</span></b><div style="display:flex;gap:8px;align-items:center"><button class="out" id="out">יציאה</button><img src="../f/logo.jpg" alt=""></div></div>
-  <div class="tabs" id="tabs"><button data-t="buy">👥 קונים</button><button data-t="con">🏢 מתווך</button><button data-t="mkt">📣 שיווק</button></div></div>
+  <div class="tabs" id="tabs"><button data-t="buy">👥 קונים</button><button data-t="con">🏢 מתווך</button><button data-t="mkt">📣 שיווק</button><button data-t="upl">➕ העלאה</button></div></div>
  <div class="frames" id="frames"></div>
 </div>
 <script>
-const KEY="sergyev_console_pw",SALT="/Kg8THJ40w3W5ume1xwepA==",IV="lKtkoOikDPPGXIEp",CT="DTS4VweOymOPFRLFRXt9Sgq+8aQ=",IT=250000;
-const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html"};
-const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt"};
+const KEY="sergyev_console_pw",SALT="4zp82kad2ij88Grl6yvL2Q==",IV="jlza9CKiVZVR0sqe",CT="SDqjW2xUrck78LZcSlsuGd7XyjU=",IT=250000;
+const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html"};
+const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function check(pw){try{const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(SALT),iterations:IT,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
@@ -51,7 +51,7 @@ function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked
 function sizeBar(){document.documentElement.style.setProperty("--bh",document.getElementById("bar").offsetHeight+"px")}
 function start(){document.getElementById("lock").hidden=true;document.getElementById("app").hidden=false;sizeBar();
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
-  const h=location.hash.match(/^#(buy|con|mkt)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
+  const h=location.hash.match(/^#(buy|con|mkt|upl)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
 window.addEventListener("resize",sizeBar);
 document.getElementById("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
 document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const pw=document.getElementById("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else document.getElementById("err").hidden=false};
