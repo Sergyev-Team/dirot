@@ -116,6 +116,12 @@ function rmBox(x,li){ const box=el("div","rmbox"); box.append(el("div","rmq","ל
   box.append(row); return box; }
 const STATUS = {active:["באתר","active"], removed:["הוסר מהאתר","expired"], expired:["ירד מהפרסום","expired"], hidden:["לא באתר · חסרים פרטים","hidden"]};
 
+function mktUrl(x){
+  const yn=(k,t)=>x[k]=="כן"?t:(x[k]=="לא"?"בלי "+t:"");
+  const f=[x.type||"דירה", x.rooms&&(x.rooms+" חדרים"), ST(x)&&("רחוב "+ST(x)), x.nb, x.city, (x.floor!==""&&x.floor!=null)&&(x.floor==0?"קומת קרקע":"קומה "+x.floor), x.sqm&&(x.sqm+" מ״ר"), x.price&&("מחיר מבוקש "+nf(x.price)+" ₪"), x.prev&&("מחיר קודם "+nf(x.prev)+" ₪"), yn("el","מעלית"), yn("pk","חניה"), yn("mm","ממ״ד"), yn("bal","מרפסת"), x.cond, x.ren, x.first&&("פורסם לראשונה "+dd(x.first))].filter(Boolean).join(" · ");
+  const q="תכין הערכת שווי וניתוח שוק לפי המודל של צוות סרגייב (sergeyev-market-analysis) לנכס הזה:\n"+f+"\nמספר נכס באתר: "+x.id+"\n\nתמצא בעצמך דירות דומות שמשווקות עכשיו ביד 2, ועסקאות שנמכרו באזור לפי רשות המיסים (govmap), ותבנה את המצגת. איש קשר בסוף: משה מאיר כהן 054-9071916.";
+  return "https://claude.ai/new?q="+encodeURIComponent(q);
+}
 function card(x){
   const li = el("li","card");
   const head = el("div","head");
@@ -162,6 +168,7 @@ function card(x){
     if(API){ const rb=el("button","btn rm","🚫 ירדה מהשיווק"); rb.type="button"; rb.onclick=()=>{ if(!li.querySelector(".rmbox")) li.append(rmBox(x,li)); }; cl.append(rb); }
   } else if(x.rmLive && API){ const ub=el("button","btn","↩ החזר לאתר"); ub.type="button";
     ub.onclick=async()=>{ ub.disabled=true; try{ const j=await api({action:"restoreApt",id:x.id}); if(!j.ok) throw 0; applyRemoved(j.removed); toast("נכס "+x.id+" חזר לאתר"); render(); }catch(e){ ub.disabled=false; toast("לא הצלחתי להתחבר לגיליון. נסו שוב."); } }; cl.append(ub); }
+  cl.append(link("gold","📊 ניתוח שוק", mktUrl(x)));
   cl.append(link("","שורה בגיליון", SHEET+(x.id+1)));
   li.append(cl);
   return li;
