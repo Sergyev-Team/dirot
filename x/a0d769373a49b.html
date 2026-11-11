@@ -41,7 +41,7 @@ async function check(pw){try{const base=await crypto.subtle.importKey("raw",new 
  await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(IV)},key,b64(CT));return true}catch(e){return false}}
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
-function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=t;f.src=url||B[t];f.onload=()=>hook(f);document.getElementById("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
+function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=t;f.src=url||(B[t]+"?v="+Date.now());f.onload=()=>hook(f);document.getElementById("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
 function show(t,url){ls.set("office_tab",t);document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));const f=frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
 function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked=1;
   d.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
