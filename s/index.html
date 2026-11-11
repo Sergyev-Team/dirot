@@ -130,45 +130,51 @@ async function submit(){const {v,m}=val(),E=$("#err");if(m.length){E.innerHTML=`
   $("#app").innerHTML=`<div class="msg ok">✓ תודה ${esc(v.name)}! ${DS.length>1?"המסמכים נחתמו":"המסמך נחתם"} בהצלחה.<br>העתק חתום נשלח למייל ${esc(v.email)}.</div><button class="btn" id="dl">📄 הורדת העתק</button>`;
   $("#dl").onclick=()=>{const a=document.createElement("a");a.href="data:application/pdf;base64,"+pdf;a.download="הזמנת-שירותי-תיווך-"+pad(DOC.n)+".pdf";a.click()};window.scrollTo(0,0)}
  catch(e){E.innerHTML=`<div class="msg bad">לא הצלחנו לשלוח: ${esc(e.message)}. נסו שוב.</div>`;b.disabled=false;b.textContent="✍️ חתימה ושליחה"}}
-/* ---- PDF: drawn on canvas (keeps Hebrew correct) ---- */
-async function makePdf(v,when){const LOGO=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src="logo.jpg"});try{for(const w of ["400","700"]){await document.fonts.load(w+" 26px Heebo","אב12")}}catch(e){}
- const W=1240,H=1754,M=100,R=W-M,FF="Heebo, Arial, sans-serif",pages=[];let cv,g,y;
- const np=()=>{cv=document.createElement("canvas");cv.width=W;cv.height=H;g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,W,H);g.direction="rtl";g.textBaseline="alphabetic";pages.push(cv);y=M};
- const font=(s,b)=>g.font=(b?"700 ":"400 ")+s+"px "+FF;
- const wrap=(t,w)=>{const out=[];String(t).split("\n").forEach(par=>{let line="";par.split(/\s+/).forEach(wd=>{const tt=line?line+" "+wd:wd;if(g.measureText(tt).width>w&&line){out.push(line);line=wd}else line=tt});out.push(line)});return out};
- const para=(t,o={})=>{const s=o.size||24,lh=Math.round(s*1.55);font(s,o.bold);const ind=o.ind||0;const lines=wrap(t,R-M-ind);
-  lines.forEach(l=>{if(y+lh>H-M-40)np(),font(s,o.bold);g.fillStyle=o.color||"#17150f";if(o.center){g.textAlign="center";g.fillText(l,W/2,y+s)}else{g.textAlign="right";g.fillText(l,R-ind,y+s)}y+=lh});y+=o.gap??8};
- const sc=$("#sig");
- DS.forEach((d,di)=>{np();
-  g.textAlign="right";font(30,1);g.fillStyle="#17150f";g.fillText(BROKER.name,R,y+30);font(22);g.fillText("רישיון תיווך מס' "+BROKER.lic,R,y+64);g.fillText("טלפון: "+BROKER.phone,R,y+94);
-  if(LOGO){const lw=340,lh=Math.round(lw*LOGO.naturalHeight/LOGO.naturalWidth);g.drawImage(LOGO,M,y-6,lw,lh)}else{g.textAlign="left";font(26,1);g.fillStyle="#a87b1e";g.fillText(BROKER.team,M,y+30)}y+=124;g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=26;
-  para(d.title,{size:34,bold:1,center:1,gap:0});para("מס' "+d.num,{size:24,center:1,gap:14});
-  y+=6;{const cw=(R-M)/2,rh=56,F=[["שם הלקוח",v.name],["תעודת זהות",v.idn],["כתובת",v.addr],["טלפון",v.phone],["מייל",v.email],["תאריך",new Date().toLocaleDateString("he-IL")]];
-   font(24,1);g.textAlign="right";g.fillStyle="#17150f";g.fillText("פרטי הלקוח:",R,y+24);y+=38;
-   g.fillStyle="#faf6ec";g.fillRect(M,y,R-M,rh*3);g.strokeStyle="#cfc6b2";g.lineWidth=1.5;
-   F.forEach((f,i)=>{const col=i%2,row=Math.floor(i/2),x0=R-col*cw,yy=y+row*rh;g.strokeRect(x0-cw,yy,cw,rh);
-    g.textAlign="right";font(21,1);g.fillStyle="#7a6a45";const lb=f[0]+":";g.fillText(lb,x0-16,yy+36);const lw=g.measureText(lb).width;
-    font(23);g.fillStyle="#17150f";let val=String(f[1]||"");while(val.length>3&&g.measureText(val).width>cw-lw-48)val=val.slice(0,-1);g.fillText(val,x0-28-lw,yy+36)});
-   y+=rh*3+22}
-  para(d.tbl.rows.length>1?"פרטי הנכסים:":"פרטי הנכס:",{size:24,bold:1,gap:6});
-  const cols=[[R,R-560],[R-560,R-820],[R-820,M]];
-  const rowT=(cells,b)=>{font(22,b);const ls=cells.map((t,i)=>wrap(t,cols[i][0]-cols[i][1]-24));const h=Math.max(...ls.map(l=>l.length))*34+16;if(y+h>H-M-40)np();
-   if(b){g.fillStyle="#f7f2e6";g.fillRect(M,y,R-M,h)}g.strokeStyle="#cfc6b2";g.lineWidth=1.5;
-   cols.forEach((c,i)=>{g.strokeRect(c[1],y,c[0]-c[1],h);font(22,b);g.fillStyle="#17150f";g.textAlign="right";ls[i].forEach((l,j)=>g.fillText(l,c[0]-12,y+30+j*34))});y+=h};
-  rowT(d.tbl.head,1);d.tbl.rows.forEach(r=>rowT(r));y+=18;
-  if(d.intro)para(d.intro,{size:22,gap:10});
-  d.cl.forEach((x,i)=>{if(Array.isArray(x)){para((i+1)+". "+x[0],{size:22,gap:2});x.slice(1).forEach(s=>para(s,{size:22,ind:34,gap:2}));y+=6}else para((i+1)+". "+x,{size:22,gap:6})});
-  if(DOC.c.notes){y+=6;para("הערות ותוספות להסכם:",{size:23,bold:1,gap:2});para(DOC.c.notes,{size:22,gap:8})}
-  y+=8;font(22);if(y+wrap("☑ "+consent(),R-M).length*34+20+250>H-M-40)np();
-  para("☑ "+consent(),{size:22,gap:16});
-  const bw=420,bh=Math.round(bw*sc.height/sc.width);
-  g.drawImage(sc,M,y,bw,bh);g.strokeStyle="#17150f";g.beginPath();g.moveTo(M,y+bh+4);g.lineTo(M+bw,y+bh+4);g.stroke();
-  g.textAlign="left";font(20);g.fillStyle="#5f594b";g.fillText("חתימת הלקוח",M+bw/2-50,y+bh+30);
-  g.textAlign="right";font(22,1);g.fillStyle="#17150f";g.fillText("תאריך ושעה: "+when,R,y+40);font(20);g.fillStyle="#5f594b";
-  g.fillText("נחתם אלקטרונית ע\"י "+v.name+", ת.ז "+v.idn,R,y+76);g.fillText("מסמך מס' "+d.num,R,y+108)});
- pages.forEach((p,i)=>{const x=p.getContext("2d");x.direction="rtl";x.textAlign="center";x.font="400 18px "+FF;x.fillStyle="#8a8270";x.fillText("עמוד "+(i+1)+" מתוך "+pages.length+" · "+BROKER.team+" · "+BROKER.name,W/2,H-50)});
+/* ---- PDF: drawn on canvas (keeps Hebrew correct); each document auto-shrinks to fit one A4 page ---- */
+async function makePdf(v,when){const LOGO=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src="logo.jpg"});
+ try{for(const w of ["400","700"]){await document.fonts.load(w+" 26px Heebo","אב12")}}catch(e){}
+ const W=1240,H=1754,M=80,R=W-M,FF="Heebo, Arial, sans-serif",sc=$("#sig"),today=new Date().toLocaleDateString("he-IL");
+ function draw(d,k){const pages=[];let cv,g,y;const z=x=>Math.round(x*k),BOT=H-70;
+  const np=()=>{cv=document.createElement("canvas");cv.width=W;cv.height=H;g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,W,H);g.direction="rtl";g.textBaseline="alphabetic";pages.push(cv);y=70};
+  const font=(s,b)=>g.font=(b?"700 ":"400 ")+s+"px "+FF;
+  const wrap=(t,w)=>{const out=[];String(t).split("\n").forEach(par=>{let line="";par.split(/\s+/).forEach(wd=>{const tt=line?line+" "+wd:wd;if(g.measureText(tt).width>w&&line){out.push(line);line=wd}else line=tt});out.push(line)});return out};
+  const para=(t,o={})=>{const s=z(o.size||22),lh=Math.round(s*1.42);font(s,o.bold);const ind=z(o.ind||0);
+   wrap(t,R-M-ind).forEach(l=>{if(y+lh>BOT)np(),font(s,o.bold);g.fillStyle=o.color||"#17150f";if(o.center){g.textAlign="center";g.fillText(l,W/2,y+s)}else{g.textAlign="right";g.fillText(l,R-ind,y+s)}y+=lh});y+=z(o.gap??5)};
+  np();
+  // header: broker (right) · logo (left)
+  g.textAlign="right";g.fillStyle="#17150f";font(z(28),1);g.fillText(BROKER.name,R,y+z(28));font(z(20));g.fillText("רישיון תיווך מס' "+BROKER.lic+"  ·  טלפון: "+BROKER.phone,R,y+z(58));
+  if(LOGO){const lh=z(84),lw=Math.round(lh*LOGO.naturalWidth/LOGO.naturalHeight);g.drawImage(LOGO,M,y-z(6),lw,lh)}
+  y+=z(88);g.fillStyle="#a87b1e";g.fillRect(M,y,R-M,3);y+=z(18);
+  // title + number on one line
+  font(z(32),1);g.fillStyle="#17150f";g.textAlign="center";g.fillText(d.title,W/2,y+z(32));font(z(20));g.fillStyle="#5f594b";g.textAlign="left";g.fillText("מס' "+d.num,M,y+z(30));y+=z(50);
+  // client box: 3 columns x 2 rows
+  {const F=[["שם הלקוח",v.name],["תעודת זהות",v.idn],["טלפון",v.phone],["כתובת",v.addr],["מייל",v.email],["תאריך",today]],cw=(R-M)/3,rh=z(48);
+   g.fillStyle="#faf6ec";g.fillRect(M,y,R-M,rh*2);g.strokeStyle="#d8cfba";g.lineWidth=1.5;
+   F.forEach((f,i)=>{const col=i%3,row=Math.floor(i/3),x0=R-col*cw,yy=y+row*rh;g.strokeRect(x0-cw,yy,cw,rh);
+    g.textAlign="right";font(z(17),1);g.fillStyle="#7a6a45";const lb=f[0]+":";g.fillText(lb,x0-12,yy+rh*0.64);const lw=g.measureText(lb).width;
+    font(z(19));g.fillStyle="#17150f";let val=String(f[1]||"");while(val.length>3&&g.measureText(val).width>cw-lw-30)val=val.slice(0,-1);g.fillText(val,x0-20-lw,yy+rh*0.64)});
+   y+=rh*2+z(14)}
+  // property table
+  const cols=[[R,R-600],[R-600,R-840],[R-840,M]],rowT=(cells,b)=>{font(z(19),b);const ls=cells.map((t,i)=>wrap(t,cols[i][0]-cols[i][1]-20));const h=Math.max(...ls.map(l=>l.length))*z(28)+z(12);if(y+h>BOT)np();
+   if(b){g.fillStyle="#f3ecdc";g.fillRect(M,y,R-M,h)}g.strokeStyle="#d8cfba";g.lineWidth=1.5;
+   cols.forEach((c,i)=>{g.strokeRect(c[1],y,c[0]-c[1],h);font(z(19),b);g.fillStyle="#17150f";g.textAlign="right";ls[i].forEach((l,j)=>g.fillText(l,c[0]-10,y+z(26)+j*z(28)))});y+=h};
+  rowT(d.tbl.head,1);d.tbl.rows.forEach(r=>rowT(r));y+=z(14);
+  if(d.intro)para(d.intro,{size:19,gap:6});
+  d.cl.forEach((x,i)=>{if(Array.isArray(x)){para((i+1)+". "+x[0],{size:19,gap:1});x.slice(1).forEach(s=>para(s,{size:19,ind:30,gap:1}));y+=z(3)}else para((i+1)+". "+x,{size:19,gap:4})});
+  if(DOC.c.notes){y+=z(4);para("הערות ותוספות להסכם:",{size:20,bold:1,gap:1});para(DOC.c.notes,{size:19,gap:4})}
+  y+=z(6);font(z(19));const need=wrap("☑ "+consent(),R-M).length*z(27)+z(10)+z(170);if(y+need>BOT)np();
+  para("☑ "+consent(),{size:19,gap:8});
+  // signature row: details right, signature left
+  const bw=z(330),bh=Math.round(bw*sc.height/sc.width);
+  g.drawImage(sc,M,y,bw,bh);g.strokeStyle="#17150f";g.beginPath();g.moveTo(M,y+bh+3);g.lineTo(M+bw,y+bh+3);g.stroke();
+  g.textAlign="center";font(z(17));g.fillStyle="#5f594b";g.fillText("חתימת הלקוח",M+bw/2,y+bh+z(24));
+  g.textAlign="right";font(z(20),1);g.fillStyle="#17150f";g.fillText("תאריך ושעה: "+when,R,y+z(32));font(z(18));g.fillStyle="#5f594b";
+  g.fillText("נחתם אלקטרונית ע\"י "+v.name+", ת.ז "+v.idn,R,y+z(62));g.fillText("מסמך מס' "+d.num,R,y+z(90));
+  return pages}
+ const all=[];DS.forEach(d=>{let k=1,pg=draw(d,k);while(pg.length>1&&k>0.7){k-=0.05;pg=draw(d,k)}all.push(...pg)});
+ all.forEach((p,i)=>{const x=p.getContext("2d");x.direction="rtl";x.textAlign="center";x.font="400 16px "+FF;x.fillStyle="#8a8270";x.fillText("עמוד "+(i+1)+" מתוך "+all.length+" · "+BROKER.team+" · "+BROKER.name,W/2,H-36)});
  const pdf=new jspdf.jsPDF({unit:"pt",format:"a4",compress:true});
- pages.forEach((p,i)=>{if(i)pdf.addPage();pdf.addImage(p.toDataURL("image/jpeg",0.86),"JPEG",0,0,595.28,841.89)});
+ all.forEach((p,i)=>{if(i)pdf.addPage();pdf.addImage(p.toDataURL("image/jpeg",0.88),"JPEG",0,0,595.28,841.89)});
  return pdf.output("datauristring").split(",")[1]}
 load();
 </script></body></html>
