@@ -47,14 +47,14 @@ const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:
 const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"}),heT=ts=>new Date(ts).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
 let P=null,L=null;
 function loginView(msg){$("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל בעלי נכסים</small></div>
- <div class="card"><h2>כניסה לפורטל הנכס</h2><p class="hint">הקלידו את שם המשתמש (מספר הטלפון שלכם או מספר הנכס) ואת קוד הכניסה בן 6 הספרות שקיבלתם מאיתנו.</p>
- <form id="lf"><label class="hint">שם משתמש<input id="lu" inputmode="numeric" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
- <label class="hint">קוד כניסה<input id="lp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="width:100%;font:inherit;font-size:24px;letter-spacing:6px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
+ <div class="card"><h2>כניסה לפורטל הנכס</h2><p class="hint">הקלידו את כתובת המייל שלכם ואת קוד הכניסה שקיבלתם מאיתנו (למשל ST323-481).</p>
+ <form id="lf"><label class="hint">מייל<input id="lu" type="email" inputmode="email" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
+ <label class="hint">קוד כניסה<input id="lp" autocapitalize="characters" autocomplete="current-password" style="width:100%;font:inherit;font-size:22px;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
  <button class="btn" style="width:100%" type="submit">כניסה</button><p class="hint" id="le">${msg||""}</p></form></div>
  <p class="hint" style="text-align:center">שכחתם את הקוד? פנו אלינו: 054-9071916</p>`;
  $("#lf").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;$("#le").textContent="";
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
-   if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"שם המשתמש או הקוד לא נכונים.";b.disabled=false;return}
+   if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"המייל או הקוד לא נכונים.";b.disabled=false;return}
    K=j.items[0].k;try{localStorage.setItem(OK,K)}catch(x){}load()}catch(x){$("#le").textContent="אין חיבור, נסו שוב.";b.disabled=false}}}
 function logout(){try{localStorage.removeItem(OK)}catch(e){}K="";history.replaceState(null,"",location.pathname);loginView()}
 async function load(){
