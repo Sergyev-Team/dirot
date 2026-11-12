@@ -38,7 +38,7 @@ async function icon(Comp) {
   const high = P.price > R.rec;
   const days = P.listed ? Math.round((today - pdate(P.listed)) / 864e5) : null;
   const hlDeals = deals.filter((d) => d.hl);
-  const keyDeals = (hlDeals.length ? hlDeals : deals).slice(0, 2);
+  const keyDeals = [...(hlDeals.length ? hlDeals : deals)].sort((x, y) => Math.abs(x.sqm - S.p.sqm) - Math.abs(y.sqm - S.p.sqm)).slice(0, 2);
   const addr = S.address;
 
   const pres = new pptxgen();
@@ -145,7 +145,7 @@ async function icon(Comp) {
     const s = pres.addSlide();
     const k = keyDeals[0];
     const gap = Math.abs(P.price - k.price);
-    frame(s, high ? `המחיר המבוקש גבוה ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה` : `המחיר המבוקש נמוך ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה`, "המחיר המבוקש מול עסקאות שנסגרו", true);
+    frame(s, P.price > k.price ? `המחיר המבוקש גבוה ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה` : `המחיר המבוקש נמוך ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה`, "המחיר המבוקש מול עסקאות שנסגרו", true);
     const cards = [{ eyebrow: "המחיר המבוקש", big: nf(P.price) + " ₪", l1: `${P.sqm} מ״ר · ${P.floor ? "קומה " + P.floor : P.type}`, l2: `כ־${nf(Math.round(psm / 50) * 50)} ₪ למ״ר`, hot: true }];
     keyDeals.forEach((d) => cards.push({ eyebrow: d.addr + " · נמכרה", big: nf(d.price) + " ₪", l1: `${d.sqm} מ״ר` + (d.floor ? " · קומה " + d.floor : ""), l2: fdate(d.date) }));
     statCards(s, cards);

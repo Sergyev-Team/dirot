@@ -3,8 +3,8 @@ import json, os, sys, glob, hashlib, shutil, subprocess, zipfile, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PPTX_SKILL = sys.argv[3] if len(sys.argv) > 3 else None
-spec = sys.argv[1]
-out_dir = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
+spec = os.path.abspath(sys.argv[1])
+out_dir = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.getcwd()
 S = json.load(open(spec))
 name = "הערכת-שווי-" + S.get("slug", S["address"].replace(" ", "-"))
 raw = os.path.join(tempfile.mkdtemp(), "raw.pptx")
