@@ -57,6 +57,21 @@ textarea{width:100%;font:inherit;font-size:16px;min-height:90px;padding:10px 12p
 .btn.wa{background:var(--wa)}.btn.gh{background:transparent;color:var(--fg);border:1.5px solid var(--line)}.btn.gold{background:var(--gold)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.row .btn{flex:1}
 .hint{color:var(--muted);font-size:14px}.foot{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
 @media (prefers-reduced-motion:no-preference){.it{animation:none}}
+
+body.lgb{background:radial-gradient(120% 80% at 50% 0%,#2A2E36 0,#16191F 60%) fixed;min-height:100vh}
+.lgw{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px}
+.lgc{width:100%;max-width:400px;background:#fff;border-radius:24px;padding:30px 26px 22px;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.55)}
+.lgl{height:64px;margin:0 auto 18px;display:block}
+.lgc h1{font-weight:300;font-size:30px;line-height:1.15;margin:0;letter-spacing:-.3px}
+.lgs{text-wrap:balance;color:var(--muted);font-size:15px;margin:8px 0 22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+#lf{text-align:right}#lf label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin:0 2px 6px}
+#lf input{width:100%;font:inherit;font-size:19px;padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);background:#F7F7F4;color:var(--fg);margin-bottom:16px;text-align:center}
+#lf input:focus{outline:none;border-color:var(--gold);background:#fff;box-shadow:0 0 0 4px rgba(169,128,47,.15)}
+#lf .pin{letter-spacing:3px;text-transform:uppercase;font-weight:600}
+#lf .btn{width:100%;min-height:52px;font-size:17px;border-radius:14px;margin-top:4px}
+.lge{color:#b42318;font-size:14px;min-height:20px;margin:10px 0 0;text-align:center}
+.lgf{font-size:14px;color:var(--muted);margin-top:8px}.lgf a{color:var(--gold);font-weight:600}
+.lgb2{color:#9AA0A8;font-size:13px;margin-top:18px}
 </style></head><body><div class="wrap" id="app"><p class="hint">טוען…</p></div>
 <script>
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
@@ -73,12 +88,14 @@ const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:
 
 const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"}),heT=ts=>new Date(ts).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
 let P=null,L=null;
-function loginView(msg){$("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל בעלי נכסים</small></div>
- <div class="card"><h2>כניסה לפורטל הנכס</h2><p class="hint">הקלידו את כתובת המייל שלכם ואת קוד הכניסה שקיבלתם מאיתנו.</p>
- <form id="lf"><label class="hint">מייל או שם משתמש<input id="lu" type="text" inputmode="email" autocapitalize="none" spellcheck="false" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
- <label class="hint">קוד כניסה<input id="lp" autocapitalize="characters" autocomplete="current-password" style="width:100%;font:inherit;font-size:22px;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
- <button class="btn" style="width:100%" type="submit">כניסה</button><p class="hint" id="le">${msg||""}</p></form></div>
- <p class="hint" style="text-align:center">שכחתם את הקוד? פנו אלינו: 054-9071916</p>`;
+function loginView(msg){document.body.classList.add("lgb");$("#app").innerHTML=`<main class="lgw"><div class="lgc">
+ <img class="lgl" src="logo.jpg" alt="צוות סרגייב">
+ <h1>פורטל בעלי הנכסים</h1><p class="lgs">כל מה שקורה עם הנכס שלכם, במקום אחד</p>
+ <form id="lf" novalidate><label for="lu">מייל או שם משתמש</label><input id="lu" type="text" inputmode="email" autocapitalize="none" spellcheck="false" autocomplete="username" dir="ltr">
+ <label for="lp">קוד כניסה</label><input id="lp" autocapitalize="characters" autocomplete="current-password" dir="ltr" class="pin">
+ <button class="btn gold" type="submit">כניסה לפורטל</button><p class="lge" id="le" role="alert">${msg||""}</p></form>
+ <div class="lgf">שכחתם את הקוד? <a href="https://wa.me/972549071916?text=${encodeURIComponent("שלום, שכחתי את קוד הכניסה לפורטל הנכס")}" target="_blank" rel="noopener">כתבו לנו בוואטסאפ</a></div></div>
+ <p class="lgb2">צוות סרגייב · מקצועיות, זריזות ואמינות</p></main>`;
  $("#lf").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;$("#le").textContent="";
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
    if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"המייל או הקוד לא נכונים.";b.disabled=false;return}
@@ -94,7 +111,7 @@ const CH={fb:{n:"פייסבוק",c:"#1877F2",i:"f"},y2:{n:"יד2",c:"#FF6A00",i:
 const CHORD=["fb","y2","md","ig","lead","tour","offer","more"];
 const chOf=t=>({fbgroup:"fb",fb:"fb",y2:"y2",md:"md",ig:"ig",story:"ig",lead:"lead",call:"lead",tour:"tour",offer:"offer"})[t]||"more";
 let FLT="all",SHOWN=40;
-function render(){const p=P.p,from=dt(p.from)||0,now=Date.now();
+function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.from)||0,now=Date.now();
  const st=(P.log||[]).find(x=>x.type==="start"),start=st?dt(st.d):from;
  const ev=mkEvents(P.mk,start?start-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text,amt:x.type==="offer"&&x.data&&x.data.amount?x.data.amount:0}))).concat(((P.cal||{}).pastD||[]).map((d,i)=>{const n=((P.cal||{}).pastN||[])[i]||1;return {ts:dt(d),type:"tour",n,title:n>1?"סיור בנכס עם "+n+" קונים":"סיור בנכס עם קונה",text:""}})).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",title:"קונה חדש פנה לגבי הנכס",text:"נוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
  ev.forEach(e=>{e.ch=chOf(e.type);if(!e.title)e.title=(OTYPES[e.type]||OTYPES.other)[1]});
