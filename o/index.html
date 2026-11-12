@@ -48,7 +48,7 @@ const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",
 let P=null,L=null;
 function loginView(msg){$("#app").innerHTML=`<div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small>פורטל בעלי נכסים</small></div>
  <div class="card"><h2>כניסה לפורטל הנכס</h2><p class="hint">הקלידו את כתובת המייל שלכם ואת קוד הכניסה שקיבלתם מאיתנו (למשל ST323-481).</p>
- <form id="lf"><label class="hint">מייל<input id="lu" type="email" inputmode="email" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
+ <form id="lf"><label class="hint">מייל או שם משתמש<input id="lu" type="text" inputmode="email" autocapitalize="none" spellcheck="false" autocomplete="username" style="width:100%;font:inherit;font-size:20px;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
  <label class="hint">קוד כניסה<input id="lp" autocapitalize="characters" autocomplete="current-password" style="width:100%;font:inherit;font-size:22px;letter-spacing:2px;text-transform:uppercase;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);margin:4px 0 10px;direction:ltr;text-align:center"></label>
  <button class="btn" style="width:100%" type="submit">כניסה</button><p class="hint" id="le">${msg||""}</p></form></div>
  <p class="hint" style="text-align:center">שכחתם את הקוד? פנו אלינו: 054-9071916</p>`;
