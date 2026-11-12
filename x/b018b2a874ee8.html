@@ -223,6 +223,7 @@ function drawNew(){const A=(window.__KB&&window.__KB.APTS)||[];
  <div class="sug" id="sgS"></div>
  <details><summary class="hint">או הוספת נכס ידנית (שלא בלוח)</summary><div class="g2" style="margin-top:6px"><label>כתובת מלאה<input id="sgMa" placeholder="רחוב, מספר, עיר, קומה"></label><label>מחיר<input id="sgMp" inputmode="numeric"></label></div><div class="g2"><label>סוג<input id="sgMt" value="דירה"></label><button type="button" class="b" id="sgMadd" style="align-self:end">➕ הוסף</button></div></details>
  <div id="sgPr"></div>
+ <label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input type="checkbox" id="sgH" checked style="width:20px;height:20px"> 🔒 להסתיר מספר בית/דירה עד החתימה</label>
  <div class="g2"><label>אחוז דמי תיווך (+ מע"מ)<input id="sgF" inputmode="decimal" value="${E(F.fee)}"></label><span></span></div>
  <label>הערות ותוספות להסכם (לא חובה)<textarea id="sgT">${E(F.notes)}</textarea></label>
  <p class="hint">הלקוח ימלא בעצמו ת״ז, כתובת ומייל, ויחתום. העתק חתום יישלח אליו ואליך במייל.</p>
@@ -245,7 +246,7 @@ function alertT(t){const o=document.getElementById("sgOut");if(o)o.innerHTML=`<p
 async function create(){const s=sync();F.name=document.getElementById("sgN").value.trim();F.phone=document.getElementById("sgP").value.trim();F.fee=+String(document.getElementById("sgF").value).replace(/[^\d.]/g,"")||2;F.notes=document.getElementById("sgT").value.trim();
  if(!s){alertT("אין חיבור לגיליון – רענן את הלוח בעוד דקה");return}if(!F.name){alertT("חסר שם לקוח");return}if(F.phone.replace(/\D/g,"").length<9){alertT("חסר טלפון");return}if(!F.props.length){alertT("הוסף לפחות נכס אחד");return}
  const b=document.getElementById("sgGo");b.disabled=true;b.textContent="יוצר…";
- try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c:{type:"buy",name:F.name,phone:F.phone,props:F.props,fee:F.fee,notes:F.notes}})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
+ try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c:{type:"buy",name:F.name,phone:F.phone,props:F.props,fee:F.fee,notes:F.notes,hideNum:!!(document.getElementById("sgH")||{}).checked}})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
   const link=SITE+"s/?k="+j.k;
   document.getElementById("sgOut").innerHTML=`<p><b>✓ טופס מס' ${pad(j.n)} מוכן</b></p><a class="b w" target="_blank" rel="noopener" href="${wa(F.phone,msg(F.name,link,F.props))}">💬 שלח ללקוח בוואטסאפ</a> <button type="button" class="b" id="sgCp">📋 העתק קישור</button>`;
   document.getElementById("sgCp").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(link);document.getElementById("sgCp").textContent="✓ הועתק"};b.textContent="✓ נוצר";}

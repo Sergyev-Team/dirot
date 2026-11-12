@@ -92,7 +92,7 @@ async function load(){
  DS=docs(DOC);render()}
 const consent=()=>DS.length>1?CONSENT2:CONSENT1;
 function docHTML(d){return `<h1>${esc(d.title)}</h1><div class="num">מס' ${d.num}</div>
- <b>פרטי ${d.tbl.rows.length>1?"הנכסים":"הנכס"}:</b><table><tr>${d.tbl.head.map(h=>`<th>${h}</th>`).join("")}</tr>${d.tbl.rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</table>
+ <b>פרטי ${d.tbl.rows.length>1?"הנכסים":"הנכס"}:</b><table><tr>${d.tbl.head.map(h=>`<th>${h}</th>`).join("")}</tr>${d.tbl.rows.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join("")}</tr>`).join("")}</table>${DOC.c&&DOC.c.hideNum?`<p class="hint" style="margin:4px 0 10px">🔒 הכתובת המדויקת (מספר בית ודירה) תישלח אליכם במייל מיד לאחר החתימה.</p>`:""}
  ${d.intro?`<p>${esc(d.intro)}</p>`:""}<ol>${d.cl.map(x=>Array.isArray(x)?`<li>${esc(x[0])}<ul class="sub">${x.slice(1).map(s=>`<li>${esc(s)}</li>`).join("")}</ul></li>`:`<li>${esc(x)}</li>`).join("")}</ol>
  ${DOC.c.notes?`<b>הערות ותוספות להסכם:</b><div class="notes">${esc(DOC.c.notes)}</div>`:""}`}
 function render(){const c=DOC.c;

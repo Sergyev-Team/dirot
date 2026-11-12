@@ -87,10 +87,17 @@ const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(
 const stN=p=>{let s=String(p&&p.addr||"").split(",")[0].replace(/\s*\d+[א-ת]?\s*$/,"").trim();if(!s)return"";return /^(רחוב|רח'|שד'|שדרות|סמטת|דרך|כיכר)/.test(s)?"ב"+s.replace(/^רח'\s*/,"רחוב "):"ברחוב "+s};
 const msg=(name,link,two,pr,tp)=>(tp==="sell"||tp==="let")?"שלום "+(name||"")+" 👋\nשמחים על האמון שלכם ועל ההחלטה "+(tp==="let"?"להשכיר":"לשווק")+" את הדירה"+(stN(pr&&pr[0])?" "+stN(pr[0]):"")+" דרכנו 🏡\n\nמצרף קישור לחתימה על הסכם שיווק"+(two?" ובלעדיות":"")+". החתימה דיגיטלית ולוקחת דקה 🙏\n👇\n"+link+"\n\n"+(two?"מיד אחרי החתימה יגיע אליכם מייל עם כניסה לפורטל אישי של הנכס – שם תוכלו לראות בכל רגע את הפרסומים, הפניות, הקונים המתאימים והפגישות.\n\n":"")+"יוצאים לדרך! 💪\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916":"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916";
 let F=null;
-function reset(t){const today=iso(new Date());F={type:t||F&&F.type||"sell",name:"",phone:"",props:[],fee:2,months:1,excl:true,from:today,mon:6,to:addM(today,6),notes:""}}
+/* נכסים ידניים ולקוחות שמורים – נשמרים בטלפון ובגיליון */
+let SAVED={props:[],clients:[]};try{const s=JSON.parse(localStorage.getItem("sg_saved")||"null");if(s){SAVED.props=s.props||[];SAVED.clients=s.clients||[]}}catch(e){}
+const phN=p=>String(p||"").replace(/\D/g,"").replace(/^972/,"0");
+function svMerge(s){(s.props||[]).forEach(p=>{if(p&&p.addr&&!SAVED.props.some(q=>q.addr===p.addr))SAVED.props.push(p)});(s.clients||[]).forEach(c=>{if(c&&c.name&&!SAVED.clients.some(q=>phN(q.phone)===phN(c.phone)&&q.name===c.name))SAVED.clients.push(c)});try{localStorage.setItem("sg_saved",JSON.stringify(SAVED))}catch(e){}}
+function svPut(){try{localStorage.setItem("sg_saved",JSON.stringify(SAVED))}catch(e){}if(U&&U.sync&&!U.agent)fetch(U.sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:U.sync.token,set:{sg_saved:JSON.stringify(SAVED)}})}).catch(()=>{})}
+async function svPull(){if(!U||!U.sync||U.agent)return;try{const j=await(await fetch(U.sync.url+"?t="+encodeURIComponent(U.sync.token))).json();const v=j&&j.data&&j.data.sg_saved;if(v)svMerge(JSON.parse(v))}catch(e){}}
+function reset(t){const today=iso(new Date());F={type:t||F&&F.type||"sell",hide:true,name:"",phone:"",props:[],fee:2,months:1,excl:true,from:today,mon:6,to:addM(today,6),notes:""}}
 const owner=()=>F.type==="sell"||F.type==="let",rent=()=>F.type==="let"||F.type==="rentin";
 function keep(){const g=id=>{const x=document.getElementById(id);return x?x.value:null};
  if(g("nN")!=null){F.name=g("nN").trim();F.phone=g("nP").trim();F.notes=g("nT");if(rent())F.months=+g("nF")||1;else F.fee=+String(g("nF")).replace(/[^\d.]/g,"")||2;
+  {const h=document.getElementById("nH");if(h)F.hide=h.checked}
   if(owner()){const x=$("#nX");F.excl=x.checked;if(F.excl){F.from=g("nFr")||F.from;F.to=g("nTo")||F.to}}}}
 function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x.deal==="השכרה":x.deal!=="השכרה"));
  $("#nw").innerHTML=`<p class="lbl" style="margin-top:0">מי חותם?</p><div class="who">${Object.entries(WHO).map(([k,v])=>`<button type="button" data-t="${k}" class="${F.type===k?"on":""}">${v[0]}<small>${v[1]}</small></button>`).join("")}</div>
@@ -99,6 +106,7 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
  <div class="ar"><input id="nA" placeholder="מספר נכס או רחוב, למשל 416 או סוקולוב" autocomplete="off"><button type="button" class="btn ghost" id="nAadd">➕ הוסף</button></div><div class="sug" id="nS"></div>
  <details style="margin-top:8px"><summary class="hint">או הוספה ידנית (נכס שלא בלוח)</summary><div class="g2 st"><label class="l">כתובת מלאה<input id="nMa" placeholder="רחוב, מספר, עיר, קומה"></label><label class="l">${rent()?"שכר דירה חודשי":"מחיר"}<input id="nMp" inputmode="numeric"></label></div><div class="g2"><label class="l">סוג<input id="nMt" value="דירה"></label><button type="button" class="btn ghost" id="nMadd" style="align-self:end">➕ הוסף</button></div></details>
  <div id="nPr"></div>
+ ${own?"":`<label class="chk" style="margin:8px 0"><input type="checkbox" id="nH" ${F.hide?"checked":""}> 🔒 להסתיר את מספר הבית/הדירה עד החתימה <small class="hint">(הכתובת המלאה תישלח ללקוח במייל מיד אחרי שיחתום)</small></label>`}
  ${own?`<div class="ex"><label class="chk"><input type="checkbox" id="nX" ${F.excl?"checked":""}> כולל הסכם בלעדיות (באותו קישור)</label>
   <div id="nXw" ${F.excl?"":"hidden"}><div class="g2"><label class="l">מתאריך<input type="date" id="nFr" value="${F.from}"></label><label class="l">תקופה<select id="nMo">${[1,2,3,4,5,6,9,12].map(m=>`<option value="${m}" ${F.mon===m?"selected":""}>${m} חודשים</option>`).join("")}<option value="0" ${F.mon===0?"selected":""}>תאריך אחר…</option></select></label></div>
   <label class="l">עד תאריך<input type="date" id="nTo" value="${F.to}"></label></div></div>`:""}
@@ -110,7 +118,8 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
  drawProps();
  const nn=$("#nN"),np=$("#nP"),ns=$("#nNs");
  const bfind=()=>{const q=nn.value.trim(),d=np.value.replace(/\D/g,"");const seen=new Set();
-  return BUY.filter(b=>{const ph=String(b.phone||"").replace(/\D/g,"");const ok=(q.length>=2&&String(b.name).includes(q))||(d.length>=3&&ph.includes(d));if(!ok||seen.has(ph+b.name))return false;seen.add(ph+b.name);return true}).slice(0,6)};
+  const POOL=BUY.concat(SAVED.clients.map(c=>({name:c.name,phone:c.phone,profile:"📌 לקוח שמור"}))).concat((LIST||[]).map(c=>({name:c.name,phone:c.phone,profile:"📄 קיבל טופס"})));
+  return POOL.filter(b=>{const ph=String(b.phone||"").replace(/\D/g,"");const ok=(q.length>=2&&String(b.name).includes(q))||(d.length>=3&&ph.includes(d));if(!ok||seen.has(ph+b.name))return false;seen.add(ph+b.name);return true}).slice(0,6)};
  const bsug=()=>{const r=bfind(),q=nn.value.trim();if(!r.length){ns.innerHTML="";return}
   ns.innerHTML=r.map((b,i)=>`<button type="button" data-i="${i}">👤 ${E(b.name)}${b.phone?" · "+E(b.phone):""}${b.profile?` <small class="hint">· ${E(b.profile)}</small>`:""}</button>`).join("")+`<button type="button" data-new="1">➕ לקוח חדש${q?": "+E(q):""}</button>`;
   ns.querySelectorAll("button").forEach(x=>x.onclick=()=>{if(!x.dataset.new){const b=r[+x.dataset.i];nn.value=b.name;np.value=b.phone||"";toast("✓ נבחר "+b.name)}ns.innerHTML="";F.name=nn.value.trim();F.phone=np.value.trim()})};
@@ -118,10 +127,13 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
  const sa=$("#nA"),sg=$("#nS");
  const pick=a=>{const p={id:a.id,addr:a.street+" "+a.hn+", "+a.city+(a.floor!==""&&a.floor!=null?", קומה "+a.floor:""),price:a.price||"",type:a.type||"דירה"};if(own)F.props=[p];else F.props.push(p);sa.value="";sg.innerHTML="";drawProps();toast("✓ נוסף נכס #"+a.id)};
  const find=q=>{q=q.trim().replace(/^#/,"");if(!q)return [];const n=q.replace(/\D/g,"");if(n&&n===q)return A.filter(x=>String(x.id)===n).concat(A.filter(x=>String(x.id).startsWith(n)&&String(x.id)!==n)).slice(0,6);return A.filter(x=>(x.street+" "+x.hn+" "+(x.nb||"")+" "+x.city).includes(q)).slice(0,6)};
- sa.oninput=()=>{const r=find(sa.value);sg.innerHTML=r.map(a=>`<button type="button" data-id="${a.id}">#${a.id} · ${E(a.street+" "+a.hn)}, ${E(a.city)}${a.floor!==""&&a.floor!=null?" · קומה "+a.floor:""}${a.price?" · "+fm(a.price):""}</button>`).join("")||(sa.value.trim()?'<p class="hint">לא נמצא נכס פעיל – אפשר להוסיף ידנית</p>':"");sg.querySelectorAll("button").forEach(x=>x.onclick=()=>pick(A.find(a=>a.id==x.dataset.id)))};
- const first=()=>{const r=find(sa.value);if(r.length)pick(r[0]);else toast("לא נמצא נכס כזה")};
+ const sfind=q=>{q=q.trim();return q.length<2?[]:SAVED.props.filter(p=>p.addr.includes(q)).slice(0,5)};
+ const spick=p=>{const c=Object.assign({},p);if(own)F.props=[c];else F.props.push(c);sa.value="";sg.innerHTML="";drawProps();toast("✓ נוסף "+p.addr)};
+ sa.oninput=()=>{const r=find(sa.value),s=sfind(sa.value);sg.innerHTML=r.map(a=>`<button type="button" data-id="${a.id}">#${a.id} · ${E(a.street+" "+a.hn)}, ${E(a.city)}${a.floor!==""&&a.floor!=null?" · קומה "+a.floor:""}${a.price?" · "+fm(a.price):""}</button>`).join("")+s.map((p,i)=>`<button type="button" data-s="${i}">📌 ${E(p.addr)}${p.price?" · "+fm(p.price):""} <small class="hint">· נכס שמור</small></button>`).join("")||(sa.value.trim()?'<p class="hint">לא נמצא נכס – אפשר להוסיף ידנית (והוא יישמר לפעם הבאה)</p>':"");
+  sg.querySelectorAll("button").forEach(x=>x.onclick=()=>x.dataset.s!=null?spick(s[+x.dataset.s]):pick(A.find(a=>a.id==x.dataset.id)))};
+ const first=()=>{const r=find(sa.value),s=sfind(sa.value);if(r.length)pick(r[0]);else if(s.length)spick(s[0]);else toast("לא נמצא נכס כזה")};
  $("#nAadd").onclick=first;sa.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();first()}};
- $("#nMadd").onclick=()=>{const ad=$("#nMa").value.trim();if(!ad){toast("הקלד כתובת");return}const p={addr:ad,price:+$("#nMp").value.replace(/\D/g,"")||"",type:$("#nMt").value.trim()||"דירה"};if(own)F.props=[p];else F.props.push(p);$("#nMa").value="";$("#nMp").value="";drawProps()};
+ $("#nMadd").onclick=()=>{const ad=$("#nMa").value.trim();if(!ad){toast("הקלד כתובת");return}const p={addr:ad,price:+$("#nMp").value.replace(/\D/g,"")||"",type:$("#nMt").value.trim()||"דירה"};if(own)F.props=[p];else F.props.push(p);$("#nMa").value="";$("#nMp").value="";drawProps();if(!SAVED.props.some(q=>q.addr===ad)){SAVED.props.unshift(p);svPut();toast("✓ הנכס נשמר – בפעם הבאה פשוט מקלידים את הרחוב")}};
  if(own){const x=$("#nX"),fr=$("#nFr"),mo=$("#nMo"),to=$("#nTo");
   x.onchange=()=>{$("#nXw").hidden=!x.checked};
   const upd=()=>{F.mon=+mo.value;if(F.mon)to.value=addM(fr.value,F.mon)};fr.onchange=upd;mo.onchange=upd;to.onchange=()=>{mo.value="0";F.mon=0}}
@@ -133,9 +145,9 @@ async function create(){keep();const s=U.sync,o=$("#nOut");const err=t=>{o.inner
  if(owner()&&F.excl&&!(F.from&&F.to&&F.to>F.from))return err("בדוק את תאריכי הבלעדיות");
  const b=$("#nGo");b.disabled=true;b.textContent="יוצר…";
  const c={type:F.type,name:F.name,phone:F.phone,props:F.props,notes:F.notes.trim(),date:iso(new Date())};
- if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}if(owner()&&F.props[0]&&F.props[0].id)c.lid=F.props[0].id;
+ if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}if(owner()&&F.props[0]&&F.props[0].id)c.lid=F.props[0].id;if(!owner()&&F.hide)c.hideNum=true;
  try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
-  const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";
+  const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";svMerge({clients:[{name:F.name,phone:F.phone}]});svPut();
   o.innerHTML=`<div class="box nw"><b>✓ טופס מס' ${pad(j.n)} מוכן${c.excl?" (הסכמה + בלעדיות)":""}</b></div><div class="row"><a class="btn wa" style="flex:1" target="_blank" rel="noopener" href="${E(wa(F.phone,msg(F.name,link,!!c.excl,F.props,F.type)))}">💬 שלח ללקוח בוואטסאפ</a><button type="button" class="btn ghost" id="nCp">📋 העתק קישור</button></div><button type="button" class="btn ghost big" id="nAg">➕ טופס חדש נוסף</button>`;
   $("#nCp").onclick=()=>{try{navigator.clipboard.writeText(link)}catch(e){}$("#nCp").textContent="✓ הועתק"};$("#nAg").onclick=()=>{reset(F.type);drawNew();window.scrollTo(0,0)}}
  catch(e){err("שגיאה: "+e.message);b.disabled=false;b.textContent="🔗 צור קישור לחתימה"}}
@@ -246,7 +258,7 @@ function drawONew(){const w=$("#oNew");if(!w.hidden){w.hidden=true;return}w.hidd
 function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="list")loadList();if(m==="own")loadOwn()}
 let BUY=[];
 function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
- if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){const t=$("#ownT");if(t)t.remove()}else{$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn;
+ if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();svPull();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){const t=$("#ownT");if(t)t.remove()}else{$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn;
   const mm=location.hash.match(/^#m=(\d+)/);if(mm){MNG_ID=mm[1];document.body.classList.add("mngmode");const hd=$("#mngHd");if(hd){hd.hidden=false;hd.querySelector("b").textContent="⚙️ ניהול נכס #"+MNG_ID+" · "+aAddr(MNG_ID)}mode("own")}}}
 
 (function(){
