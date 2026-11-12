@@ -1,4 +1,15 @@
-<!doctype html><html lang="he" dir="rtl"><head><script>if(self!==top)document.documentElement.classList.add("inframe")</script><style>.inframe .top{top:0!important}.inframe .queue{bottom:10px!important}.inframe #toast{bottom:16px!important}</style><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>לוח קונים סרגייב</title>
+<!doctype html><html lang="he" dir="rtl"><head><script>if(self!==top)document.documentElement.classList.add("inframe")</script><style>.inframe .top{top:0!important}.inframe .queue{bottom:10px!important}.inframe #toast{bottom:16px!important}.grp.lnk .cnt{background:var(--gold-soft)}
+.lnkbox{margin-top:14px}.lnkbox>summary{list-style:none;cursor:pointer;display:inline-flex}.lnkbox>summary::-webkit-details-marker{display:none}
+.lnkin{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.lg{border-bottom:1px solid var(--line);padding:6px 0}.lg:last-of-type{border-bottom:0}
+.lgr{display:flex;align-items:center;gap:8px}.lgh{flex:1;display:flex;align-items:center;gap:8px;font-size:16px;cursor:pointer}
+.lgh input,.lgi input{width:22px;height:22px;accent-color:var(--gold)}
+.lgt{background:none;border:1px solid var(--line);border-radius:8px;color:inherit;font-size:16px;padding:2px 10px;cursor:pointer}
+.lgl{display:flex;flex-direction:column;gap:4px;padding:6px 30px 4px 0}.lgi{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
+.lgf{position:sticky;bottom:8px;margin-top:10px}.lgf .btn{width:100%}.lgf .btn:disabled{opacity:.5}
+.m .unl{min-width:0!important;padding:6px 10px}
+.lgh .cnt{font-size:13px;font-weight:800;border-radius:999px;padding:1px 9px;background:var(--gold-soft);margin-inline-start:auto}
+</style><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>לוח קונים סרגייב</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap">
 <style>
 /* Layout: sticky header with sync state + filters, then one column of buyer cards (who, what they want, when we last talked, one-tap actions). */
@@ -496,7 +507,27 @@ function mRow(a,x,near){ const b=x.b, sent=wasSent(a.id,b); const li=el("li","m"
   const notes=[...x.f.why]; if(x.f.unk.length) notes.push("לא ידוע אם יש: "+x.f.unk.join(", "));
   if(notes.length) li.append(el("p","why",(near?"כמעט: ":"")+notes.join(" · ")));
   return li; }
-function renderApt(){ const top=document.querySelector(".top"); top.classList.add("apt"); setSync();
+let LNK={},LNK_PULLED=false;try{LNK=JSON.parse(localStorage.getItem("kb_lnk")||"{}")||{}}catch(_){}
+const lsync=()=>(window.__KB&&window.__KB.DATA&&window.__KB.DATA.sync)||(typeof DATA!=="undefined"&&DATA.sync)||null;
+async function lnkPull(){const s=lsync();if(!s||!s.url)return;try{const r=await fetch(s.url+"?t="+encodeURIComponent(s.token||""));const j=await r.json();if(j&&j.data){const n={};for(const [k,v] of Object.entries(j.data)){if(k.indexOf("lnk_")===0)try{n[k.slice(4)]=JSON.parse(String(v))}catch(_){}}LNK=n;try{localStorage.setItem("kb_lnk",JSON.stringify(LNK))}catch(_){}if(st.aid)renderApt()}}catch(_){}}
+async function lnkPut(id){try{localStorage.setItem("kb_lnk",JSON.stringify(LNK))}catch(_){}const s=lsync();if(!s||!s.url){toast("נשמר בטלפון בלבד – אין חיבור לגיליון");return}
+  try{await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token||"",set:{["lnk_"+id]:JSON.stringify(LNK[id]||[])}})})}catch(_){toast("שגיאה בשמירה לגיליון")}}
+function linker(a,exK){const d=el("details","lnkbox");d.append(el("summary","btn","🔗 קישור קונים לדירה"));
+  const have=new Set(LNK[a.id]||[]),G={};S.buyers.forEach(b=>{if((b.status||"פעיל")!="פעיל"||!b.phone||have.has(bkey(b)))return;const p=b.profile||"ללא פרופיל";(G[p]=G[p]||[]).push(b)});
+  const sel=new Set(),body=el("div","lnkin");body.append(el("p","hint","סמנו קבוצת קונים שלמה (לפי הדירה שהתקשרו עליה) או פתחו ▾ ובחרו קונים בודדים:"));
+  const go=el("button","btn wa","🔗 קשר לנכס");go.type="button";go.disabled=true;
+  const upd=()=>{go.textContent=sel.size?"🔗 קשר "+sel.size+" קונים לנכס":"🔗 קשר לנכס";go.disabled=!sel.size};
+  Object.keys(G).sort((x,y)=>G[y].length-G[x].length||x.localeCompare(y,"he")).forEach(p=>{const bs=G[p],box=el("div","lg"),row=el("div","lgr"),hd=el("label","lgh"),cb=el("input");cb.type="checkbox";
+    hd.append(cb,el("b",null,"קונים של "+p),el("span","cnt",bs.length));const tg=el("button","lgt","▾");tg.type="button";row.append(hd,tg);box.append(row);
+    const ul=el("div","lgl");ul.hidden=true;
+    const cbs=bs.map(b=>{const l=el("label","lgi"),c=el("input");c.type="checkbox";c.onchange=()=>{c.checked?sel.add(bkey(b)):sel.delete(bkey(b));cb.checked=cbs.every(x=>x.checked);cb.indeterminate=!cb.checked&&cbs.some(x=>x.checked);upd()};
+      l.append(c,b.name+(b.rating?" ("+b.rating+")":"")+(exK.has(bkey(b))?" · כבר מתאים":""));ul.append(l);return c});
+    cb.onchange=()=>{cbs.forEach((c,i)=>{c.checked=cb.checked;cb.checked?sel.add(bkey(bs[i])):sel.delete(bkey(bs[i]))});cb.indeterminate=false;upd()};
+    tg.onclick=()=>{ul.hidden=!ul.hidden;tg.textContent=ul.hidden?"▾":"▴"};box.append(ul);body.append(box)});
+  if(!Object.keys(G).length)body.append(el("p","hint","כל הקונים הפעילים כבר מקושרים."));
+  go.onclick=()=>{const cur=LNK[a.id]||[];LNK[a.id]=cur.concat([...sel].filter(k=>!cur.includes(k)));lnkPut(a.id);toast("קושרו "+sel.size+" קונים לנכס");renderApt()};
+  const ft=el("div","lgf");ft.append(go);body.append(ft);d.append(body);return d}
+function renderApt(){ if(!LNK_PULLED){LNK_PULLED=true;lnkPull();} const top=document.querySelector(".top"); top.classList.add("apt"); setSync();
   const sect=$("sect"), list=$("list"); list.innerHTML=""; sect.innerHTML="";
   const a=APTS.find(x=>x.id==st.aid);
   if(!a){ const q=(st.q||"").trim(); sect.textContent=q?"תוצאות":"הקלידו מספר נכס או רחוב";
@@ -510,12 +541,19 @@ function renderApt(){ const top=document.querySelector(".top"); top.classList.ad
   const u1=el("ul","list"); if(!ex.length) u1.append(el("li","empty","אין קונה שמתאים בדיוק.")); ex.forEach(x=>u1.append(mRow(a,x,false))); sect.append(u1);
   const g2=el("div","grp near","כמעט מתאימים"); g2.append(el("span","cnt",nr.length)); sect.append(g2);
   const u2=el("ul","list"); if(!nr.length) u2.append(el("li","empty","אין.")); nr.forEach(x=>u2.append(mRow(a,x,true))); sect.append(u2);
-  const all=[...ex.map(x=>[x,false]),...nr.map(x=>[x,true])];
+  const exK=new Set([...ex,...nr].map(x=>bkey(x.b)));
+  const lk=(LNK[a.id]||[]).map(k=>S.buyers.find(b=>bkey(b)==k)).filter(b=>b&&b.phone&&(b.status||"פעיל")=="פעיל"&&!exK.has(bkey(b)));
+  const g3=el("div","grp lnk","🔗 קונים שקישרת לדירה"); g3.append(el("span","cnt",lk.length)); sect.append(g3);
+  const u3=el("ul","list"); if(!lk.length) u3.append(el("li","empty","עוד לא קישרת קונים. אפשר לקשר למטה ↓"));
+  lk.forEach(b=>{ const li=mRow(a,{b,f:{why:[],unk:[]}},true); const x=el("button","btn unl","✕"); x.type="button"; x.title="הסר קישור"; x.setAttribute("aria-label","הסר קישור של "+b.name);
+    x.onclick=()=>{ LNK[a.id]=(LNK[a.id]||[]).filter(k=>k!=bkey(b)); lnkPut(a.id); renderApt(); }; li.append(x); u3.append(li); }); sect.append(u3);
+  sect.append(linker(a,exK));
+  const all=[...ex.map(x=>[x,false]),...nr.map(x=>[x,true]),...lk.map(b=>[{b,f:{why:[],unk:[]},lnk:1},true])];
   if(all.length){ const q=el("div","queue");
     if(!QUEUE||QUEUE.id!=a.id){ q.style.position="static";
       const opt=el("label","opt"); opt.style.color="inherit"; const cb=el("input"); cb.type="checkbox"; cb.id="qNear"; cb.checked=!ex.length; opt.append(cb,"כולל כמעט מתאימים");
       const go=el("button","btn wa","שליחה לכולם ברצף"); go.type="button";
-      go.onclick=()=>{ const inc=cb.checked; QUEUE={id:a.id,list:all.filter(([x,n])=>(inc||!n)&&!wasSent(a.id,x.b)),i:0}; if(!QUEUE.list.length){ toast("כבר נשלח לכולם"); QUEUE=null; return; } renderApt(); };
+      go.onclick=()=>{ const inc=cb.checked; QUEUE={id:a.id,list:all.filter(([x,n])=>(inc||!n||x.lnk)&&!wasSent(a.id,x.b)),i:0}; if(!QUEUE.list.length){ toast("כבר נשלח לכולם"); QUEUE=null; return; } renderApt(); };
       q.append(el("strong",null,"שליחה מהירה: הוואטסאפ ייפתח לכל קונה בתורו, ואתם רק לוחצים שלח."),opt,el("div","row")); q.lastChild.append(go);
     } else { const [x,n]=QUEUE.list[QUEUE.i]; const b=x.b;
       q.append(el("strong",null,"קונה "+(QUEUE.i+1)+" מתוך "+QUEUE.list.length+": "+b.name+(b.rating?" ("+b.rating+")":"")));
