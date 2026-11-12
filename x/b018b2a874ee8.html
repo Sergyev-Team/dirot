@@ -197,7 +197,8 @@ const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
 const pad=n=>("0000"+n).slice(-5);
 const sync=()=>(window.__KB&&window.__KB.DATA.sync)||null;
 const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(/^972/,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
-const msg=(name,link)=>"שלום "+(name||"")+",\nמצורף קישור לחתימה על הזמנת שירותי תיווך:\n"+link+"\n\nמשה מאיר כהן – צוות סרגייב";
+const stN=p=>{let s=String(p&&p.addr||"").split(",")[0].replace(/\s*\d+[א-ת]?\s*$/,"").trim();if(!s)return"";return /^(רחוב|רח'|שד'|שדרות|סמטת|דרך|כיכר)/.test(s)?"ב"+s.replace(/^רח'\s*/,"רחוב "):"ברחוב "+s};
+const msg=(name,link,pr)=>"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916";
 let F=null;
 function open(b){F={name:(b&&b.name)||"",phone:(b&&b.phone)||"",props:[],fee:2,notes:""};drawNew();$D().showModal()}
 const $D=()=>document.getElementById("sgD"),$I=()=>document.getElementById("sgI");
@@ -235,7 +236,7 @@ async function create(){const s=sync();F.name=document.getElementById("sgN").val
  const b=document.getElementById("sgGo");b.disabled=true;b.textContent="יוצר…";
  try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c:{type:"buy",name:F.name,phone:F.phone,props:F.props,fee:F.fee,notes:F.notes}})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
   const link=SITE+"s/?k="+j.k;
-  document.getElementById("sgOut").innerHTML=`<p><b>✓ טופס מס' ${pad(j.n)} מוכן</b></p><a class="b w" target="_blank" rel="noopener" href="${wa(F.phone,msg(F.name,link))}">💬 שלח ללקוח בוואטסאפ</a> <button type="button" class="b" id="sgCp">📋 העתק קישור</button>`;
+  document.getElementById("sgOut").innerHTML=`<p><b>✓ טופס מס' ${pad(j.n)} מוכן</b></p><a class="b w" target="_blank" rel="noopener" href="${wa(F.phone,msg(F.name,link,F.props))}">💬 שלח ללקוח בוואטסאפ</a> <button type="button" class="b" id="sgCp">📋 העתק קישור</button>`;
   document.getElementById("sgCp").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(link);document.getElementById("sgCp").textContent="✓ הועתק"};b.textContent="✓ נוצר";}
  catch(e){alertT("שגיאה: "+e.message);b.disabled=false;b.textContent="🔗 צור קישור לחתימה"}}
 async function drawList(){$I().innerHTML=tabs("list")+'<div id="sgLs"><p class="hint">טוען…</p></div>';bindTabs();const s=sync(),h=document.getElementById("sgLs");
