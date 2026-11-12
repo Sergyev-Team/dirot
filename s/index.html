@@ -102,7 +102,7 @@ function render(){const c=DOC.c;
  <div class="f"><label>שם מלא<input id="nm" value="${esc(c.name)}" autocomplete="name"></label>
  <label>תעודת זהות<input id="idn" inputmode="numeric" autocomplete="off"></label>
  <label>כתובת מגורים<input id="ad" autocomplete="street-address"></label>
- <label>מייל (לקבלת העתק חתום)<input id="em" type="email" inputmode="email" autocomplete="email"></label>
+ <label>מייל * (חובה – לקבלת העתק חתום)<input id="em" required type="email" inputmode="email" autocomplete="email"></label>
  <label>טלפון<input id="ph" type="tel" value="${esc(c.phone)}" autocomplete="tel"></label></div>
  ${DS.map(docHTML).join('<hr style="border:0;border-top:2px solid var(--gold);margin:22px 0">')}
  <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label>
