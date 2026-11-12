@@ -93,7 +93,7 @@ const phN=p=>String(p||"").replace(/\D/g,"").replace(/^972/,"0");
 function svMerge(s){(s.props||[]).forEach(p=>{if(p&&p.addr&&!SAVED.props.some(q=>q.addr===p.addr))SAVED.props.push(p)});(s.clients||[]).forEach(c=>{if(c&&c.name&&!SAVED.clients.some(q=>phN(q.phone)===phN(c.phone)&&q.name===c.name))SAVED.clients.push(c)});try{localStorage.setItem("sg_saved",JSON.stringify(SAVED))}catch(e){}}
 function svPut(){try{localStorage.setItem("sg_saved",JSON.stringify(SAVED))}catch(e){}if(U&&U.sync&&!U.agent)fetch(U.sync.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:U.sync.token,set:{sg_saved:JSON.stringify(SAVED)}})}).catch(()=>{})}
 async function svPull(){if(!U||!U.sync||U.agent)return;try{const j=await(await fetch(U.sync.url+"?t="+encodeURIComponent(U.sync.token))).json();const v=j&&j.data&&j.data.sg_saved;if(v)svMerge(JSON.parse(v))}catch(e){}}
-function reset(t){const today=iso(new Date());F={type:t||F&&F.type||"sell",hide:true,name:"",phone:"",props:[],fee:2,months:1,excl:true,from:today,mon:6,to:addM(today,6),notes:""}}
+function reset(t){const today=iso(new Date());F={type:t||F&&F.type||"sell",hide:false,name:"",phone:"",props:[],fee:2,months:1,excl:true,from:today,mon:6,to:addM(today,6),notes:""}}
 const owner=()=>F.type==="sell"||F.type==="let",rent=()=>F.type==="let"||F.type==="rentin";
 function keep(){const g=id=>{const x=document.getElementById(id);return x?x.value:null};
  if(g("nN")!=null){F.name=g("nN").trim();F.phone=g("nP").trim();F.notes=g("nT");if(rent())F.months=+g("nF")||1;else F.fee=+String(g("nF")).replace(/[^\d.]/g,"")||2;
@@ -106,7 +106,6 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
  <div class="ar"><input id="nA" placeholder="מספר נכס או רחוב, למשל 416 או סוקולוב" autocomplete="off"><button type="button" class="btn ghost" id="nAadd">➕ הוסף</button></div><div class="sug" id="nS"></div>
  <details style="margin-top:8px"><summary class="hint">או הוספה ידנית (נכס שלא בלוח)</summary><div class="g2 st"><label class="l">כתובת מלאה<input id="nMa" placeholder="רחוב, מספר, עיר, קומה"></label><label class="l">${rent()?"שכר דירה חודשי":"מחיר"}<input id="nMp" inputmode="numeric"></label></div><div class="g2"><label class="l">סוג<input id="nMt" value="דירה"></label><button type="button" class="btn ghost" id="nMadd" style="align-self:end">➕ הוסף</button></div></details>
  <div id="nPr"></div>
- ${own?"":`<label class="chk" style="margin:8px 0"><input type="checkbox" id="nH" ${F.hide?"checked":""}> 🔒 להסתיר את מספר הבית/הדירה עד החתימה <small class="hint">(הכתובת המלאה תישלח ללקוח במייל מיד אחרי שיחתום)</small></label>`}
  ${own?`<div class="ex"><label class="chk"><input type="checkbox" id="nX" ${F.excl?"checked":""}> כולל הסכם בלעדיות (באותו קישור)</label>
   <div id="nXw" ${F.excl?"":"hidden"}><div class="g2"><label class="l">מתאריך<input type="date" id="nFr" value="${F.from}"></label><label class="l">תקופה<select id="nMo">${[1,2,3,4,5,6,9,12].map(m=>`<option value="${m}" ${F.mon===m?"selected":""}>${m} חודשים</option>`).join("")}<option value="0" ${F.mon===0?"selected":""}>תאריך אחר…</option></select></label></div>
   <label class="l">עד תאריך<input type="date" id="nTo" value="${F.to}"></label></div></div>`:""}
