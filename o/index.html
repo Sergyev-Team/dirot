@@ -100,13 +100,19 @@ function loginView(msg){document.body.classList.add("lgb");$("#app").innerHTML=`
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
    if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"המייל או הקוד לא נכונים.";b.disabled=false;return}
    K=j.items[0].k;try{localStorage.setItem(OK,K)}catch(x){}load()}catch(x){$("#le").textContent="אין חיבור, נסו שוב.";b.disabled=false}}}
-function logout(){try{localStorage.removeItem(OK)}catch(e){}K="";history.replaceState(null,"",location.pathname);loginView()}
+function logout(){try{localStorage.removeItem(OK);Object.keys(localStorage).filter(k=>k.startsWith("sg_pc_")).forEach(k=>localStorage.removeItem(k))}catch(e){}K="";history.replaceState(null,"",location.pathname);loginView()}
 async function load(){
  if(!K){loginView();return}
- try{P=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){$("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
- if(!P.ok){try{localStorage.removeItem(OK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
- try{const t=await (await fetch("../index.html",{cache:"no-store"})).text();const i=t.indexOf("const D = (");if(i>=0){const D=JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)));L=D.find(x=>String(x.id)===String(P.p.id))||null}}catch(e){}
- render()}
+ const CK="sg_pc_"+K.slice(0,16);let cached=null;try{cached=JSON.parse(localStorage.getItem(CK)||"null")}catch(e){}
+ if(cached&&cached.P&&cached.P.ok){P=cached.P;L=cached.L||null;render();const n=document.createElement("p");n.id="upd";n.className="foot";n.textContent="מעדכן נתונים…";document.body.prepend(n)}
+ else $("#app").innerHTML='<div class="lgw"><p class="hint">טוען את הדוח של הנכס…</p></div>';
+ const lst=fetch("../index.html").then(r=>r.text()).then(t=>{const i=t.indexOf("const D = (");return i<0?null:JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)))}).catch(()=>null);
+ let fresh;try{fresh=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
+ if(!fresh.ok){try{localStorage.removeItem(OK);localStorage.removeItem(CK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
+ P=fresh;const D=await lst;if(D)L=D.find(x=>String(x.id)===String(P.p.id))||L;
+ try{localStorage.setItem(CK,JSON.stringify({P,L}))}catch(e){}
+ const u=$("#upd");if(u)u.remove();
+ const y=scrollY;render();scrollTo(0,y)}
 const CH={fb:{n:"פייסבוק",c:"#1877F2",i:"f"},y2:{n:"יד2",c:"#FF6A00",i:"יד2"},md:{n:"מדלן",c:"#6C4BD8",i:"מ"},ig:{n:"אינסטגרם",c:"#D62976",i:"IG"},lead:{n:"פניות קונים",c:"#1F8A5B",i:"☎"},tour:{n:"סיורים",c:"#0E7C86",i:"⌂"},offer:{n:"הצעות מחיר",c:"#A9802F",i:"₪"},more:{n:"עוד פעולות",c:"#5E6470",i:"•••"}};
 const CHORD=["fb","y2","md","ig","lead","tour","offer","more"];
 const chOf=t=>({fbgroup:"fb",fb:"fb",y2:"y2",md:"md",ig:"ig",story:"ig",lead:"lead",call:"lead",tour:"tour",offer:"offer"})[t]||"more";
