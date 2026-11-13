@@ -607,6 +607,8 @@ function match(x){
   if(preset){ const p=preset; if(x.deal!=p.deal || !x.rooms || x.rooms<p.rmin || x.rooms>p.rmax || !(x.price>0 && x.price<=p.budget)) return false;
     if(p.hoods.length && !p.hoods.some(n=>(x.nb||"").includes(n))) return false;
     for(const k of p.must) if(x[k]=="לא") return false; for(const k of (p.strict||[])) if(x[k]!="כן") return false; return true; }
+  // חיפוש לפי מספר נכס – מוצא את הנכס בכל מקרה (גם אם הוא בהשכרה כשהלשונית על מכירה, ובלי שאר הסינונים)
+  { const qn=String(st.q||'').replace(/[#\s]|נכס/g,''); if(/^\d+$/.test(qn)) return String(x.id)===qn; }
   if(x.deal!=st.deal) return false;
   if(st.q){ const hay=norm([ST(x),x.nb,x.city,x.type,x.cond,x.ren,"נכס "+x.id,x.id].join(" ")); for(const w of norm(st.q).split(" ")) if(w && !hay.includes(w)) return false; }
   if(st.budget && !(x.price>0 && x.price<=st.budget*(1+st.widen/100))) return false;
