@@ -106,10 +106,11 @@ async function load(){
  const CK="sg_pc_"+K.slice(0,16);let cached=null;try{cached=JSON.parse(localStorage.getItem(CK)||"null")}catch(e){}
  if(cached&&cached.P&&cached.P.ok){P=cached.P;L=cached.L||null;render();const n=document.createElement("p");n.id="upd";n.className="foot";n.textContent="מעדכן נתונים…";document.body.prepend(n)}
  else $("#app").innerHTML='<div class="lgw"><p class="hint">טוען את הדוח של הנכס…</p></div>';
- const lst=fetch("../index.html").then(r=>r.text()).then(t=>{const i=t.indexOf("const D = (");return i<0?null:JSON.parse(t.slice(i+11,t.indexOf(").filter(",i)))}).catch(()=>null);
+ const fetchL=id=>fetch("L/"+encodeURIComponent(id)+".json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>fetch("../index.html").then(r=>r.text()).then(t=>{const i=t.indexOf("const D = (");return i<0?null:(JSON.parse(t.slice(i+11,t.indexOf(").filter(",i))).find(x=>String(x.id)===String(id))||null)}).catch(()=>null));
+ const pid=cached&&cached.P&&cached.P.p&&cached.P.p.id,lst=pid?fetchL(pid):null;
  let fresh;try{fresh=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
  if(!fresh.ok){try{localStorage.removeItem(OK);localStorage.removeItem(CK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
- P=fresh;const D=await lst;if(D)L=D.find(x=>String(x.id)===String(P.p.id))||L;
+ P=fresh;const LL=(pid&&String(pid)===String(P.p.id))?await lst:await fetchL(P.p.id);if(LL)L=LL;
  try{localStorage.setItem(CK,JSON.stringify({P,L}))}catch(e){}
  const u=$("#upd");if(u)u.remove();
  const y=scrollY;render();scrollTo(0,y)}

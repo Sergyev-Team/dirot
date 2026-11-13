@@ -198,7 +198,7 @@ render();
     const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
     const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(SALT),iterations:IT,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
     const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(IV)},key,b64(CT));
-    return JSON.parse(new TextDecoder().decode(plain));
+    const u8=new Uint8Array(plain);if(u8[0]===0x1f&&u8[1]===0x8b)return JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).text());return JSON.parse(new TextDecoder().decode(plain));
   }
   const wrap=document.querySelector(".wrap"); wrap.hidden=true;
   const box=document.createElement("form"); box.className="lock";

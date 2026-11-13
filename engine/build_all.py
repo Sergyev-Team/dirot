@@ -105,7 +105,7 @@ def encrypt_into(path,data,pw):
     t=open(path).read(); IT=int(re.search(r'IT=(\d+)',t).group(1))
     salt=os.urandom(16); iv=os.urandom(12)
     key=PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=IT).derive(pw.encode())
-    ct=AESGCM(key).encrypt(iv,json.dumps(data,ensure_ascii=False,separators=(',',':')).encode(),None); b=lambda x:base64.b64encode(x).decode()
+    import gzip as _gz; ct=AESGCM(key).encrypt(iv,_gz.compress(json.dumps(data,ensure_ascii=False,separators=(',',':')).encode(),9,mtime=0),None); b=lambda x:base64.b64encode(x).decode()
     for k,v in (('SALT',b(salt)),('IV',b(iv)),('CT',b(ct))):
         t,n=re.subn(k+r'="[^"]*"',lambda m:f'{k}="{v}"',t,count=1); assert n==1
     open(path,'w').write(t)
@@ -139,6 +139,20 @@ def write_all():
     for d in D: open(f"{R}/d/{d['id']}.html",'w').write(dpage(d))
     # k/all count
     ka=open(R+'/k/all.html').read(); ka=re.sub(r'\d+ דירות זמינות',f'{len(D)} דירות זמינות',ka); open(R+'/k/all.html','w').write(ka)
+    # תמונות קטנות (webp) לרשימת הדירות – נוצרות פעם אחת לכל תמונה
+    try:
+        from PIL import Image
+        import glob as _g
+        for p in _g.glob(R+'/img/[0-9]*/[0-9]*.jpg'):
+            tp=re.sub(r'/(\d+)\.jpg$',r'/t\1.webp',p)
+            if os.path.exists(tp): continue
+            try:
+                im=Image.open(p); im=im.convert('RGB'); im.thumbnail((720,720)); im.save(tp,'WEBP',quality=70,method=5)
+            except Exception as e: print('thumb fail',p,e)
+    except Exception as e: print('thumbs skipped',e)
+    # נתוני נכס קטנים לפורטל בעלי הנכסים (במקום להוריד את כל האתר)
+    os.makedirs(R+'/o/L',exist_ok=True)
+    for d in D: open(f"{R}/o/L/{d['id']}.json",'w').write(json.dumps(d,ensure_ascii=False,separators=(',',':')))
     # og manifest
     mf=S+'/og_manifest.json'; man=json.load(open(mf)) if os.path.exists(mf) else {}
     todo=[d for d in D if man.get(str(d['id']))!=og_sig(d) or not os.path.exists(f"{R}/img/og/p{d['id']}.jpg")]
