@@ -45,7 +45,8 @@ h2{font-weight:600;font-size:21px;margin:26px 2px 10px}.card h2{margin:0 0 10px}
 .feed{list-style:none;margin:0;padding:0}.dh{font-size:13px;font-weight:700;color:var(--muted);margin:16px 4px 6px}
 .it{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;background:var(--card);border-radius:14px;padding:11px 12px;margin-bottom:6px}
 .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;background:var(--c);font-family:Arial,sans-serif}
-.it b{display:block;font-size:15px;line-height:1.35}.it span.s{display:block;font-size:14px;color:var(--muted);line-height:1.4}.amt{font-weight:600;font-size:18px;color:var(--gold);white-space:nowrap}
+.it b{display:block;font-size:15px;line-height:1.35}.it span.s{display:block;font-size:14px;color:var(--muted);line-height:1.4}.amt{font-weight:600;font-size:18px;color:var(--gold);white-space:nowrap}.it a.go{display:inline-block;margin-top:3px;font-size:14px;font-weight:600;color:var(--gold);text-decoration:none;padding:4px 0}
+.lks{list-style:none;margin:0;padding:0}.lks li{border-top:1px solid var(--line)}.lks li:first-child{border-top:0}.lks a{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:10px 2px;color:var(--fg);text-decoration:none;min-height:52px}.lks .ic{width:38px;height:38px;font-size:14px}.lks b{font-size:15px;font-weight:600;line-height:1.3}.lks small{display:block;font-size:13px;color:var(--muted)}.lks em{font-style:normal;font-size:14px;font-weight:600;color:var(--gold);white-space:nowrap}.lks a:focus-visible{outline:3px solid var(--gold2);outline-offset:2px;border-radius:10px}
 .empty{color:var(--muted);text-align:center;padding:18px;background:var(--card);border-radius:14px}
 .more{display:block;width:100%;margin-top:6px}
 .med{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.med img,.med iframe{width:100%;border:0;border-radius:12px;background:#000}.med iframe{aspect-ratio:9/16}
@@ -83,7 +84,7 @@ const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום
 const OGROUPS={"https://www.facebook.com/groups/331634257248250/":"דירות למכירה בפתח תקווה (1)","https://www.facebook.com/groups/1444861819075775/":"דירות למכירה בפתח תקווה (2)","https://www.facebook.com/groups/3185842411735226/":"דירות למכירה בפתח תקווה (3)","https://www.facebook.com/groups/nadlaninfo/":"דירות למכירה בפתח תקווה – נדל״ן סנטר","https://www.facebook.com/groups/436206549876139/":"דירות למכירה קניה והשכרה בפתח תקווה","https://www.facebook.com/groups/185303591673168/":"דירות למכירה קניה והשכרה פתח תקווה","https://www.facebook.com/groups/1129639960811060/":"דירות למכירה והשכרה בפתח תקווה","https://www.facebook.com/groups/370244223604031/":"דירות להשכרה ומכירה בפתח תקווה והסביבה","https://www.facebook.com/groups/436129093818279/":"מאגר דירות פתח תקווה","https://www.facebook.com/groups/204690494250/":"דירות מפה לאוזן פתח תקווה","https://www.facebook.com/groups/771391086305306/":"נדל״ן פתח תקווה","https://www.facebook.com/groups/224967760988658/":"פתח תקווה העיר שלי","https://www.facebook.com/groups/248835652321875/":"דירות להשכרה בפתח תקווה"};
 function mkEvents(mk,fromTs){const out=[];Object.entries(mk||{}).forEach(([ch,arr])=>{let type=null,text="";
   if(ch.startsWith("g:")){type="fbgroup";text=OGROUPS[ch.slice(2)]||"קבוצת פייסבוק"}else if(["fb","ig","story","y2","md"].includes(ch)){type=ch;text=""}else return;
-  (arr||[]).forEach(ts=>{if(!fromTs||ts>=fromTs)out.push({ts,type,text,auto:1})})});return out}
+  const g=ch.startsWith("g:")?ch.slice(2):"";(arr||[]).forEach(ts=>{if(!fromTs||ts>=fromTs)out.push({ts,type,text,auto:1,g})})});return out}
 const dt=s=>{if(!s)return 0;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);if(m)return new Date(+m[1],m[2]-1,+m[3],+(m[4]||12),+(m[5]||0)).getTime();const m2=String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m2?new Date(+m2[3],m2[2]-1,+m2[1],12).getTime():0};
 
 const DAY=864e5,heD=ts=>new Date(ts).toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"}),heT=ts=>new Date(ts).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
@@ -120,8 +121,9 @@ const chOf=t=>({fbgroup:"fb",fb:"fb",y2:"y2",md:"md",ig:"ig",story:"ig",lead:"le
 let FLT="all",SHOWN=40;
 function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.from)||0,now=Date.now();
  const st=(P.log||[]).find(x=>x.type==="start"),start=st?dt(st.d):from;
- const ev=mkEvents(P.mk,start?start-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text,amt:x.type==="offer"&&x.data&&x.data.amount?x.data.amount:0}))).concat(((P.cal||{}).pastD||[]).map((d,i)=>{const n=((P.cal||{}).pastN||[])[i]||1;return {ts:dt(d),type:"tour",n,title:n>1?"סיור בנכס עם "+n+" קונים":"סיור בנכס עם קונה",text:""}})).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",title:"קונה חדש פנה לגבי הנכס",text:"נוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
- ev.forEach(e=>{e.ch=chOf(e.type);if(!e.title)e.title=(OTYPES[e.type]||OTYPES.other)[1]});
+ const ev=mkEvents(P.mk,start?start-DAY:0).concat((P.log||[]).map(x=>({ts:dt(x.d),type:x.type,text:x.text,url:x.data&&x.data.url||"",amt:x.type==="offer"&&x.data&&x.data.amount?x.data.amount:0}))).concat(((P.cal||{}).pastD||[]).map((d,i)=>{const n=((P.cal||{}).pastN||[])[i]||1;return {ts:dt(d),type:"tour",n,title:n>1?"סיור בנכס עם "+n+" קונים":"סיור בנכס עם קונה",text:""}})).concat((P.leads||[]).map(x=>({ts:dt(x.d),type:"lead",title:"קונה חדש פנה לגבי הנכס",text:"נוסף למאגר הקונים שלנו"}))).filter(x=>x.ts).sort((a,b)=>b.ts-a.ts);
+ const LK=P.links||{g:{},x:[]},okU=u=>/^https:\/\/[^\s"'<>]{4,500}$/.test(String(u||""))?String(u):"";
+ ev.forEach(e=>{e.ch=chOf(e.type);if(!e.title)e.title=(OTYPES[e.type]||OTYPES.other)[1];e.url=okU(e.url||(e.type==="fbgroup"&&e.g?(LK.g||{})[e.g]:"")||({y2:LK.y2,md:LK.md,fb:LK.fbp,ig:LK.ig,story:LK.ig})[e.type])});
  const RQ=(P.reqs||[]),CAL=P.cal||{next:[]},V=P.views||{},MT=P.match||{buyers:0};
  const cnt={};ev.forEach(e=>cnt[e.ch]=(cnt[e.ch]||0)+(e.ch==="tour"?(e.n||1):1));
  const tours=cnt.tour||0,offers=ev.filter(e=>e.ch==="offer").length,leads=cnt.lead||0;
@@ -138,13 +140,19 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
  const nextH=(CAL.next||[]).length?`<h2>פגישות קרובות בנכס</h2><div class="card">${CAL.next.map(d=>{const t=dt(d),x=new Date(t);return `<div class="next"><div class="cal"><b>${x.getDate()}</b>${E(x.toLocaleDateString("he-IL",{month:"short"}))}</div><div><b>${E(x.toLocaleDateString("he-IL",{weekday:"long"}))}, ${E(heT(t))}</b><div class="hint">סיור עם קונה מתעניין</div></div></div>`}).join("")}</div>`:"";
  const ms=(P.msgs||[]).map(m=>`<div class="msg ${m.from==="בעלים"?"me":"of"}">${E(m.text)}<small>${m.from==="בעלים"?"אתם":E(P.broker.name)} · ${E(new Date(dt(m.d)).toLocaleDateString("he-IL"))}</small></div>`).join("");
  const wa="https://wa.me/972"+String(P.broker.phone).replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent("שלום, אני "+(p.name||"")+" – בעל/ת הנכס ב"+addr);
+ const lkI=(c,ic,t,sub,u)=>`<li><a href="${E(u)}" target="_blank" rel="noopener"><span class="ic" style="--c:${c}" aria-hidden="true">${ic}</span><span><b>${E(t)}</b>${sub?`<small>${E(sub)}</small>`:""}</span><em>לצפייה ›</em></a></li>`;
+ const gL=Object.keys(LK.g||{}).filter(k=>okU(LK.g[k])),gN=gL.length;
+ const lkH=[L?lkI("#16191F","⌂","דף הנכס באתר שלנו","sergyev-team.github.io","../d/"+p.id+".html"):"",okU(LK.y2)?lkI(CH.y2.c,CH.y2.i,"המודעה ביד2","",LK.y2):"",okU(LK.md)?lkI(CH.md.c,CH.md.i,"המודעה במדלן","",LK.md):"",okU(LK.fbp)?lkI(CH.fb.c,CH.fb.i,"הפוסט בדף הפייסבוק שלנו","",LK.fbp):"",
+  ...gL.map(k=>lkI(CH.fb.c,CH.fb.i,OGROUPS[k]||"קבוצת פייסבוק","פוסט בקבוצת פייסבוק",LK.g[k])),okU(LK.ig)?lkI(CH.ig.c,CH.ig.i,"הפוסט באינסטגרם","",LK.ig):"",okU(LK.tt)?lkI("#111","♪","הסרטון בטיקטוק","",LK.tt):"",
+  ...(LK.x||[]).filter(e=>okU(e.u)).map(e=>lkI(CH.more.c,"🔗",e.t||"קישור","",e.u))].join("");
  const spec=L?[L.rooms?L.rooms+" חדרים":"",L.sqm?L.sqm+" מ״ר":"",L.floor!==""&&L.floor!=null?"קומה "+L.floor:""].filter(Boolean).join(" · "):"";
  $("#app").innerHTML=`<header class="hero" style="${img?`background-image:url('${E(img)}')`:""}"><div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small><a href="#" id="lo">יציאה</a></small></div>
   <div class="hi"><p>שלום ${E(p.name||"")}, זה הדוח החי של הנכס שלכם</p><h1>${E(addr)}</h1><div class="meta">${E(spec)}</div></div></header>
  <section class="sheet"><div class="dayrow"><b>${days?"יום "+days+" בשיווק":"מתחילים לשווק"}</b>${L&&L.price?`<span class="price">${E(fm(L.price))}</span>`:""}</div>
   <div class="k4"><div><b>${V.total||0}</b><span>צפיות בדף הנכס</span>${V.w7?`<i>+${V.w7} השבוע</i>`:""}</div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${tours}</b><span>קונים בסיורים</span></div><div><b>${offers}</b><span>הצעות מחיר</span></div></div>
   ${MT.buyers?`<div class="match"><b>${MT.buyers}</b><p>קונים פעילים במאגר שלנו מחפשים בדיוק נכס כזה, והנכס נשלח לכל אחד מהם אישית.</p></div>`:""}
-  ${L?`<div class="row" style="margin:0 0 10px"><a class="btn gh" href="../d/${E(p.id)}.html" target="_blank" rel="noopener">לדף הנכס באתר</a></div>`:""}</section>
+</section>
+ ${lkH?`<h2>הנכס שלכם ברשת</h2><div class="card"><ul class="lks">${lkH}</ul>${gN?'<p class="hint" style="margin:8px 0 0">חלק מקבוצות הפייסבוק סגורות – כדי לראות את הפוסט צריך להיות חברים בקבוצה.</p>':""}</div>`:""}
  ${reqH?`<h2>מחכה לאישור שלכם</h2>${reqH}`:""}
  ${nextH}
  <h2>הפעילות לפי שבועות</h2><div class="card">${chartH}</div>
@@ -159,7 +167,7 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
   $("#cp").querySelectorAll("button").forEach(b=>b.onclick=()=>{FLT=b.dataset.k;SHOWN=40;drawFeed()});
   const F=ev.filter(e=>FLT==="all"||e.ch===FLT);let last="",h="";
   F.slice(0,SHOWN).forEach(e=>{const d=heD(e.ts);if(d!==last){h+=`<li class="dh">${E(d)}</li>`;last=d}const c=CH[e.ch];
-   h+=`<li class="it" style="--c:${c.c}"><span class="ic" aria-hidden="true">${c.i}</span><span><b>${E(e.title)}</b>${e.text?`<span class="s">${E(e.text)}</span>`:""}</span>${e.amt?`<span class="amt">${E(fm(e.amt))}</span>`:""}</li>`});
+   h+=`<li class="it" style="--c:${c.c}"><span class="ic" aria-hidden="true">${c.i}</span><span><b>${E(e.title)}</b>${e.text?`<span class="s">${E(e.text)}</span>`:""}${e.url?`<a class="go" href="${E(e.url)}" target="_blank" rel="noopener">לצפייה בפרסום ›</a>`:""}</span>${e.amt?`<span class="amt">${E(fm(e.amt))}</span>`:""}</li>`});
   $("#fd").innerHTML=h||(FLT==="lead"?'<li class="empty">עדיין לא התקבלו פניות של קונים על הנכס. כל פנייה תופיע כאן ברגע שתגיע.</li>':'<li class="empty">פעולות השיווק יופיעו כאן ברגע שיתבצעו.</li>');
   if(F.length>SHOWN){const b=document.createElement("button");b.className="btn gh more";b.type="button";b.textContent="להציג עוד "+(F.length-SHOWN);b.onclick=()=>{SHOWN+=40;drawFeed()};$("#fd").after(b)}else{const o=document.querySelector(".more");if(o)o.remove()}};
  drawFeed();
