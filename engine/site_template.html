@@ -789,8 +789,8 @@ $("reset").addEventListener("click",()=>{
 });
 $("big").addEventListener("click",e=>{ const on=document.documentElement.classList.toggle("big"); e.currentTarget.setAttribute("aria-pressed",on); e.currentTarget.textContent = on ? "טקסט רגיל" : "הגדלת טקסט"; });
 // personal search link from the buyers board: #s=<m|r>~<rmin>-<rmax>~<budget>~<el|pk|mm letters>~<hood|hood>
-function parseSearch(key){ const m=/^s=([mr])~([\d.]+)-([\d.]+)~(\d*)~([a-z]*)~(.*)$/.exec(key); if(!m) return null;
-  return {deal:m[1]=="r"?"השכרה":"מכירה", rmin:+m[2], rmax:+m[3], budget:+m[4]||1e12, must:(m[5].match(/el|pk|mm/g)||[]), hoods:m[6]?m[6].split("|").filter(Boolean):[]}; }
+function parseSearch(key){ let nm=""; const ni=key.indexOf("~n="); if(ni>0){ nm=key.slice(ni+3).replace(/[<>"]/g,"").slice(0,30); key=key.slice(0,ni); } const m=/^s=([mr])~([\d.]+)-([\d.]+)~(\d*)~([a-z]*)~(.*)$/.exec(key); if(!m) return null;
+  return {name:nm, deal:m[1]=="r"?"השכרה":"מכירה", rmin:+m[2], rmax:+m[3], budget:+m[4]||1e12, must:(m[5].match(/el|pk|mm/g)||[]), hoods:m[6]?m[6].split("|").filter(Boolean):[]}; }
 const TRK="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
 function trk(id,w){ try{ if(!id||broker) return; const k="trk_"+id+"_"+(w||"v"); if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,"1"); fetch(TRK+"?op=view&id="+id+(w?"&w="+w:""),{mode:"no-cors",keepalive:true}).catch(()=>{}); }catch(e){} }
 document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest("a.btn"); if(!a) return; const m=(a.getAttribute("aria-label")||"").match(/נכס מס' (\d+)/); if(!m) return; const c=a.classList; trk(+m[1], c.contains("call")?"call":c.contains("visit")?"visit":c.contains("photos")?"photos":c.contains("wa")?"wa":""); },true);

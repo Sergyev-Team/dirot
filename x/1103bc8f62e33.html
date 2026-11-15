@@ -107,7 +107,7 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
  <details style="margin-top:8px"><summary class="hint">או הוספה ידנית (נכס שלא בלוח)</summary><div class="g2 st"><label class="l">רחוב *<input id="nMs" placeholder="למשל קלישר"></label><label class="l">מספר בית *<input id="nMh" inputmode="numeric" placeholder="38"></label></div>
  <div class="g2 st"><label class="l">קומה *<input id="nMf" inputmode="numeric" placeholder="0 = קרקע"></label><label class="l">מספר דירה (לא חובה)<input id="nMd" inputmode="numeric"></label></div>
  <div class="g2 st"><label class="l">עיר<input id="nMc" value="פתח תקווה"></label><label class="l">${rent()?"שכר דירה חודשי":"מחיר"}<input id="nMp" inputmode="numeric"></label></div>
- <div class="chips" id="nMx"><button type="button" data-f="pk">🚗 חניה</button><button type="button" data-f="pk2">🚗🚗 2 חניות</button><button type="button" data-f="el">🛗 מעלית</button><button type="button" data-f="mm">🛡️ ממ״ד</button></div>
+ <div class="g2 st"><label class="l">🚗 חניה<select id="nMk"><option value="0">אין חניה</option><option value="1">חניה 1</option><option value="2">2 חניות</option></select></label><span></span></div><div class="chips" id="nMx"><button type="button" data-f="el">🛗 מעלית</button><button type="button" data-f="mm">🛡️ ממ״ד</button></div>
  <div class="g2"><label class="l">סוג<input id="nMt" value="דירה"></label><button type="button" class="btn ghost" id="nMadd" style="align-self:end">➕ הוסף</button></div></details>
  <div id="nPr"></div>
  ${own?`<div class="ex"><label class="chk"><input type="checkbox" id="nX" ${F.excl?"checked":""}> כולל הסכם בלעדיות (באותו קישור)</label>
@@ -136,11 +136,11 @@ function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x
   sg.querySelectorAll("button").forEach(x=>x.onclick=()=>x.dataset.s!=null?spick(s[+x.dataset.s]):pick(A.find(a=>a.id==x.dataset.id)))};
  const first=()=>{const r=find(sa.value),s=sfind(sa.value);if(r.length)pick(r[0]);else if(s.length)spick(s[0]);else toast("לא נמצא נכס כזה")};
  $("#nAadd").onclick=first;sa.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();first()}};
- const FX={};$$("#nMx button").forEach(b=>b.onclick=()=>{const f=b.dataset.f;FX[f]=!FX[f];if(f==="pk2"&&FX.pk2)FX.pk=false;if(f==="pk"&&FX.pk)FX.pk2=false;$$("#nMx button").forEach(x=>x.classList.toggle("on",!!FX[x.dataset.f]))});
+ const FX={};$$("#nMx button").forEach(b=>b.onclick=()=>{const f=b.dataset.f;FX[f]=!FX[f];$$("#nMx button").forEach(x=>x.classList.toggle("on",!!FX[x.dataset.f]))});
  $("#nMadd").onclick=()=>{const st=$("#nMs").value.trim(),hn=$("#nMh").value.trim(),fl=$("#nMf").value.trim(),ap=$("#nMd").value.trim(),ct=$("#nMc").value.trim();
   if(!st){toast("חסר רחוב");$("#nMs").focus();return}if(!hn){toast("חסר מספר בית");$("#nMh").focus();return}if(fl===""){toast("חסרה קומה (0 = קרקע)");$("#nMf").focus();return}
-  const ad=st+" "+hn+(ct?", "+ct:"")+", קומה "+fl+(ap?", דירה "+ap:""),ft=[FX.pk2?"2 חניות":FX.pk?"חניה":"",FX.el?"מעלית":"",FX.mm?"ממ״ד":""].filter(Boolean);
-  const p={addr:ad,price:+$("#nMp").value.replace(/\D/g,"")||"",type:[$("#nMt").value.trim()||"דירה"].concat(ft).join(" · "),street:st,hn,floor:fl,apt:ap,city:ct,pk:FX.pk2?2:FX.pk?1:0,el:!!FX.el,mm:!!FX.mm};if(own)F.props=[p];else F.props.push(p);["#nMs","#nMh","#nMf","#nMd","#nMp"].forEach(s=>$(s).value="");Object.keys(FX).forEach(k=>FX[k]=false);$$("#nMx button").forEach(x=>x.classList.remove("on"));drawProps();if(!SAVED.props.some(q=>q.addr===ad)){SAVED.props.unshift(p);svPut();toast("✓ הנכס נשמר – בפעם הבאה פשוט מקלידים את הרחוב")}};
+  const ad=st+" "+hn+(ct?", "+ct:"")+", קומה "+fl+(ap?", דירה "+ap:""),pkN=+$("#nMk").value||0,ft=[pkN===2?"2 חניות":pkN===1?"חניה":"",FX.el?"מעלית":"",FX.mm?"ממ״ד":""].filter(Boolean);
+  const p={addr:ad,price:+$("#nMp").value.replace(/\D/g,"")||"",type:[$("#nMt").value.trim()||"דירה"].concat(ft).join(" · "),street:st,hn,floor:fl,apt:ap,city:ct,pk:pkN,el:!!FX.el,mm:!!FX.mm};if(own)F.props=[p];else F.props.push(p);["#nMs","#nMh","#nMf","#nMd","#nMp"].forEach(s=>$(s).value="");$("#nMk").value="0";Object.keys(FX).forEach(k=>FX[k]=false);$$("#nMx button").forEach(x=>x.classList.remove("on"));drawProps();if(!SAVED.props.some(q=>q.addr===ad)){SAVED.props.unshift(p);svPut();toast("✓ הנכס נשמר – בפעם הבאה פשוט מקלידים את הרחוב")}};
  if(own){const x=$("#nX"),fr=$("#nFr"),mo=$("#nMo"),to=$("#nTo");
   x.onchange=()=>{$("#nXw").hidden=!x.checked};
   const upd=()=>{F.mon=+mo.value;if(F.mon)to.value=addM(fr.value,F.mon)};fr.onchange=upd;mo.onchange=upd;to.onchange=()=>{mo.value="0";F.mon=0}}
