@@ -1,0 +1,15 @@
+name: e2e-check
+on:
+  workflow_dispatch:
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DIROT_PW: ${{ secrets.DIROT_PW }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q playwright cryptography && python -m playwright install --with-deps chromium >/dev/null
+      - run: python tools/e2e.py
+      - uses: actions/upload-artifact@v4
+        with: { name: e2e, path: /tmp/e2e.enc, retention-days: 2 }
