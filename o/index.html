@@ -96,7 +96,7 @@ function loginView(msg){document.body.classList.add("lgb");$("#app").innerHTML=`
  <label for="lp">קוד כניסה</label><input id="lp" autocapitalize="characters" autocomplete="current-password" dir="ltr" class="pin">
  <button class="btn gold" type="submit">כניסה לפורטל</button><p class="lge" id="le" role="alert">${msg||""}</p></form>
  <div class="lgf">שכחתם את הקוד? <a href="https://wa.me/972549071916?text=${encodeURIComponent("שלום, שכחתי את קוד הכניסה לפורטל הנכס")}" target="_blank" rel="noopener">כתבו לנו בוואטסאפ</a></div></div>
- <p class="lgb2">צוות סרגייב · מקצועיות, זריזות ואמינות</p></main>`;
+ <p class="lgb2">צוות סרגייב · מקצועיות, זריזות ואמינות<br><a href="../privacy.html" style="color:inherit">מדיניות פרטיות</a> · <a href="../terms.html" style="color:inherit">תנאי שימוש</a></p></main>`;
  $("#lf").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;$("#le").textContent="";
   try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
    if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"המייל או הקוד לא נכונים.";b.disabled=false;return}
@@ -161,7 +161,7 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
  <h2>כתבו לנו</h2><div class="card">${ms||'<p class="hint" style="margin-top:0">יש לכם הערה, שאלה או עדכון לגבי הנכס? כתבו כאן ונחזור אליכם.</p>'}
   <textarea id="tx" placeholder="כתבו הודעה…" aria-label="הודעה"></textarea><div class="row"><button class="btn" id="snd">שליחה</button><a class="btn wa" href="${E(wa)}" target="_blank" rel="noopener">וואטסאפ ל${E(P.broker.name.split(" ")[0])}</a></div><p class="hint" id="st"></p></div>
  ${p.pdf?`<h2>מסמכים</h2><div class="card"><a class="btn gh" href="${E(p.pdf)}" target="_blank" rel="noopener">ההסכם החתום (PDF)</a></div>`:""}
- <p class="foot">${E(P.broker.name)} · צוות סרגייב · ${E(P.broker.phone)}</p>`;
+ <p class="foot">${E(P.broker.name)} · צוות סרגייב · ${E(P.broker.phone)} · <a href="../privacy.html" style="color:inherit">מדיניות פרטיות</a></p>`;
  const drawFeed=()=>{const ids=["all"].concat(CHORD.filter(k=>cnt[k]||k==="lead"));if(!ids.includes(FLT))FLT="all";
   $("#cp").innerHTML=ids.map(k=>`<button type="button" aria-pressed="${FLT===k}" data-k="${k}" style="--c:${k==="all"?"#16191F":CH[k].c}">${k!=="all"?'<i class="dot"></i>':""}${k==="all"?"הכל":CH[k].n} <b>${k==="all"?ev.length:cnt[k]||0}</b></button>`).join("");
   $("#cp").querySelectorAll("button").forEach(b=>b.onclick=()=>{FLT=b.dataset.k;SHOWN=40;drawFeed()});

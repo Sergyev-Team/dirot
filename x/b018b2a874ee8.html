@@ -9,6 +9,7 @@
 .lgf{position:sticky;bottom:8px;margin-top:10px}.lgf .btn{width:100%}.lgf .btn:disabled{opacity:.5}
 .m .unl{min-width:0!important;padding:6px 10px}
 .lgh .cnt{font-size:13px;font-weight:800;border-radius:999px;padding:1px 9px;background:var(--gold-soft);margin-inline-start:auto}
+.tourf{margin-top:10px;padding:12px;border:1.5px solid var(--line,#ddd);border-radius:14px;display:grid;gap:8px}.tourf label{display:grid;gap:4px;font-size:14px;font-weight:700}.tourf select,.tourf input{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid #ccc;width:100%;box-sizing:border-box}.tourf .tr2{display:grid;grid-template-columns:2fr 1fr;gap:8px}.tourf .tS{margin:0;font-size:14px}
 </style><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>לוח קונים סרגייב</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap">
 <style>
@@ -412,6 +413,16 @@ function views(){ const all=S.buyers.filter(b=>!st.status||(b.status||"פעיל"
 const RMF=[["3",3,3],["3.5",3.5,3.5],["4",4,4],["4.5",4.5,4.5],["5+",5,99]];
 function wantsRooms(b){ const p=prof(b.profile); if(!p||!p.deal||!p.rmin) return false; const mx=p.rmax||p.rmin;
   return [...st.rooms].some(i=>{ const [,lo,hi]=RMF[i]; return p.rmin<=hi && mx>=lo; }); }
+// ---- קביעת סיור → יומן גוגל
+function tourBtn(b,I,li){const t=el("button","btn","📅 סיור");t.type="button";t.onclick=()=>{let f=li.querySelector(".tourf");if(f){f.remove();return}
+ f=document.createElement("div");f.className="tourf";const mt=(I.m||[]).map(a=>a.id),ids=new Set(mt),opts=mt.map(id=>APTS.find(a=>a.id==id)).filter(Boolean).concat(APTS.filter(a=>!ids.has(a.id)&&a.street));
+ const d=new Date(Date.now()+864e5);d.setHours(17,0,0,0);const loc=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+ f.innerHTML=`<label>נכס<select class="tA">${opts.slice(0,200).map((a,i)=>`<option value="${a.id}">${i<mt.length?"⭐ ":""}#${a.id} ${String(a.street+" "+(a.hn||"")).replace(/[<>&]/g,"")}${a.rooms?" · "+a.rooms+" חד׳":""}</option>`).join("")}</select></label>
+  <div class="tr2"><label>מתי<input type="datetime-local" class="tW" value="${loc}"></label><label>משך<select class="tD"><option value="30">30 דק׳</option><option value="45">45 דק׳</option><option value="60">שעה</option></select></label></div>
+  <label>הערה (לא חובה)<input class="tN" placeholder="למשל: מגיע עם אשתו"></label><button type="button" class="btn wa tG">📅 קבע ביומן</button><p class="tS"></p>`;
+ li.append(f);f.querySelector(".tG").onclick=async e=>{const B=e.target;if(!DATA.script){toast("הלוח לא מחובר לגיליון");return}B.disabled=true;B.textContent="קובע…";
+  try{const r=await fetch(DATA.script,{method:"POST",body:JSON.stringify({t:DATA.token,action:"tour",id:f.querySelector(".tA").value,when:f.querySelector(".tW").value,dur:+f.querySelector(".tD").value,name:b.name,phone:b.phone,notes:f.querySelector(".tN").value.trim()})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
+   toast("✓ נקבע ביומן: "+j.when+" · הטופס מחכה בלוח ההחתמות");change(b,{last:today()})}catch(err){B.disabled=false;B.textContent="📅 קבע ביומן";f.querySelector(".tS").textContent="שגיאה: "+err.message}}};return t}
 function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל")!="פעיל"?" closed":""));
   const head=el("div","head"); head.append(el("h2","name",b.name));
   const rate=el("div","rate"); rate.setAttribute("role","group"); rate.setAttribute("aria-label","דירוג "+b.name);
@@ -445,7 +456,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
     send.href="https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(msg); send.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); }
   else { send.removeAttribute("href"); send.setAttribute("aria-disabled","true"); send.style.opacity=.5; send.textContent=link?"אין טלפון":"אין קישור לפרופיל"; }
   r.append(send);
-  const chat=el("a","btn","וואטסאפ"); chat.href="https://wa.me/972"+(b.phone||"").replace(/\D/g,"").replace(/^0/,""); chat.target="_blank"; chat.rel="noopener"; r.append(chat); if(window.SIGNBTN) r.append(window.SIGNBTN(b));
+  const chat=el("a","btn","וואטסאפ"); chat.href="https://wa.me/972"+(b.phone||"").replace(/\D/g,"").replace(/^0/,""); chat.target="_blank"; chat.rel="noopener"; r.append(chat); if(window.SIGNBTN) r.append(window.SIGNBTN(b)); r.append(tourBtn(b,I,li));
   const call=el("a","btn","📞 התקשרות"); if(b.phone){ call.href="tel:"+b.phone.replace(/[^\d+]/g,""); call.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); } else { call.setAttribute("aria-disabled","true"); call.style.opacity=.5; } r.append(call);
   if(link){ const see=el("a","btn","הדירות שלו"); see.href=code?SITE+"#"+code:link; see.target="_blank"; see.rel="noopener"; r.append(see); }
   li.append(r);

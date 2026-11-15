@@ -105,7 +105,7 @@ function render(){const c=DOC.c;
  <label>מייל * (חובה – לקבלת העתק חתום)<input id="em" required type="email" inputmode="email" autocomplete="email"></label>
  <label>טלפון<input id="ph" type="tel" value="${esc(c.phone)}" autocomplete="tel"></label></div>
  ${DS.map(docHTML).join('<hr style="border:0;border-top:2px solid var(--gold);margin:22px 0">')}
- <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label>
+ <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label><p class="hint" style="font-size:13px;margin:4px 0 0">הפרטים נשמרים לפי <a href="../privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ו<a href="../terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p>
  <div class="row" style="justify-content:space-between"><b>חתימה:</b><button class="btn ghost" id="clr" type="button">נקה חתימה</button></div>
  <canvas class="sigbox" id="sig"></canvas><p class="hint">חותמים עם האצבע בתוך המסגרת.</p>
  <div id="err"></div><button class="btn" id="go">✍️ חתימה ושליחה</button></div>`;
