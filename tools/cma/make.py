@@ -8,7 +8,7 @@ out_dir = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.getcwd()
 S = json.load(open(spec))
 name = "הערכת-שווי-" + S.get("slug", S["address"].replace(" ", "-"))
 raw = os.path.join(tempfile.mkdtemp(), "raw.pptx")
-subprocess.run(["node", os.path.join(HERE, "cma.js"), spec, raw], check=True, cwd=HERE)
+subprocess.run(["node", os.path.join(HERE, "val.js" if S.get("mode") == "valuation" else "cma.js"), spec, raw], check=True, cwd=HERE)
 
 # dedupe identical media and repack
 u = tempfile.mkdtemp()
