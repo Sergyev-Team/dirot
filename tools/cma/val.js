@@ -157,9 +157,10 @@ async function icon(Comp) {
     const rows = deals.map((d) => [`${d.addr} · ${fdate(d.date)}`, d.psm, GOLD]);
     rows.push(["ממוצע העסקאות", dAvgPsm, "8C6A22", true]);
     if (lst.length) rows.push(["חציון הנכסים בשיווק", median(lst.map((d) => d.psm)), "6B6B73"]);
-    rows.push([`השווי המוערך (${nf(V.mid)} ₪)`, psm, DK, true]);
     rows.sort((a, b) => b[1] - a[1]);
-    const show = rows.slice(0, 8);
+    const show = rows.slice(0, 7);
+    show.push([`השווי המוערך (${nf(V.mid)} ₪)`, psm, DK, true]);
+    show.sort((a, b) => b[1] - a[1]);
     const right = 5.95, maxW = 4.6, scale = maxW / (Math.max(...show.map((r) => r[1])) * 1.04), step = Math.min(0.44, 2.9 / show.length);
     show.forEach((r, i) => {
       const y = 1.4 + i * step;
