@@ -158,7 +158,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
     <div class="chips buyersOnly" id="rmf" role="group" aria-label="סינון לפי חדרים"></div>
     <div class="chips buyersOnly" role="group" aria-label="סינון">
       <span class="chips" id="rates"></span>
-      <select id="sort" aria-label="מיון"><option value="new">קשר אחרון: מהחדש לישן</option><option value="old">קשר אחרון: מהישן לחדש</option><option value="rate">לפי דירוג</option></select>
+      <select id="sort" aria-label="מיון"><option value="fresh">🔥 החדשים קודם (התקשרו / נכנסו לאחרונה)</option><option value="new">קשר אחרון: מהחדש לישן</option><option value="old">קשר אחרון: מהישן לחדש</option><option value="rate">לפי דירוג</option></select>
       <select id="status" aria-label="סטטוס"><option value="פעיל">פעילים</option><option value="בהקפאה">בהקפאה</option><option value="קנה">קנו</option><option value="">כולם</option></select>
     </div>
     </div>
@@ -282,7 +282,7 @@ if(DATA.script) fetch(DATA.script+"?removed=1").then(r=>r.json()).then(j=>{ if(!
   for(let i=APTS.length-1;i>=0;i--) if(rm[String(APTS[i].id)]){ APTS.splice(i,1); n++; } if(n) render(); }).catch(()=>{});
 let S=store.get(K_CACHE,null) || {buyers:DATA.buyers, profiles:DATA.profiles, at:DATA.built};
 let PEND=store.get(K_PEND,[]);
-const st={view:"today", qmore:false, rate:"", status:"פעיל", q:"", sort:"new", rooms:new Set()};
+const st={view:"all", qmore:false, rate:"", status:"פעיל", q:"", sort:"fresh", rooms:new Set()};
 let syncState=DATA.script?"…":"local";
 
 // ---- matching
@@ -398,7 +398,7 @@ function change(b,fields){ Object.assign(b,fields); markDone(b); if(b.row){ PEND
 // ---- UI
 function views(){ const all=S.buyers.filter(b=>!st.status||(b.status||"פעיל")==st.status);
   const late=all.filter(b=>{const d=info(b).d; return d===null||d>7;}); const fresh=all.filter(b=>info(b).nw>0);
-  const V=[["today","📋 10 של היום",10],["all","כולם",all.length],["late","לחזור אליהם",late.length],["new","דירות חדשות",fresh.length]];
+  const V=[["all","כולם",all.length],["today","📋 10 של היום",10],["late","לחזור אליהם",late.length],["new","דירות חדשות",fresh.length]];
   const box=$("views"); box.innerHTML=""; V.forEach(([k,t,n])=>{ const c=el("button","chip",t); c.type="button"; c.setAttribute("aria-pressed",st.view==k); c.append(el("span","n",n)); c.onclick=()=>{st.view=k; render();}; box.append(c); });
   const unset=all.filter(b=>{const p=prof(b.profile); return !(p&&p.deal&&p.rmin);}).length;
   if(unset){ const c=el("button","chip","בלי הגדרה"); c.type="button"; c.setAttribute("aria-pressed",st.view=="unset"); c.append(el("span","n",unset)); c.onclick=()=>{st.view=st.view=="unset"?"all":"unset"; render();}; box.append(c); }
@@ -584,6 +584,7 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   const dv=b=>{const d=info(b).d; return d===null?99999:d;};
   const cmp=st.sort=="old"?(a,b)=>dv(b)-dv(a) || (RANK[b.rating]||0)-(RANK[a.rating]||0)
     :st.sort=="rate"?(a,b)=>(RANK[b.rating]||0)-(RANK[a.rating]||0) || dv(a)-dv(b)
+    :st.sort=="fresh"?(a,b)=>dv(a)-dv(b) || (b.row||0)-(a.row||0)
     :(a,b)=>dv(a)-dv(b) || (RANK[b.rating]||0)-(RANK[a.rating]||0);
   // freeze: order is set once (page load / sort change); updates don't move cards until the next load
   const fk=st.view=="today"?"today":st.sort;
@@ -600,9 +601,9 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
 $("banner").innerHTML=""; if(!DATA.script){ $("banner").append(el("div","banner","הלוח עדיין לא מחובר לגיליון. דירוג, הערות ותאריכי קשר נשמרים בינתיים בטלפון הזה, ויעברו לגיליון ברגע שהחיבור יוגדר.")); }
 $("q").oninput=e=>{st.q=e.target.value; if(st.mode=="a"){ st.aid=null; QUEUE=null; } render();};
 $("status").onchange=e=>{st.status=e.target.value; render();};
-$("sort").onchange=e=>{st.sort=e.target.value; try{localStorage.setItem("kb_sort",st.sort);}catch(_){} render();};
+$("sort").onchange=e=>{st.sort=e.target.value; try{localStorage.setItem("kb_sort2",st.sort);}catch(_){} render();};
 try{ const rr=JSON.parse(localStorage.getItem("kb_rooms")||"[]"); rr.forEach(i=>st.rooms.add(i)); }catch(_){}
-try{ const s=localStorage.getItem("kb_sort"); if(s){ st.sort=s; $("sort").value=s; } }catch(_){}
+try{ const s=localStorage.getItem("kb_sort2"); if(s){ st.sort=s; $("sort").value=s; } else $("sort").value="fresh"; }catch(_){}
 $("addBtn").onclick=()=>{ const f=$("addForm"); f.hidden=!f.hidden; const ps=$("nProfile"); ps.innerHTML=""; S.profiles.forEach(p=>{const o=el("option",null,p.name); o.value=p.name; ps.append(o);}); if(!f.hidden) $("nName").focus(); };
 $("addCancel").onclick=()=>{ $("addForm").hidden=true; };
 $("addForm").onsubmit=e=>{ e.preventDefault(); const phone=$("nPhone").value.replace(/\D/g,""); if(phone.length<9){ toast("מספר הטלפון קצר מדי"); return; }

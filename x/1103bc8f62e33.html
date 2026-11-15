@@ -85,11 +85,19 @@ body.ceomode #modes,body.ceomode .wrap>h1,body.ceomode .wrap>.sub{display:none!i
 .stg{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--s);color:var(--c);white-space:nowrap}
 @media (max-width:680px){.fun{grid-template-columns:repeat(2,1fr)}.fun div:nth-child(3){border-inline-start:0}.fun div:nth-child(n+3){border-top:1.5px solid var(--line)}
  .ctab thead{display:none}.ctab,.ctab tbody,.ctab tr,.ctab td{display:block}.ctab tr{padding:10px 12px;border-bottom:1px solid var(--line)}.ctab td{border:0;padding:2px 0}.ctab td.n{text-align:start;display:inline-block;margin-inline-end:12px;font-size:14px}.ctab td.n:before{content:attr(data-l) " ";color:var(--muted)}.money .sum{font-size:34px}}
+.lf{margin:4px 0 12px}
+.cg{border:1.5px solid var(--line);border-radius:16px;background:var(--surface);margin:0 0 12px;overflow:hidden;border-inline-start:6px solid var(--line)}.cg.wait{border-inline-start-color:#d99a1c}.cg.done{border-inline-start-color:#1F7A52}
+.cg header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;background:var(--bg)}.cn{font-size:19px;display:block}.cph{color:var(--muted);font-size:15px;text-decoration:none}
+.csum{font-size:14px;font-weight:800;border-radius:99px;padding:4px 12px}.csum.w{background:#fff3d6;color:#7a5200}.csum.o{background:#e3f3ea;color:#1b6b45}
+.cr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--line)}.cri{min-width:0}.cr .btn{white-space:nowrap;flex-shrink:0}.crt{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.crt .tp{margin:0;font-size:13px}.cra{font-weight:700;margin-top:4px}.crd{font-size:14px;margin-top:2px}.okc{color:#1b6b45}.wc{color:#a06a00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .csum.w{background:#2e2615;color:#e3b858}:root:not([data-theme="light"]) .csum.o{background:#16281f;color:#5CC491}:root:not([data-theme="light"]) .okc{color:#5CC491}:root:not([data-theme="light"]) .wc{color:#e3b858}}
+.cdr{border-color:var(--gold)}.cdi{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px dashed var(--line)}.cdi.on{background:var(--gold-soft);border-radius:12px;padding:10px 8px}
+.cdw{text-align:center;font-size:13px;color:var(--muted);line-height:1.2;min-width:52px}.cdw b{display:block;font-size:14px;color:var(--fg)}.cdt{min-width:0;font-size:15px}.cdt .hint{font-size:13px}.cdm{font-size:13px;font-weight:800;color:#a06a00}.cdb{display:flex;gap:4px}
 </style></head><body>
 <div class="wrap">
  <h1>לוח <b>החתמות</b></h1><p class="sub">שליחת טפסי תיווך לחתימה דיגיטלית בוואטסאפ</p>
  <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button><button data-m="own" id="ownT">🏠 פורטל בעלים</button></div>
- <section class="mode" id="m-new"><div class="card" id="nw"></div></section>
+ <section class="mode" id="m-new"><div id="cdr"></div><div class="card" id="nw"></div></section>
  <div class="card" id="mngHd" hidden><b style="font-size:19px"></b><p class="hint" style="margin:4px 0 0">כל שינוי כאן מתעדכן בפורטל של בעל הנכס. אפשר לסגור את הלשונית בסיום.</p></div><section class="mode" id="m-own"><p class="hint upd" id="oUp" hidden>🔄 מעדכן נתונים…</p><div class="card own-top"><div class="row"><button class="btn" id="oNewT" style="flex:1">➕ פורטל חדש לבעל נכס</button><button class="btn ghost sm" id="oR">🔄</button></div><div id="oNew" hidden></div></div><div id="oLs"><p class="hint">טוען…</p></div></section>
  <section class="mode ceo" id="m-ceo" hidden></section>
  <section class="mode" id="m-list"><p class="hint upd" id="lUp" hidden>🔄 מעדכן נתונים…</p><div class="card"><div class="row"><input id="lq" placeholder="חיפוש לפי שם או טלפון" style="flex:1"><button class="btn ghost sm" id="lr">🔄 רענון</button></div><div id="ls"></div></div></section>
@@ -124,6 +132,19 @@ function keep(){const g=id=>{const x=document.getElementById(id);return x?x.valu
  if(g("nN")!=null){F.name=g("nN").trim();F.phone=g("nP").trim();F.notes=g("nT");if(rent())F.months=+g("nF")||1;else F.fee=+String(g("nF")).replace(/[^\d.]/g,"")||2;
   {const h=document.getElementById("nH");if(h)F.hide=h.checked}
   if(owner()){const x=$("#nX");F.excl=x.checked;if(F.excl){F.from=g("nFr")||F.from;F.to=g("nTo")||F.to}}}}
+// ===== טפסים מוכנים מפגישות ביומן =====
+let CDR=null,CURDR=null;
+async function loadDrafts(){if(!U||U.agent||!U.sync)return;try{const j=await oPost("cdrafts",{});CDR=j.items||[];drawDrafts()}catch(e){}}
+function drawDrafts(){const w=$("#cdr");if(!w)return;if(!CDR||!CDR.length){w.innerHTML="";return}
+ const TN={buy:"קונה",sell:"מוכר",rentin:"שוכר",rentout:"משכיר"};
+ w.innerHTML=`<div class="card cdr"><p class="lbl" style="margin:0 0 6px">📅 מהיומן – טפסים מוכנים לשליחה (${CDR.length})</p>${CDR.map(d=>{const t=dt(d.when),x=new Date(t);
+  return `<div class="cdi${CURDR===d.key?" on":""}" data-k="${E(d.key)}"><div class="cdw"><b>${E(x.toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"}))}</b>${E(d.when.slice(11))}</div>
+   <div class="cdt"><b>${E(d.name||"שם חסר")}</b> · <span dir="ltr">${E(d.phone)}</span> · ${TN[d.type]||""}<div class="hint">${d.apt?"🏠 "+E(d.apt.addr.split(",")[0]):"🏠 נכס חסר"} · ${E(d.title)}</div>${d.missing.length?`<div class="cdm">חסר: ${E(d.missing.join(", "))}</div>`:""}</div>
+   <div class="cdb"><button type="button" class="btn sm" data-a="go">${CURDR===d.key?"✓ בטופס":"הכן טופס"}</button><button type="button" class="btn ghost sm" data-a="x" aria-label="לא צריך">✕</button></div></div>`}).join("")}</div>`;
+ w.querySelectorAll(".cdi").forEach(r=>{const d=CDR.find(z=>z.key===r.dataset.k);
+  r.querySelector('[data-a="go"]').onclick=()=>{CURDR=d.key;reset(d.type);F.name=d.name||"";F.phone=d.phone;if(d.apt)F.props=[{id:d.apt.id,addr:d.apt.addr,price:d.apt.price||"",type:d.apt.type||"דירה"}];drawNew();drawDrafts();
+   const nw=$("#nw");nw.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>{const f=d.missing.includes("שם")?nw.querySelector("#nN,input"):null;if(f)f.focus()},400);toast(d.missing.length?"✓ הטופס מוכן – השלם: "+d.missing.join(", "):"✓ הטופס מוכן – בדוק ושלח")};
+  const xb=r.querySelector('[data-a="x"]');xb.onclick=()=>{if(!xb.dataset.c){xb.dataset.c=1;xb.textContent="בטוח?";return}oPost("cdone",{key:d.key}).catch(()=>{});CDR=CDR.filter(z=>z.key!==d.key);if(CURDR===d.key)CURDR=null;drawDrafts()}})}
 function drawNew(){const own=owner(),A=(U.apts||[]).filter(x=>!x.deal||(rent()?x.deal==="השכרה":x.deal!=="השכרה"));
  $("#nw").innerHTML=`<p class="lbl" style="margin-top:0">מי חותם?</p><div class="who">${Object.entries(WHO).map(([k,v])=>`<button type="button" data-t="${k}" class="${F.type===k?"on":""}">${v[0]}<small>${v[1]}</small></button>`).join("")}</div>
  <div class="g2 st"><label class="l">שם הלקוח (חיפוש בקונים שלך או לקוח חדש)<input id="nN" value="${E(F.name)}" autocomplete="off" placeholder="מתחילים להקליד שם…"></label><label class="l">טלפון (לוואטסאפ)<input id="nP" type="tel" value="${E(F.phone)}" autocomplete="off"></label></div><div class="sug" id="nNs"></div>
@@ -179,7 +200,7 @@ async function create(){keep();const s=U.sync,o=$("#nOut");const err=t=>{o.inner
  const c={type:F.type,name:F.name,phone:F.phone,props:F.props,notes:F.notes.trim(),date:iso(new Date())};
  if(rent())c.months=F.months;else c.fee=F.fee;if(owner()&&F.excl){c.excl=true;c.from=F.from;c.to=F.to}if(owner()&&F.props[0]&&F.props[0].id)c.lid=F.props[0].id;if(!owner()&&F.hide)c.hideNum=true;
  try{const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:s.token,op:"cnew",c})});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");
-  const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";svMerge({clients:[{name:F.name,phone:F.phone}]});svPut();
+  const link=SITE+"s/?k="+j.k;b.textContent="✓ נוצר";if(CURDR){const dk=CURDR;CURDR=null;oPost("cdone",{key:dk}).catch(()=>{});CDR=(CDR||[]).filter(d=>d.key!==dk);drawDrafts()}svMerge({clients:[{name:F.name,phone:F.phone}]});svPut();
   o.innerHTML=`<div class="box nw"><b>✓ טופס מס' ${pad(j.n)} מוכן${c.excl?" (הסכמה + בלעדיות)":""}</b></div><div class="row"><a class="btn wa" style="flex:1" target="_blank" rel="noopener" href="${E(wa(F.phone,msg(F.name,link,!!c.excl,F.props,F.type)))}">💬 שלח ללקוח בוואטסאפ</a><button type="button" class="btn ghost" id="nCp">📋 העתק קישור</button></div><button type="button" class="btn ghost big" id="nAg">➕ טופס חדש נוסף</button>`;
   $("#nCp").onclick=()=>{try{navigator.clipboard.writeText(link)}catch(e){}$("#nCp").textContent="✓ הועתק"};$("#nAg").onclick=()=>{reset(F.type);drawNew();window.scrollTo(0,0)}}
  catch(e){err("שגיאה: "+e.message);b.disabled=false;b.textContent="🔗 צור קישור לחתימה"}}
@@ -188,9 +209,22 @@ const cGet=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){r
 const upd=(id,on)=>{const e=$(id);if(e)e.hidden=!on};
 async function loadList(){const s=U.sync,h=$("#ls"),ck="sg_list_"+(U.agent?"a":"m");if(!LIST)LIST=cGet(ck);if(LIST){drawList();upd("#lUp",1)}else h.innerHTML='<p class="hint">טוען…</p>';
  try{const r=await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=clist");const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");LIST=j.items;cSet(ck,LIST);upd("#lUp",0);drawList()}catch(e){upd("#lUp",0);if(!LIST)h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+'</p>';else toast("לא הצלחתי לרענן – מוצג המידע האחרון")}}
-function drawList(){const q=$("#lq").value.trim(),h=$("#ls");if(!LIST)return;const L=LIST.filter(c=>!q||String(c.name).includes(q)||String(c.phone).replace(/\D/g,"").includes(q.replace(/\D/g,"")||"~"));
- h.innerHTML=L.length?L.map(c=>{const ok=!!c.signed,link=SITE+"s/?k="+c.k;return `<div class="ct"><span><b>${pad(c.n)}</b><span class="tp">${TL[c.type]||c.type}</span>${c.agent&&!U.agent?`<span class="tp">👤 ${E(c.agent)}</span>`:""} ${E(c.name)}<br><small class="hint">נשלח ${E(c.created)}</small></span><span class="stt ${ok?"ok":""}">${ok?"✓ נחתם "+E(c.signed):"⏳ ממתין לחתימה"}</span>
-  <span>${ok&&c.pdf?`<a class="btn ghost sm" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:`<a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(c.phone,msg(c.name,link,true,null,c.type)))}">💬 שלח שוב</a>`}</span></div>`}).join(""):'<p class="hint">אין טפסים.</p>'}
+let LFLT="all";
+function drawList(){const q=$("#lq").value.trim(),h=$("#ls");if(!LIST)return;const qd=q.replace(/\D/g,"");
+ const L=LIST.filter(c=>!q||String(c.name).includes(q)||(qd&&String(c.phone).replace(/\D/g,"").includes(qd))||(c.props||[]).some(a=>a.includes(q)));
+ const G=new Map();L.forEach(c=>{const k=String(c.phone).replace(/\D/g,"").slice(-9)||("n"+c.n);if(!G.has(k))G.set(k,[]);G.get(k).push(c)});
+ let groups=[...G.values()];const pend=g=>g.filter(c=>!c.signed).length;
+ const nP=groups.filter(g=>pend(g)).length,nS=groups.length-nP;
+ if(LFLT==="pend")groups=groups.filter(g=>pend(g));if(LFLT==="ok")groups=groups.filter(g=>!pend(g));
+ const chips=`<div class="chips lf">${[["all","הכל",G.size],["pend","⏳ ממתינים",nP],["ok","✓ חתמו על הכל",nS]].map(([k,t,n])=>`<button type="button" data-f="${k}" class="${LFLT===k?"on":""}">${t} · ${n}</button>`).join("")}</div>`;
+ h.innerHTML=chips+(groups.length?groups.map(g=>{const c0=g[0],p=pend(g),ph=String(c0.phone||"").replace(/\D/g,"").replace(/^972/,"0"),phD=ph.length===9?"0"+ph:ph;
+  return `<article class="cg ${p?"wait":"done"}"><header><div><b class="cn">${E(c0.name)}</b><a class="cph" href="tel:${E(phD)}" dir="ltr">${E(phD.replace(/^(\d{3})(\d{3})(\d+)$/,"$1-$2-$3"))}</a></div>
+   <span class="csum ${p?"w":"o"}">${p?`⏳ ${p} ${p>1?"ממתינים":"ממתין"} לחתימה`:g.length>1?`✓ חתם על כל ה-${g.length}`:"✓ נחתם"}</span></header>
+   ${g.map(c=>{const ok=!!c.signed,link=SITE+"s/?k="+c.k,ad=(c.props||[]).map(a=>String(a).split(",")[0]).filter(Boolean).join(" · ");
+    return `<div class="cr"><div class="cri"><div class="crt"><span class="tp">${TL[c.type]||c.type}${c.excl?" + בלעדיות":""}</span><span class="hint">טופס ${pad(c.n)}</span>${c.agent&&!U.agent?`<span class="tp">👤 ${E(c.agent)}</span>`:""}</div>
+     ${ad?`<div class="cra">🏠 ${E(ad)}</div>`:""}<div class="crd">${ok?`<b class="okc">✓ נחתם ${E(c.signed)}</b>`:`<b class="wc">⏳ עוד לא נחתם</b>`}</div><div class="hint crd">נשלח ${E(c.created)}</div></div>
+     ${ok&&c.pdf?`<a class="btn ghost sm" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:ok?"":`<a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(c.phone,msg(c.name,link,true,null,c.type)))}">💬 שלח שוב</a>`}</div>`}).join("")}</article>`}).join(""):'<p class="hint">אין טפסים.</p>');
+ h.querySelectorAll(".lf button").forEach(b=>b.onclick=()=>{LFLT=b.dataset.f;drawList()})}
 const OTYPES={start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],lead:["📞","פנייה מקונה מתעניין"],media:["🎬","חומר שיווק חדש"],other:["📌","פעולה"]};
 const OGROUPS={"https://www.facebook.com/groups/331634257248250/":"דירות למכירה בפתח תקווה (1)","https://www.facebook.com/groups/1444861819075775/":"דירות למכירה בפתח תקווה (2)","https://www.facebook.com/groups/3185842411735226/":"דירות למכירה בפתח תקווה (3)","https://www.facebook.com/groups/nadlaninfo/":"דירות למכירה בפתח תקווה – נדל״ן סנטר","https://www.facebook.com/groups/436206549876139/":"דירות למכירה קניה והשכרה בפתח תקווה","https://www.facebook.com/groups/185303591673168/":"דירות למכירה קניה והשכרה פתח תקווה","https://www.facebook.com/groups/1129639960811060/":"דירות למכירה והשכרה בפתח תקווה","https://www.facebook.com/groups/370244223604031/":"דירות להשכרה ומכירה בפתח תקווה והסביבה","https://www.facebook.com/groups/436129093818279/":"מאגר דירות פתח תקווה","https://www.facebook.com/groups/204690494250/":"דירות מפה לאוזן פתח תקווה","https://www.facebook.com/groups/771391086305306/":"נדל״ן פתח תקווה","https://www.facebook.com/groups/224967760988658/":"פתח תקווה העיר שלי","https://www.facebook.com/groups/248835652321875/":"דירות להשכרה בפתח תקווה"};
 function mkEvents(mk,fromTs){const out=[];Object.entries(mk||{}).forEach(([ch,arr])=>{let type=null,text="";
@@ -336,7 +370,7 @@ function drawONew(){const w=$("#oNew");if(!w.hidden){w.hidden=true;return}w.hidd
  $("#oGo").onclick=async e=>{const id=oi.value.replace(/\D/g,"");if(!id){toast("חסר מספר נכס");return}const b=e.target;b.disabled=true;b.textContent="יוצר…";
   try{const j=await oPost("onew",{p:{id,name:$("#oN").value.trim(),phone:$("#oP").value.trim(),email:$("#oE").value.trim(),from:$("#oF").value,to:$("#oT").value}});toast((j.existed?"✓ הפורטל עודכן":"✓ פורטל נוצר")+" · קוד "+j.pin,5000);w.hidden=true;await loadOwn()}catch(err){toast("שגיאה: "+err.message);b.disabled=false;b.textContent="צור פורטל"}}}
 
-function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="list")loadList();if(m==="own")loadOwn()}
+function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="new"&&CDR===null)loadDrafts();if(m==="list")loadList();if(m==="own")loadOwn()}
 let BUY=[];
 function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
  if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();svPull();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){const t=$("#ownT");if(t)t.remove()}else{$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn;
