@@ -40,12 +40,12 @@ html=r'''<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <input id="pw" type="password" placeholder="קוד כניסה" autocomplete="current-password" required><button type="submit">כניסה</button><p class="err" id="err" hidden>הקוד לא נכון. נסו שוב.</p></form></div>
 <div id="app" hidden>
  <div class="bar" id="bar"><div class="top"><b>משרד <span>סרגייב</span></b><div style="display:flex;gap:8px;align-items:center"><button class="out" id="out">יציאה</button><img src="../f/logo.jpg" alt=""></div></div>
-  <div class="tabs" id="tabs"><button data-t="buy">👥 קונים</button><button data-t="con">🏢 מתווך</button><button data-t="mkt">📣 שיווק</button><button data-t="upl">➕ העלאה</button><button data-t="sgn">✍️ החתמות</button></div></div>
+  <div class="tabs" id="tabs"><button data-t="ceo">📊 מנכ״ל</button><button data-t="buy">👥 קונים</button><button data-t="con">🏢 מתווך</button><button data-t="mkt">📣 שיווק</button><button data-t="upl">➕ העלאה</button><button data-t="sgn">✍️ החתמות</button></div></div>
  <div class="frames" id="frames"></div>
 </div>
 <script>
 const KEY="sergyev_console_pw",SALT="__SALT__",IV="__IV__",CT="__CT__",IT=__IT__;
-const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html"};
+const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",ceo:"de7f766b5893b.html#ceo"};
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function check(pw){try{const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
@@ -53,7 +53,7 @@ async function check(pw){try{const base=await crypto.subtle.importKey("raw",new 
  await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(IV)},key,b64(CT));return true}catch(e){return false}}
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
-function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=t;f.src=url||(B[t]+"?v="+Math.floor(Date.now()/600000));f.onload=()=>hook(f);document.getElementById("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
+function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=t;f.src=url||B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1");f.onload=()=>hook(f);document.getElementById("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
 function show(t,url){ls.set("office_tab",t);document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));const f=frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
 function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked=1;
   d.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
@@ -63,7 +63,7 @@ function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked
 function sizeBar(){document.documentElement.style.setProperty("--bh",document.getElementById("bar").offsetHeight+"px")}
 function start(){document.getElementById("lock").hidden=true;document.getElementById("app").hidden=false;sizeBar();
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
-  const h=location.hash.match(/^#(buy|con|mkt|upl|sgn)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
+  const h=location.hash.match(/^#(ceo|buy|con|mkt|upl|sgn)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
 window.addEventListener("resize",sizeBar);
 document.getElementById("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
 document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const pw=document.getElementById("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else document.getElementById("err").hidden=false};

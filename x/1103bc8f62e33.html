@@ -61,12 +61,37 @@ body.mngmode #modes,body.mngmode .own-top{display:none!important}.upd{text-align
 .lg{font-size:14px;border-top:1px dashed var(--line);padding:6px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}.lg label{display:flex;gap:4px;align-items:center;font-size:13px;color:var(--muted);white-space:nowrap}
 .mm{padding:7px 10px;border-radius:12px;margin:5px 0;font-size:14px;white-space:pre-wrap}.mm.o{background:var(--gold-soft)}.mm.f{background:var(--bg);border:1px solid var(--line)}.mm small{display:block;color:var(--muted);font-size:12px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{font:inherit;font-size:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:99px;padding:6px 10px;cursor:pointer}.chips button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--gold);font-weight:800}
+
+/* ===== דשבורד מנכ"ל ===== */
+:root{--info:#3F5E8C;--infoS:#E6ECF5;--ok:#1F7A52;--warn:#A86A12;--bad:#B4361C;--okS:#E5F2EB;--warnS:#FBF0DC;--badS:#FBE6E0;--ink2:#2B2F36}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--info:#8FB0E3;--infoS:#18202e;--ok:#5CC491;--warn:#E7B14F;--bad:#F08A6E;--okS:#16281f;--warnS:#2c2414;--badS:#2e1a15;--ink2:#e8e2d3}}
+:root[data-theme="dark"]{--info:#8FB0E3;--infoS:#18202e;--ok:#5CC491;--warn:#E7B14F;--bad:#F08A6E;--okS:#16281f;--warnS:#2c2414;--badS:#2e1a15;--ink2:#e8e2d3}
+body.ceomode #modes,body.ceomode .wrap>h1,body.ceomode .wrap>.sub{display:none!important}body.ceomode .wrap{max-width:980px}
+.ceo h2{font-size:19px;margin:26px 0 10px;font-weight:800}.ceo .muted{color:var(--muted)}
+.cHead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 0 2px}.cHead h1{margin:0;font-size:24px}.cHead small{color:var(--muted);font-size:14px}
+.cBar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cBar select{width:auto;height:auto;padding-left:34px}.cBar select,.cBar button{font:inherit;font-size:15px;padding:7px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg)}
+.money{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:18px}
+.money p{margin:0;font-size:17px}.money .sum{font-size:40px;font-weight:700;color:var(--gold);line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.mBar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin:14px 0 10px}.mBar i{display:block;min-width:3px}
+.mLeg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.mLeg div{font-size:14px;color:var(--muted)}.mLeg b{display:block;font-size:19px;color:var(--fg);font-variant-numeric:tabular-nums}.mLeg span{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:1px}
+.alerts{display:grid;gap:8px}.al{display:grid;grid-template-columns:5px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px 10px 10px}
+.al:before{content:"";align-self:stretch;border-radius:3px;background:var(--c)}.al b{display:block;font-size:16px}.al span{font-size:14px;color:var(--muted)}.al a,.al button{font:inherit;font-size:14px;font-weight:700;color:var(--gold);text-decoration:none;white-space:nowrap;background:none;border:0;cursor:pointer;padding:6px 0}
+.fun{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;overflow:hidden}
+.fun div{padding:14px 10px;text-align:center;border-inline-start:1.5px solid var(--line)}.fun div:first-child{border:0}.fun b{display:block;font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}.fun span{font-size:14px;color:var(--muted)}.fun em{display:block;font-style:normal;font-size:13px;color:var(--ok);font-weight:700;margin-top:2px}
+.ctab{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;overflow:hidden;font-size:15px}
+.ctab th{font-size:13px;color:var(--muted);font-weight:700;text-align:start;padding:10px;border-bottom:1.5px solid var(--line);cursor:pointer;white-space:nowrap}.ctab td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;font-variant-numeric:tabular-nums}.ctab tr:last-child td{border-bottom:0}
+.ctab td.n{text-align:center}.ctab a{color:var(--fg);font-weight:700;text-decoration:none}.ctab a:hover{color:var(--gold)}
+.dbar{display:flex;align-items:center;gap:6px;white-space:nowrap}.dbar i{display:block;height:8px;border-radius:4px;background:var(--c);width:var(--w)}
+.stg{display:inline-block;font-size:13px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--s);color:var(--c);white-space:nowrap}
+@media (max-width:680px){.fun{grid-template-columns:repeat(2,1fr)}.fun div:nth-child(3){border-inline-start:0}.fun div:nth-child(n+3){border-top:1.5px solid var(--line)}
+ .ctab thead{display:none}.ctab,.ctab tbody,.ctab tr,.ctab td{display:block}.ctab tr{padding:10px 12px;border-bottom:1px solid var(--line)}.ctab td{border:0;padding:2px 0}.ctab td.n{text-align:start;display:inline-block;margin-inline-end:12px;font-size:14px}.ctab td.n:before{content:attr(data-l) " ";color:var(--muted)}.money .sum{font-size:34px}}
 </style></head><body>
 <div class="wrap">
  <h1>לוח <b>החתמות</b></h1><p class="sub">שליחת טפסי תיווך לחתימה דיגיטלית בוואטסאפ</p>
  <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button><button data-m="own" id="ownT">🏠 פורטל בעלים</button></div>
  <section class="mode" id="m-new"><div class="card" id="nw"></div></section>
  <div class="card" id="mngHd" hidden><b style="font-size:19px"></b><p class="hint" style="margin:4px 0 0">כל שינוי כאן מתעדכן בפורטל של בעל הנכס. אפשר לסגור את הלשונית בסיום.</p></div><section class="mode" id="m-own"><p class="hint upd" id="oUp" hidden>🔄 מעדכן נתונים…</p><div class="card own-top"><div class="row"><button class="btn" id="oNewT" style="flex:1">➕ פורטל חדש לבעל נכס</button><button class="btn ghost sm" id="oR">🔄</button></div><div id="oNew" hidden></div></div><div id="oLs"><p class="hint">טוען…</p></div></section>
+ <section class="mode ceo" id="m-ceo" hidden></section>
  <section class="mode" id="m-list"><p class="hint upd" id="lUp" hidden>🔄 מעדכן נתונים…</p><div class="card"><div class="row"><input id="lq" placeholder="חיפוש לפי שם או טלפון" style="flex:1"><button class="btn ghost sm" id="lr">🔄 רענון</button></div><div id="ls"></div></div></section>
 </div>
 <div class="toast" id="toast"></div>
@@ -246,6 +271,8 @@ function mngPanel(o,x){const off=o.off||{},V=o.views||{},M=o.match||{},rv=V.real
   <div class="cnt2"><span>🎯 קונים מתאימים</span><span class="hint">אמיתי ${rm}</span><button type="button" class="btn ghost sm" data-d="m" data-s="-1">−1</button><input id="mM" inputmode="numeric" value="${+off.m||0}"><button type="button" class="btn ghost sm" data-d="m" data-s="1">+1</button><b id="mMt">= ${Math.max(0,rm+(+off.m||0))}</b></div>
   <p class="hint">התוספת נשמרת – המספר האמיתי ממשיך לעלות והתוספת נוספת עליו. פניות קונים מוסיפים ב"➕ פעולה" ← פנייה מקונה.</p>`)+
  sec("🔑 כניסה לפורטל",`<div class="g2"><label class="l">שם משתמש (ריק = כניסה במייל/טלפון)<input id="mU" dir="ltr" autocapitalize="none" placeholder="${E(o.email||"למשל ronen344")}" value="${E(o.user||"")}"></label><span></span></div><p class="hint">בעל הנכס יכול להיכנס עם שם המשתמש, המייל או הטלפון – כולם עם אותו קוד.</p><div class="g2"><label class="l">קוד כניסה (אפשר לשנות לקוד שתבחר)<input id="mK" dir="ltr" autocapitalize="characters" value="${E(String(o.pin||""))}"></label><span></span></div><p class="hint">לפחות 6 תווים: אותיות באנגלית, ספרות ומקף. שינוי הקוד – הקוד הישן מפסיק לעבוד.</p><label class="chk"><input type="checkbox" id="mR"> או: צור קוד אקראי חדש (אות ראשונה של המייל + מס׳ נכס + 3 ספרות)</label>`)+
+ sec("📈 שלב העסקה (לדשבורד מנכ״ל)",`<div class="chips" id="sgC">${Object.entries({"":"בשיווק",offer:"יש הצעה",nego:"במו״מ",closed:"נסגר",off:"ירד מהשיווק"}).map(([k,v])=>`<button type="button" data-st="${k}" class="${(off.st||"")===k?"on":""}">${v}</button>`).join("")}</div>
+  <div class="g2" id="sgPw" ${off.st==="closed"?"":"hidden"}><label class="l">מחיר העסקה<input id="sgP" inputmode="numeric" value="${off.dp?E(fm(off.dp)):""}"></label><span></span></div><button type="button" class="btn ghost" id="sgGo">💾 שמור שלב</button>`)+
  sec("🏠 סיורים בנכס (מהיומן)",`<div id="tL"><p class="hint">טוען פגישות מהיומן…</p></div>`)+
  sec("🔗 קישורי השיווק (בעל הנכס רואה ולוחץ בפורטל)",`<p class="hint">מדביקים את הקישור למודעה / לפוסט. רק קישורים שמתחילים ב-https. שדה ריק = לא מוצג.</p>
   <div class="g2"><label class="l">🏷️ יד2<input id="uY2" dir="ltr" inputmode="url" placeholder="https://www.yad2.co.il/item/…"></label><label class="l">🗺️ מדלן<input id="uMd" dir="ltr" inputmode="url" placeholder="https://www.madlan.co.il/listings/…"></label></div>
@@ -263,6 +290,8 @@ function mngPanel(o,x){const off=o.off||{},V=o.views||{},M=o.match||{},rv=V.real
  `<div class="hr"></div><button class="btn ghost" id="mOff">⛔ סגירת הפורטל לנכס</button>`;
  const q=s=>x.querySelector(s);
  linksUI(o,q);toursUI(o,q);
+ let SG=off.st||"";x.querySelectorAll("#sgC button").forEach(b=>b.onclick=()=>{SG=b.dataset.st;x.querySelectorAll("#sgC button").forEach(z=>z.classList.toggle("on",z===b));q("#sgPw").hidden=SG!=="closed"});
+ q("#sgGo").onclick=e=>busy(e.target,()=>oPost("oedit",{k:o.k,p:{stage:SG,dealPrice:+q("#sgP").value.replace(/\D/g,"")||0}}),"✓ השלב נשמר");
  const tot=()=>{q("#mVt").textContent="= "+Math.max(0,rv+(+q("#mV").value||0));q("#mMt").textContent="= "+Math.max(0,rm+(+q("#mM").value||0))};
  x.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const i=q(b.dataset.d==="v"?"#mV":"#mM");i.value=(+i.value||0)+ +b.dataset.s;tot()});q("#mV").oninput=tot;q("#mM").oninput=tot;
  x.querySelectorAll("[data-ext]").forEach(b=>b.onclick=()=>{const t=q("#mT");t.value=addM(t.value||iso(new Date()),+b.dataset.ext);toast("עד "+t.value+" – לא לשכוח לשמור")});
@@ -311,7 +340,47 @@ function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.datase
 let BUY=[];
 function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
  if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();svPull();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){const t=$("#ownT");if(t)t.remove()}else{$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn;
-  const mm=location.hash.match(/^#m=(\d+)/);if(mm){MNG_ID=mm[1];document.body.classList.add("mngmode");const hd=$("#mngHd");if(hd){hd.hidden=false;hd.querySelector("b").textContent="⚙️ ניהול נכס #"+MNG_ID+" · "+aAddr(MNG_ID)}mode("own")}}}
+  const mm=location.hash.match(/^#m=(\d+)/);if(mm){MNG_ID=mm[1];document.body.classList.add("mngmode");const hd=$("#mngHd");if(hd){hd.hidden=false;hd.querySelector("b").textContent="⚙️ ניהול נכס #"+MNG_ID+" · "+aAddr(MNG_ID)}mode("own")}
+  if(/^#ceo/.test(location.hash)){document.body.classList.add("ceomode");$$(".mode").forEach(x=>x.hidden=true);$("#m-ceo").hidden=false;document.title="דשבורד מנכ״ל – צוות סרגייב";ceoView()}}}
+// ===== דשבורד מנכ"ל =====
+const STG={"":["בשיווק","var(--muted)","var(--bg)"],offer:["יש הצעה","var(--info)","var(--infoS)"],nego:["במו״מ","var(--gold)","var(--gold-soft)"],closed:["נסגר","var(--ok)","var(--okS)"],off:["ירד מהשיווק","var(--muted)","var(--bg)"]};
+let CEO=null,CEOAG="",CEOSORT="days";
+const fmK=n=>"₪"+Math.round(n).toLocaleString("en-US");
+function ceoCalc(x){const fee=x.fee||2,est=!x.fee,base=x.stage==="closed"?(x.dealPrice||x.maxOffer||x.price):x.stage==="nego"?(x.maxOffer||x.price):x.stage==="offer"?x.maxOffer:0;return {fee,est,base,amt:base*fee/100}}
+async function ceoView(fresh){const w=$("#m-ceo");if(!CEO)w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים… (בפעם הראשונה זה לוקח עד חצי דקה)</p>';
+ try{CEO=await oPost("ceo",{fresh:fresh?1:0})}catch(e){w.innerHTML=`<div class="box bad">לא נטען: ${E(e.message)}</div>`;return}ceoDraw()}
+function ceoDraw(){const w=$("#m-ceo"),D=CEO,now=new Date(),ym=now.toISOString().slice(0,7);
+ const ags=[...new Set(D.items.map(x=>x.agent))];const I=D.items.filter(x=>!CEOAG||x.agent===CEOAG);
+ const act=I.filter(x=>x.stage!=="off"&&!(x.stage==="closed"&&String(x.stAt).slice(0,7)!==ym));
+ const grp={offer:0,nego:0,closed:0};let estN=0;act.forEach(x=>{const c=ceoCalc(x);if(x.stage in grp&&c.amt){grp[x.stage]+=c.amt;if(c.est)estN++}});
+ const total=grp.offer+grp.nego+grp.closed,cols={offer:"var(--info)",nego:"var(--gold)",closed:"var(--ok)"},lab={offer:"יש הצעה",nego:"במו״מ",closed:"נסגר החודש"};
+ // התראות
+ const AL=[];
+ act.filter(x=>x.exDays!=null&&x.exDays<=30&&x.stage!=="closed").sort((a,b)=>a.exDays-b.exDays).forEach(x=>AL.push({c:x.exDays<=7?"var(--bad)":"var(--warn)",t:`הבלעדיות ב${x.addr} ${x.exDays<0?"נגמרה לפני "+(-x.exDays)+" ימים":x.exDays===0?"נגמרת היום":"נגמרת בעוד "+x.exDays+" ימים"}`,s:`עד ${x.exTo.split("-").reverse().join("/")} · ${x.owner||""}`,id:x.id,a:"לחדש"}));
+ act.filter(x=>x.days>45&&!["closed","nego"].includes(x.stage)).sort((a,b)=>b.days-a.days).forEach(x=>{const wk=Math.max(1,x.days/7),tpw=x.tours/wk;let rec;
+  if(x.maxOffer&&x.price&&x.maxOffer>=x.price*.95)rec=`יש הצעה של ${fmK(x.maxOffer)} (${Math.round(x.maxOffer/x.price*100)}% מהמחיר) – לשקול לסגור`;
+  else if(x.price){const pct=tpw<1?5:3,np=Math.round(x.price*(1-pct/100)/10000)*10000;rec=`מחיר לבדיקה: ${fmK(np)} (−${pct}%) · ${x.tours} סיורים ו-${x.leads} פניות ב-${x.days} ימים`+(x.maxOffer?` · הצעה גבוהה ${fmK(x.maxOffer)}`:"")}
+  AL.push({c:"var(--bad)",t:`${x.addr} תקוע ${x.days} ימים בשיווק`,s:rec||"",id:x.id,a:"לנכס"})});
+ const noFee=act.filter(x=>!x.fee&&x.stage&&x.stage!=="off").length;
+ // משפך
+ const F={leads:0,tours:0,offers:0,deals:0};I.forEach(x=>{F.leads+=x.leads;F.tours+=x.tours;F.offers+=x.offers;if(x.stage==="closed")F.deals++});
+ const pc=(a,b)=>b?Math.round(a/b*100)+"% מהשלב הקודם":"";
+ const sorters={days:(a,b)=>b.days-a.days,leads:(a,b)=>b.leads-a.leads,tours:(a,b)=>b.tours-a.tours,offers:(a,b)=>b.offers-a.offers,ex:(a,b)=>(a.exDays??1e9)-(b.exDays??1e9)};
+ const rows=I.slice().sort(sorters[CEOSORT]).map(x=>{const col=x.days>45?"var(--bad)":x.days>30?"var(--warn)":"var(--ok)",g=STG[x.stage]||STG[""];
+  return `<tr><td><a href="${E(mngUrl(x.id))}" target="_blank" rel="noopener">${E(x.addr)}</a><div class="hint" style="font-size:13px">#${E(x.id)} · ${E(x.agent)}${x.price?" · "+fmK(x.price):""}</div></td>
+   <td><div class="dbar" style="--c:${col};--w:${Math.min(100,x.days/90*100)}px"><i></i>${x.days} ימים</div></td><td class="n" data-l="פניות">${x.leads}</td><td class="n" data-l="סיורים">${x.tours}</td><td class="n" data-l="הצעות">${x.offers}${x.maxOffer?`<div class="hint" style="font-size:12px">עד ${fmK(x.maxOffer)}</div>`:""}</td><td><span class="stg" style="--c:${g[1]};--s:${g[2]}">${g[0]}</span></td></tr>`}).join("");
+ w.innerHTML=`<div class="cHead"><h1>דשבורד מנכ״ל</h1><div class="cBar">${ags.length>1?`<select id="cAg" aria-label="סוכן"><option value="">כל הסוכנים</option>${ags.map(a=>`<option ${a===CEOAG?"selected":""}>${E(a)}</option>`).join("")}</select>`:""}<button type="button" id="cRf">🔄 רענון</button></div></div><small class="muted">עודכן ${E(D.at)} · ${I.length} נכסים בבלעדיות</small>
+ <h2>הכסף בדרך</h2><div class="money"><p>דמי תיווך צפויים מהמוכרים, לפני מע״מ</p><div class="sum">${fmK(total)}</div>
+  <div class="mBar" role="img" aria-label="חלוקה לפי שלב">${["closed","nego","offer"].filter(k=>grp[k]).map(k=>`<i style="background:${cols[k]};flex:${grp[k]}"></i>`).join("")}</div>
+  <div class="mLeg">${["closed","nego","offer"].map(k=>`<div><span style="background:${cols[k]}"></span>${lab[k]}<b>${fmK(grp[k])}</b></div>`).join("")}</div>
+  <p class="hint" style="margin-top:10px">החישוב: מחיר × אחוז העמלה מההסכם. נסגר – לפי מחיר העסקה; במו״מ – לפי ההצעה הגבוהה (או המחיר המבוקש); יש הצעה – לפי ההצעה הגבוהה.${estN?` ב-${estN} נכסים אין אחוז בהסכם ולכן חושב 2%.`:""}</p></div>
+ <h2>דורש טיפול ${AL.length?`<span class="nb">${AL.length}</span>`:""}</h2><div class="alerts">${AL.length?AL.map(a=>`<div class="al" style="--c:${a.c}"><div><b>${E(a.t)}</b><span>${E(a.s)}</span></div><a href="${E(mngUrl(a.id))}" target="_blank" rel="noopener">${E(a.a)} ›</a></div>`).join(""):'<p class="hint">אין התראות. כל הנכסים בזמן ובבלעדיות בתוקף.</p>'}</div>
+ <h2>המשפך</h2><div class="fun"><div><b>${F.leads}</b><span>פניות של קונים</span></div><div><b>${F.tours}</b><span>קונים בסיורים</span><em>${pc(F.tours,F.leads)}</em></div><div><b>${F.offers}</b><span>הצעות מחיר</span><em>${pc(F.offers,F.tours)}</em></div><div><b>${F.deals}</b><span>עסקאות</span><em>${pc(F.deals,F.offers)}</em></div></div>
+ <p class="hint">החודש נכנסו ${D.buyersMonth} קונים חדשים למאגר (סה״כ ${D.buyersAll}).</p>
+ <h2>כל הנכסים</h2><table class="ctab"><thead><tr><th>נכס</th><th data-s="days">ימים בשיווק ▾</th><th data-s="leads">פניות</th><th data-s="tours">סיורים</th><th data-s="offers">הצעות</th><th>שלב</th></tr></thead><tbody>${rows}</tbody></table>
+ <p class="hint">ירוק עד 30 יום · כתום 30–45 · אדום מעל 45. לשינוי שלב (במו״מ / נסגר) – לחיצה על הנכס ← "שלב העסקה".</p>`;
+ const ag=$("#cAg");if(ag)ag.onchange=()=>{CEOAG=ag.value;ceoDraw()};$("#cRf").onclick=e=>{e.target.disabled=true;e.target.textContent="מרענן…";ceoView(1)};
+ w.querySelectorAll("th[data-s]").forEach(t=>t.onclick=()=>{CEOSORT=t.dataset.s;ceoDraw()})}
 
 (function(){
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec",KEY="sergyev_agent_code";
