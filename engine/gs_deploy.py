@@ -26,6 +26,7 @@ def smoke(code):
     j = _req(q='?removed=1'); print('smoke removed:', j.get('ok'), len(j.get('removed') or {}))
     tk = re.search(r"const TOKEN = '([^']+)'", code)
     if tk:
+        jd = _req({'t': tk.group(1), 'op': 'cdrafts'}); print('smoke drafts:', jd.get('ok'), jd.get('error', ''), len(jd.get('items') or []), 'drafts')
         j = _req({'t': tk.group(1), 'op': 'ceo', 'fresh': 1}); it = j.get('items') or []
         print('smoke ceo:', j.get('ok'), j.get('error', ''), len(it), 'items;', sum(1 for x in it if x.get('fee')), 'with fee;', [(x['id'], x['days'], x['leads'], x['tours'], x['offers'], x['fee'], x['stage'], x['exDays']) for x in it])
 def deploy(pw, force=False):
