@@ -64,6 +64,9 @@ with sync_playwright() as p:
     b = p.chromium.launch()
     def page(vp=(400, 860)): return b.new_context(viewport={'width': vp[0], 'height': vp[1]}).new_page()
     run_page(page(), 'site', SITE, site_actions, unlock=False, wait=4000)
+    run_page(page(), 'site_detail', SITE + '#p=399', unlock=False, wait=3000)
+    run_page(page(), 'site_desktop', SITE, unlock=False, wait=3000) if False else None
+    run_page(page(), 'dpage', SITE + 'd/399.html', unlock=False, wait=2500)
     for n, u in [('privacy', SITE + 'privacy.html'), ('terms', SITE + 'terms.html'), ('portal_login', SITE + 'o/')]:
         run_page(page(), n, u, unlock=False, wait=2500)
     run_page(page(), 'hub', SITE + 'x/a0d769373a49b.html', wait=8000)

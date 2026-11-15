@@ -1,6 +1,8 @@
 name: e2e-check
 on:
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -11,5 +13,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install -q playwright cryptography && python -m playwright install --with-deps chromium >/dev/null
       - run: python tools/e2e.py
-      - uses: actions/upload-artifact@v4
-        with: { name: e2e, path: /tmp/e2e.enc, retention-days: 2 }
+      - name: publish encrypted results to branch e2e-out
+        run: |
+          mkdir /tmp/out && cp /tmp/e2e.enc /tmp/out/ && cd /tmp/out && git init -q -b e2e-out && git add e2e.enc
+          git -c user.name=Claude -c user.email=noreply@anthropic.com commit -qm "e2e results"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" e2e-out
