@@ -33,12 +33,16 @@ async function icon(Comp) {
   const psm = P.price / P.sqm;
   const deals = S.deals.map((d) => ({ ...d, psm: d.price / d.sqm })).sort((a, b) => pdate(b.date) - pdate(a.date)).slice(0, 10);
   const lst = (S.listings || []).map((d) => ({ ...d, psm: d.price / d.sqm })).slice(0, 7);
-  const dAvgPsm = avg(deals.map((d) => d.psm)), dAvgPrice = avg(deals.map((d) => d.price));
+  const noDeals = !deals.length;
+  const cmp = lst.filter((d) => !d.self);
+  const dAvgPsm = noDeals ? median(cmp.map((d) => d.psm)) : avg(deals.map((d) => d.psm)), dAvgPrice = noDeals ? 0 : avg(deals.map((d) => d.price));
+  const sold = noDeals ? " · בשיווק" : " · נמכרה";
   const R = S.reco;
   const high = P.price > R.rec;
   const days = P.listed ? Math.round((today - pdate(P.listed)) / 864e5) : null;
-  const hlDeals = deals.filter((d) => d.hl);
-  const keyDeals = [...(hlDeals.length ? hlDeals : deals)].sort((x, y) => Math.abs(x.sqm - S.p.sqm) - Math.abs(y.sqm - S.p.sqm)).slice(0, 2);
+  const base = noDeals ? cmp : deals;
+  const hlDeals = base.filter((d) => d.hl);
+  const keyDeals = [...(hlDeals.length ? hlDeals : base)].sort((x, y) => Math.abs(x.sqm - S.p.sqm) - Math.abs(y.sqm - S.p.sqm)).slice(0, 2);
   const addr = S.address;
 
   const pres = new pptxgen();
@@ -97,7 +101,7 @@ async function icon(Comp) {
   // 2 Property
   {
     const s = pres.addSlide();
-    const t2 = `הנכס מוצע ב־${nf(P.price)} ₪` + (days >= 60 ? ` כבר ${Math.round(days / 30)} חודשים` : "");
+    const t2 = S.t2 || `הנכס מוצע ב־${nf(P.price)} ₪` + (days >= 60 ? ` כבר ${Math.round(days / 30)} חודשים` : "");
     frame(s, t2, "הנכס הנבדק ונקודת המוצא");
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 4.9, y: 1.45, w: 4.6, h: 3.55, fill: { color: WHITE }, line: { color: LINE, width: 0.75 }, rectRadius: 0.08, shadow: shadow() });
     const rows = P.facts.slice(0, 6);
@@ -111,12 +115,33 @@ async function icon(Comp) {
     s.addText("המחיר המבוקש", T({ x: 0.8, y: 1.85, w: 3.5, h: 0.35, fontSize: 15, color: "D4B26A", bold: true }));
     s.addText(nf(P.price) + " ₪", T({ x: 0.8, y: 2.3, w: 3.5, h: 0.9, fontSize: 44, bold: true, color: LT, valign: "middle" }));
     s.addText(`כ־${nf(Math.round(psm / 50) * 50)} ₪ למ״ר בנוי`, T({ x: 0.8, y: 3.3, w: 3.5, h: 0.35, fontSize: 16, color: "D9D6CE" }));
-    const o = days != null ? `בשיווק מ־${fdate(P.listed)}, כ־${days} ימים` : (high ? "מעל ממוצע העסקאות למ״ר" : "מתחת לממוצע העסקאות למ״ר");
+    const o = P.marketLine ? P.marketLine : days != null ? `בשיווק מ־${fdate(P.listed)}, כ־${days} ימים` : (high ? "מעל ממוצע העסקאות למ״ר" : "מתחת לממוצע העסקאות למ״ר");
     s.addText(o, T({ x: 0.8, y: 3.95, w: 3.5, h: 0.6, fontSize: 13, color: "F2A57F", bold: true }));
   }
 
+  // 2b Marketing
+  if (S.marketing) {
+    const M = S.marketing;
+    const s = pres.addSlide();
+    frame(s, M.title, M.sub);
+    const ch = M.channels;
+    const per = 4, cw = 2.1, gap = 0.2;
+    ch.forEach((c, i) => {
+      const row = Math.floor(i / per), col = i % per;
+      const x = 9.5 - cw - col * (cw + gap), y = 1.5 + row * 0.95;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h: 0.75, fill: { color: WHITE }, line: { color: LINE, width: 0.75 }, rectRadius: 0.08, shadow: shadow() });
+      s.addShape(pres.shapes.OVAL, { x: x + cw - 0.5, y: y + 0.2, w: 0.35, h: 0.35, fill: { color: GOLD }, line: { type: "none" } });
+      s.addText("✓", T({ x: x + cw - 0.5, y: y + 0.2, w: 0.35, h: 0.35, fontSize: 13, bold: true, color: WHITE, align: "center", valign: "middle" }));
+      s.addText(c, T({ x: x + 0.15, y: y + 0.1, w: cw - 0.75, h: 0.55, fontSize: 14, bold: true, color: DK, valign: "middle", fit: "shrink" }));
+    });
+    const rows = Math.ceil(ch.length / per);
+    const by = 1.5 + rows * 0.95 + 0.1;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: by, w: 9.0, h: Math.max(0.8, 4.95 - by), fill: { color: DK }, line: { type: "none" }, rectRadius: 0.08 });
+    s.addText(M.text, T({ x: 0.8, y: by + 0.1, w: 8.4, h: Math.max(0.6, 4.75 - by), fontSize: 15, color: LT, valign: "middle" }));
+  }
+
   // 3 Deals
-  {
+  if (!noDeals) {
     const s = pres.addSlide();
     const pr = deals.map((d) => d.price);
     const ds = deals.map((d) => pdate(d.date)).filter(Boolean).sort((a, b) => a - b);
@@ -132,10 +157,10 @@ async function icon(Comp) {
   // 4 Listings
   if (lst.length) {
     const s = pres.addSlide();
-    const pr = lst.map((d) => d.price);
+    const pr = (cmp.length ? cmp : lst).map((d) => d.price);
     frame(s, `נכסים דומים בשיווק: ${m2(Math.min(...pr))} עד ${m2(Math.max(...pr))} מיליון ₪`, "מחירים מבוקשים ביד 2. עסקאות נסגרות בדרך כלל מתחתם");
     const rows = lst.map((d) => [d.addr, d.type || "", d.rooms ?? "", d.floor ?? "", d.sqm, d.cond || "", nf(d.price) + " ₪", nf(d.psm) + " ₪"]);
-    s.addTable(table(["כתובת", "סוג", "חדרים", "קומה", "בנוי", "מצב", "מחיר מבוקש", "₪ למ״ר"], rows, null, lst.map((d, i) => (d.hl ? i : -1)).filter((i) => i >= 0)),
+    s.addTable(table(["כתובת", "סוג", "חדרים", "קומה", "בנוי", "מצב", "מחיר מבוקש", "₪ למ״ר"], rows, null, lst.map((d, i) => ((lst.some((x) => x.self) ? d.self : d.hl) ? i : -1)).filter((i) => i >= 0)),
       { x: 0.5, y: 1.5, w: 9.0, colW: [1.0, 1.25, 0.95, 0.6, 0.65, 0.75, 1.2, 2.6], rowH: 0.42, fontFace: F, fontSize: 13, rtlMode: true });
     s.addText("מקור: יד 2." + (S.listingsNote ? " " + S.listingsNote : ""), T({ x: 0.5, y: 4.95, w: 9.0, h: 0.2, fontSize: 9, color: GRAY }));
   }
@@ -145,11 +170,11 @@ async function icon(Comp) {
     const s = pres.addSlide();
     const k = keyDeals[0];
     const gap = Math.abs(P.price - k.price);
-    frame(s, P.price > k.price ? `המחיר המבוקש גבוה ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה` : `המחיר המבוקש נמוך ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה`, "המחיר המבוקש מול עסקאות שנסגרו", true);
+    frame(s, S.t5 ? S.t5 : P.price > k.price ? `המחיר המבוקש גבוה ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה` : `המחיר המבוקש נמוך ב־${nf(Math.round(gap / 1000))} אלף מעסקה דומה`, noDeals ? "המחיר המבוקש מול נכסים דומים בשיווק" : "המחיר המבוקש מול עסקאות שנסגרו", true);
     const cards = [{ eyebrow: "המחיר המבוקש", big: nf(P.price) + " ₪", l1: `${P.sqm} מ״ר · ${P.floor ? "קומה " + P.floor : P.type}`, l2: `כ־${nf(Math.round(psm / 50) * 50)} ₪ למ״ר`, hot: true }];
-    keyDeals.forEach((d) => cards.push({ eyebrow: d.addr + " · נמכרה", big: nf(d.price) + " ₪", l1: `${d.sqm} מ״ר` + (d.floor ? " · קומה " + d.floor : ""), l2: fdate(d.date) }));
+    keyDeals.forEach((d) => cards.push({ eyebrow: d.addr + sold, big: nf(d.price) + " ₪", l1: `${d.sqm} מ״ר` + (d.floor ? " · קומה " + d.floor : ""), l2: noDeals ? (d.l2 || d.cond || "") : fdate(d.date) }));
     statCards(s, cards);
-    s.addText(high
+    s.addText(S.t5text ? [{ text: S.t5text, options: { color: LT } }] : high
       ? [{ text: "קונים ושמאי הבנק משווים לעסקאות שנסגרו. ", options: { color: LT } }, { text: "במחיר הזה הנכס יתקשה למצוא קונה.", options: { color: "D4B26A", bold: true } }]
       : [{ text: "עסקאות שנסגרו לאחרונה מראות שהשוק משלם יותר. ", options: { color: LT } }, { text: "הנכס שווה יותר מהמחיר המבוקש.", options: { color: "D4B26A", bold: true } }],
       T({ x: 0.5, y: 4.0, w: 9.0, h: 0.85, fontSize: 16, valign: "middle" }));
@@ -158,11 +183,11 @@ async function icon(Comp) {
   // 6 Bars
   {
     const s = pres.addSlide();
-    frame(s, high ? "המחיר המבוקש למ״ר גבוה מהעסקאות" : "המחיר המבוקש למ״ר נמוך מהעסקאות", `₪ למ״ר בנוי, על בסיס ${P.sqm} מ״ר`);
+    frame(s, S.t6 ? S.t6 : high ? "המחיר המבוקש למ״ר גבוה מהעסקאות" : "המחיר המבוקש למ״ר נמוך מהעסקאות", `₪ למ״ר בנוי, על בסיס ${P.sqm} מ״ר`);
     const rows = [[`המחיר המבוקש (${nf(P.price)} ₪)`, psm, ORANGE, true]];
-    keyDeals.forEach((d) => rows.push([`${d.addr} · נמכרה (${d.sqm} מ״ר)`, d.psm, GOLD]));
-    rows.push(["ממוצע העסקאות", dAvgPsm, GOLD]);
-    if (lst.length) rows.push(["חציון הנכסים בשיווק", median(lst.map((d) => d.psm)), "6B6B73"]);
+    keyDeals.forEach((d) => rows.push([`${d.addr}${sold} (${d.sqm} מ״ר)`, d.psm, noDeals ? "6B6B73" : GOLD]));
+    if (!noDeals) rows.push(["ממוצע העסקאות", dAvgPsm, GOLD]);
+    if (cmp.length) rows.push(["חציון הנכסים בשיווק", median(cmp.map((d) => d.psm)), noDeals ? GOLD : "6B6B73"]);
     rows.push([`המחיר המומלץ (${nf(R.rec)} ₪)`, R.rec / P.sqm, DK, true]);
     rows.sort((a, b) => b[1] - a[1]);
     const right = 5.95, maxW = 4.6, scale = maxW / (Math.max(...rows.map((r) => r[1])) * 1.04);
@@ -182,7 +207,7 @@ async function icon(Comp) {
   {
     const s = pres.addSlide();
     const def = high
-      ? [["הקונים משווים מודעות", "קונה רואה את הנכסים הדומים בשיווק ומשווה את המחיר למ״ר."], ["שמאי הבנק לא יתמוך במחיר", `השמאי נשען על עסקאות שנסגרו: ממוצע ${nf(dAvgPsm)} ₪ למ״ר.`], ["המחיר קובע את כמות הפניות", "מחיר מעל השוק מביא מעט פניות ומעט ביקורים."], ["נכס שנשאר בשוק נשחק", "כל חודש בלי עסקה מחליש את המוכר במשא ומתן."]]
+      ? [["הקונים משווים מודעות", "קונה רואה את הנכסים הדומים בשיווק ומשווה את המחיר למ״ר."], ["שמאי הבנק לא יתמוך במחיר", noDeals ? `חציון הנכסים הדומים בשיווק: ${nf(dAvgPsm)} ₪ למ״ר.` : `השמאי נשען על עסקאות שנסגרו: ממוצע ${nf(dAvgPsm)} ₪ למ״ר.`], ["המחיר קובע את כמות הפניות", "מחיר מעל השוק מביא מעט פניות ומעט ביקורים."], ["נכס שנשאר בשוק נשחק", "כל חודש בלי עסקה מחליש את המוכר במשא ומתן."]]
       : [["העסקאות תומכות במחיר גבוה", `ממוצע העסקאות ${nf(dAvgPsm)} ₪ למ״ר, מול ${nf(psm)} ₪ במחיר המבוקש.`], ["מכירה מתחת לשוק", "מחיר נמוך מדי משאיר כסף על השולחן."], ["מקום למשא ומתן", "מחיר יציאה נכון משאיר מרווח בלי לאבד קונים."], ["שיווק לפי נתונים", "חשיפה רחבה ותמחור לפי עסקאות מביאים את המחיר הגבוה ביותר."]];
     const items = S.points || def;
     frame(s, S.pointsTitle || (high ? `להמשיך ב־${nf(P.price)} ₪ יעלה כסף` : "מה מצדיק מחיר גבוה יותר"), high ? "מה קורה כשנכס נשאר בשוק מעל המחיר" : "הנתונים מול המחיר המבוקש");
@@ -201,7 +226,7 @@ async function icon(Comp) {
   // 8 Recommendation
   {
     const s = pres.addSlide();
-    frame(s, `המלצה: ${P.price === R.rec ? "להשאיר את המחיר על" : "לצאת לשיווק ב־"}${nf(R.rec)} ₪`, "מחיר שנשען על העסקאות שנסגרו ועל הנכסים בשיווק");
+    frame(s, `המלצה: ${P.price === R.rec ? "להשאיר את המחיר על" : "לצאת לשיווק ב־"}${nf(R.rec)} ₪`, S.t8sub || "מחיר שנשען על העסקאות שנסגרו ועל הנכסים בשיווק");
     const tiers = [
       { x: 6.67, eyebrow: "למכירה מהירה", big: nf(R.quick) + " ₪", body: R.quickNote || "מושך את רוב הקונים בשוק" },
       { x: 3.585, eyebrow: "מחיר שיווק מומלץ", big: nf(R.rec) + " ₪", body: R.recNote || "בטווח שהשוק משלם, עם מקום למשא ומתן", main: true },
@@ -224,7 +249,8 @@ async function icon(Comp) {
     s.background = { color: BLK };
     s.addImage({ path: LOGO, x: 2.55, y: 0.55, w: 4.9, h: 2.734 });
     s.addText(S.contact || "משה מאיר כהן · 054-9071916", T({ x: 1.0, y: 3.65, w: 8.0, h: 0.5, fontSize: 24, bold: true, color: LT, align: "center", valign: "middle" }));
-    s.addText("Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 4.2, w: 8.0, h: 0.4, fontSize: 16, color: "D4B26A", align: "center", valign: "middle" }));
+    s.addText(S.license ? `מתווך מקרקעין · רישיון תיווך מס׳ ${S.license}` : "Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 4.2, w: 8.0, h: 0.4, fontSize: 16, color: "D4B26A", align: "center", valign: "middle" }));
+    if (S.license) s.addText("Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 4.6, w: 8.0, h: 0.35, fontSize: 13, color: "A9A69E", align: "center", valign: "middle" }));
   }
 
   await pres.writeFile({ fileName: OUT });
