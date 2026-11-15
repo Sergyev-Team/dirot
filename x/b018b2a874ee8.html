@@ -293,7 +293,7 @@ function matches(p){ if(!p||!p.deal) return [];
   return APTS.filter(a=>a.deal==p.deal && a.rooms && a.rooms>=p.rmin && a.rooms<=(p.rmax||99) && a.price>0 && (!p.budget||a.price<=p.budget)
     && (!hoods.length || hoods.some(h=>(a.nb||"").includes(h)))
     && ["el","pk","mm"].every(k=>!(p[k]=="חובה"&&a[k]=="לא") && !(p[k]=="חובה (צוין)"&&a[k]!="כן"))); }
-function lastOf(b){ if(b.last) return b.last; const m=/^(\d{2})\/(\d{4})$/.exec(b.month||""); if(m){ return m[2]+"-"+m[1]+"-01"; } return ""; }
+function lastOf(b){ if(b.last) return b.last; const mo=String(b.month||"").replace(/^'/,""); const m=/^(\d{1,2})\/(\d{4})$/.exec(mo); if(m){ return m[2]+"-"+m[1].padStart(2,"0")+"-01"; } if(/^\d{4}-\d{2}-\d{2}/.test(mo)) return mo.slice(0,8)+"01"; return ""; }
 function days(s){ if(!s) return null; return Math.floor((new Date(today()+"T00:00:00")-new Date(s+"T00:00:00"))/864e5); }
 function crit(p){ if(!p||!p.deal) return ""; const rm=p.rmin==p.rmax||!p.rmax?p.rmin+" חד׳":p.rmax>=99?p.rmin+"+ חד׳":p.rmin+"–"+p.rmax+" חד׳";
   const must=[["el","מעלית"],["pk","חניה"],["mm","ממ״ד"]].filter(([k])=>String(p[k]||"").startsWith("חובה")).map(x=>x[1]);
@@ -441,7 +441,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
   const s=el("div","stats");
   if(I.p&&I.p.deal) s.append(el("span","pill",I.m.length+" דירות מתאימות")); else s.append(el("span","pill late","הפרופיל עוד לא מוגדר"));
   if(I.nw) s.append(el("span","pill new",I.nw+" חדשות מאז הקשר"));
-  const dl=I.d; s.append(el("span","pill "+(dl===null?"late":dl>14?"late":dl>7?"mid":"fresh"), dl===null?"אין תאריך קשר":(!b.last&&b.month)?"קשר אחרון: חודש "+b.month:dl==0?"קשר אחרון: היום":dl==1?"קשר אחרון: אתמול":"קשר אחרון: לפני "+dl+" ימים ("+dd(I.l)+")"));
+  const dl=I.d; s.append(el("span","pill "+(dl===null?"late":dl>14?"late":dl>7?"mid":"fresh"), dl===null?"אין תאריך קשר":(!b.last&&b.month)?"קשר אחרון: חודש "+String(b.month).replace(/^'/,"").replace(/^(\d{4})-(\d{2}).*$/,"$2/$1"):dl==0?"קשר אחרון: היום":dl==1?"קשר אחרון: אתמול":"קשר אחרון: לפני "+dl+" ימים ("+dd(I.l)+")"));
   if(I.nw>0) s.prepend(el("span","pill new","🏠 יש דירה חדשה בשבילו"));
   const du=dueOf(b); s.append(el("span","pill "+(du<today()?"late":"mid"),du<=today()?(du<today()?"באיחור מ-"+dd(du):"לטיפול היום"):"בתור הבא: "+dd(du)));
   li.append(s);

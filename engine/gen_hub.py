@@ -23,7 +23,7 @@ html=r'''<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 .top b{font-size:18px;letter-spacing:.5px}.top b span{color:var(--gold)}
 .top img{height:30px;border-radius:6px;background:#fff;padding:2px 4px}
 .out{background:none;border:1px solid #4a4334;color:#cfc6b4;border-radius:8px;font:inherit;font-size:13px;padding:4px 10px;cursor:pointer}
-.tabs{display:flex}.tabs button{flex:1;background:none;border:0;color:#cfc6b4;font:inherit;font-weight:700;font-size:14px;white-space:nowrap;padding:10px 2px 12px;cursor:pointer;border-bottom:3px solid transparent}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:1 0 auto;background:none;border:0;color:#cfc6b4;font:inherit;font-weight:700;font-size:14px;white-space:nowrap;padding:10px 12px 12px;cursor:pointer;border-bottom:3px solid transparent}
 .tabs button.on{color:#fff;border-bottom-color:var(--gold)}
 .frames{position:fixed;left:0;right:0;bottom:0;top:var(--bh,96px)}
 .frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#f5f3ee}
@@ -54,7 +54,7 @@ async function check(pw){try{const base=await crypto.subtle.importKey("raw",new 
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
 function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=t;f.src=url||B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1");f.onload=()=>hook(f);document.getElementById("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
-function show(t,url){ls.set("office_tab",t);document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));const f=frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
+function show(t,url){ls.set("office_tab",t);document.querySelectorAll("#tabs button").forEach(b=>{b.classList.toggle("on",b.dataset.t===t);if(b.dataset.t===t)b.scrollIntoView({inline:"nearest",block:"nearest"})});const f=frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
 function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked=1;
   d.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;const h=a.getAttribute("href")||"";
     const m=h.match(/x\/([0-9a-f]{13})\.html(#.*)?$/);if(m&&SLUGS[m[1]]){e.preventDefault();e.stopPropagation();show(SLUGS[m[1]],B[SLUGS[m[1]]]+(m[2]||""));return}
