@@ -55,6 +55,7 @@ def mng_actions(pg):
 def buy_actions(pg):
     n = pg.locator('li.card').count(); r = {'buyer_cards': n, 'first_buyers_last': [([x for x in t.split('\n') if 'קשר אחרון' in x or 'אין תאריך' in x] or ['?'])[0][:30] for t in pg.locator('li.card').all_inner_texts()[:6]]}
     b = pg.locator('button:has-text("📅 סיור")')
+    r['dbg'] = pg.evaluate("""()=>{const B=window.__KB.S().buyers;const f=x=>String(x||'').replace(/\\d/g,'9');const c={};B.forEach(b=>{const k='last:'+f(b.last)+' month:'+f(b.month);c[k]=(c[k]||0)+1});return c}""")
     r['tour_btns'] = b.count()
     if b.count(): b.first.click(); pg.wait_for_timeout(500); r['tour_form'] = pg.locator('.tourf').count()
     return r

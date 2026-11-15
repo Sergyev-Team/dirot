@@ -278,7 +278,7 @@ const today=()=>{const d=new Date(); return d.getFullYear()+"-"+String(d.getMont
 const ddmm=()=>{const d=new Date(); return String(d.getDate()).padStart(2,"0")+String(d.getMonth()+1).padStart(2,"0");};
 const dd=s=>s?s.slice(8,10)+"/"+s.slice(5,7):"";
 function toast(m){const t=$("toast"); t.textContent=m; t.className="show"; clearTimeout(t._h); t._h=setTimeout(()=>t.className="",2400);}
-const APTS=DATA.apts; window.__KB={DATA:DATA,APTS:APTS};
+const APTS=DATA.apts; window.__KB={DATA:DATA,APTS:APTS,S:()=>S};
 if(DATA.script) fetch(DATA.script+"?removed=1").then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; const rm=j.removed||{}; let n=0;
   for(let i=APTS.length-1;i>=0;i--) if(rm[String(APTS[i].id)]){ APTS.splice(i,1); n++; } if(n) render(); }).catch(()=>{});
 let S=store.get(K_CACHE,null) || {buyers:DATA.buyers, profiles:DATA.profiles, at:DATA.built};
@@ -368,7 +368,7 @@ function editor(b,li){ const p0=prof(b.profile)||{}; const v={deal:p0.deal||"מ�
 const bkey=b=>(b.phone||"").replace(/\D/g,"")||b.tmp||b.name;
 const K_DONE="kb_done_"+today();
 let DONE=new Set(store.get(K_DONE,[])); let HIDE_DONE=false; try{HIDE_DONE=localStorage.getItem("kb_hidedone")=="1";}catch(_){}
-let FROZEN=null, FROZEN_SORT=null;
+let FROZEN=null, FROZEN_SORT=null, PULLED=false;
 function markDone(b){ const k=bkey(b); if(!DONE.has(k)){ DONE.add(k); store.set(K_DONE,[...DONE]); } }
 
 // ---- sync
@@ -384,7 +384,7 @@ function applyOp(op){ if(op.action=="setProfile"){ const i=S.profiles.findIndex(
   if(op.action=="update"){ const b=S.buyers.find(x=>x.row==op.row); if(b) Object.assign(b,op.fields); }
   else if(op.action=="add" && !S.buyers.some(x=>x.tmp==op.tmp)){ S.buyers.unshift({row:0,tmp:op.tmp,id:"חדש",name:op.name,phone:op.phone,profile:op.profile,rating:op.rating||"",notes:"",month:"",last:today(),status:"פעיל"}); } }
 async function pull(){ if(!DATA.script) return; try{ const r=await fetch(DATA.script+"?t="+encodeURIComponent(DATA.token)); const j=await r.json(); if(!j.ok) throw 0;
-    S={buyers:j.buyers,profiles:j.profiles,at:j.at}; OLD_SCRIPT=!j.v; PEND.forEach(applyOp); syncState="ok"; save(); render(); flush(); }catch(e){ syncState="err"; setSync(); } }
+    const firstPull=!PULLED; PULLED=true; S={buyers:j.buyers,profiles:j.profiles,at:j.at}; OLD_SCRIPT=!j.v; PEND.forEach(applyOp); syncState="ok"; save(); if(firstPull) FROZEN=null; render(); flush(); }catch(e){ syncState="err"; setSync(); } }
 let flushing=false, OLD_SCRIPT=false;
 async function flush(){ if(!DATA.script||flushing||!PEND.length) { setSync(); return; } flushing=true; setSync();
   try{ let i=0; while(i<PEND.length){ const op=PEND[i]; if(op.action=="setProfile"&&OLD_SCRIPT){ i++; continue; }
