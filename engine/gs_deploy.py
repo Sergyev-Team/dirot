@@ -20,6 +20,8 @@ def _req(data=None, q=''):
 def deploy(pw, force=False):
     raw = json.load(open(ENC)); d = json.loads(AESGCM(_key(pw, base64.b64decode(raw['s']))).decrypt(base64.b64decode(raw['i']), base64.b64decode(raw['c']), None))
     code, ver = d['code'], d['ver']
+    # ASCII only (\uXXXX escapes) so the signature does not depend on the charset Apps Script uses
+    code = ''.join(c if ord(c) < 128 else ''.join('\\u%04x' % u for u in __import__('struct').unpack('<%dH' % (len(c.encode('utf-16-le')) // 2), c.encode('utf-16-le'))) for c in code)
     try: cur = _req(q='?op=lver')
     except Exception as e: print('loader not reachable:', e); sys.exit(1)
     if not cur.get('loader'): print('loader not installed yet (old script still running) – skipping'); return
