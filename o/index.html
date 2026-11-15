@@ -126,7 +126,7 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
  ev.forEach(e=>{e.ch=chOf(e.type);if(!e.title)e.title=(OTYPES[e.type]||OTYPES.other)[1];e.url=okU(e.url||(e.type==="fbgroup"&&e.g?(LK.g||{})[e.g]:"")||({y2:LK.y2,md:LK.md,fb:LK.fbp,ig:LK.ig,story:LK.ig})[e.type])});
  const RQ=(P.reqs||[]),CAL=P.cal||{next:[]},V=P.views||{},MT=P.match||{buyers:0};
  const cnt={};ev.forEach(e=>cnt[e.ch]=(cnt[e.ch]||0)+(e.ch==="tour"?(e.n||1):1));
- const tours=cnt.tour||0,offers=ev.filter(e=>e.ch==="offer").length,leads=cnt.lead||0;
+ const tours=Math.max(0,(cnt.tour||0)+(+P.toff||0)),offers=ev.filter(e=>e.ch==="offer").length,leads=cnt.lead||0;
  const days=start?Math.max(1,Math.ceil((now-start)/DAY)):0;
  const addr=L?(L.street+" "+L.hn+", "+L.city):"נכס #"+p.id,img=L&&L.imgs&&L.imgs[0]?"../"+L.imgs[0]:"";
  const reqH=RQ.filter(r=>r.st==="pending").map(r=>`<div class="card rq" data-row="${r.row}"><h2>${r.type==="tourplan"?"📅 בקשה לאישור סיור":"🔻 הצעה לעדכון מחיר"}</h2>

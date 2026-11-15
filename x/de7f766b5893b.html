@@ -53,7 +53,7 @@ input[type=date],select{-webkit-appearance:none;appearance:none;display:block;wi
 select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:16px 21px,22px 21px;background-size:6px 6px;background-repeat:no-repeat;padding-left:34px}
 input[type=date]::-webkit-date-and-time-value{text-align:right}
 .ex{overflow:hidden}.ex label.chk{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;line-height:1.35;margin-bottom:6px}
-.ms{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}.ms .lbl{font-weight:800;margin:0 0 6px}.mngb{width:100%;margin-top:8px;display:flex;justify-content:center;text-decoration:none;box-sizing:border-box}.hr{height:1px;background:var(--line);margin:12px 0}.cnt2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}.cnt2>span:first-child{font-weight:800;min-width:110px}.cnt2 input{width:70px;text-align:center}.cnt2 b{font-size:17px;color:var(--gold)}label.chk{display:flex;gap:8px;align-items:center;font-weight:700;margin:6px 0}label.chk input{width:20px;height:20px}.edl{background:var(--bg);border-radius:10px;padding:8px;margin:4px 0}
+.ms{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}.ms .lbl{font-weight:800;margin:0 0 6px}.mngb{width:100%;margin-top:8px;display:flex;justify-content:center;text-decoration:none;box-sizing:border-box}.hr{height:1px;background:var(--line);margin:12px 0}.cnt2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}.tn{display:flex;gap:4px;flex-shrink:0}.tn .btn{min-width:40px}.cnt2>span:first-child{font-weight:800;min-width:110px}.cnt2 input{width:70px;text-align:center}.cnt2 b{font-size:17px;color:var(--gold)}label.chk{display:flex;gap:8px;align-items:center;font-weight:700;margin:6px 0}label.chk input{width:20px;height:20px}.edl{background:var(--bg);border-radius:10px;padding:8px;margin:4px 0}
 body.mngmode #modes,body.mngmode .own-top{display:none!important}.upd{text-align:center;margin:4px 0}
 .oc{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}.oc h3{margin:0;font-size:17px}.oc .meta{color:var(--muted);font-size:14px}
 .oc .acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.oc .acts .btn{width:100%}
@@ -189,6 +189,23 @@ function drawOwn(){const h=$("#oLs");if(!OWN)return;DIRTY=false;
 function isoD(s){s=String(s||"").trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):""}
 function aPrice(id){const a=(U.apts||[]).find(x=>String(x.id)===String(id));return a?a.price:0}
 const okU=u=>/^https:\/\/[^\s"'<>]{4,500}$/.test(String(u||"").trim());
+async function toursUI(o,q,fresh){const w=q("#tL");let J;
+ try{J=await oPost("ocal",{k:o.k,fresh:fresh?1:0})}catch(e){w.innerHTML=`<p class="hint">לא הצלחתי לטעון את היומן${/ocal|undefined|שגיאה/.test(e.message)?" – צריך לעדכן את קוד הגיליון (גרסה חדשה)":": "+E(e.message)}</p>`;return}
+ const EV=J.cal.ev||[],off=J.off||{},TX=Object.assign({},off.tx||{}),man=o.log.filter(l=>l.type==="tour"&&l.show).length;let T=+off.t||0;
+ const nOf=e=>TX[e.k]!==undefined?+TX[e.k]:e.auto,real=()=>EV.reduce((a,e)=>a+nOf(e),0)+man;
+ const draw=()=>{w.innerHTML=`<p class="hint">כל פגישה ביומן עם כתובת הנכס נספרת כסיור. פגישה עם "צילום" / "צלם" לא נספרת אוטומטית. אפשר לשנות כאן כל פגישה.</p>`+
+  (EV.length?EV.slice().reverse().map(e=>{const n=nOf(e);return `<div class="lg" data-k="${E(e.k)}"><span>${n?"🏠":"🚫"} <b>${E(e.t||"פגישה")}</b><br><small class="hint">${E(new Date(e.d.replace(" ","T")).toLocaleDateString("he-IL",{weekday:"short",day:"numeric",month:"numeric"}))} ${E(e.d.slice(11))} · ${n?n+(n>1?" קונים":" קונה"):(e.ph&&TX[e.k]===undefined?"צילום – לא נספר":"לא סיור")}${TX[e.k]!==undefined?" · שונה ידנית":""}</small></span>
+   <span class="tn">${n?`<button type="button" class="btn ghost sm" data-s="-1" aria-label="פחות קונים">−</button><button type="button" class="btn ghost sm" data-s="1" aria-label="עוד קונה">+</button><button type="button" class="btn ghost sm" data-s="0">לא סיור</button>`:`<button type="button" class="btn ghost sm" data-s="r">להחזיר כסיור</button>`}</span></div>`}).join(""):'<p class="hint">לא נמצאו פגישות ביומן עם הכתובת של הנכס (חצי שנה אחורה).</p>')+
+  (man?`<p class="hint">+ ${man} סיורים שנוספו ידנית ביומן הפעולות.</p>`:"")+
+  `<div class="cnt2"><span>🏠 קונים בסיורים</span><span class="hint">אמיתי ${real()}</span><button type="button" class="btn ghost sm" data-t="-1">−1</button><input id="tO" inputmode="numeric" value="${T}"><button type="button" class="btn ghost sm" data-t="1">+1</button><b>= ${Math.max(0,real()+T)}</b></div>
+  <div class="row"><button type="button" class="btn" id="tGo">💾 שמור סיורים</button><button type="button" class="btn ghost sm" id="tRf">🔄 רענן מהיומן</button></div>`;
+  w.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{const k=b.closest("[data-k]").dataset.k,e=EV.find(z=>z.k===k),s=b.dataset.s,cur=nOf(e);
+   if(s==="r")TX[k]=Math.max(1,e.n||1);else if(s==="0")TX[k]=0;else TX[k]=Math.max(1,Math.min(20,cur+ +s));if(TX[k]===e.auto)delete TX[k];draw()});
+  w.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{T=(+w.querySelector("#tO").value||0)+ +b.dataset.t;draw()});
+  w.querySelector("#tO").onchange=e=>{T=+e.target.value||0;draw()};
+  w.querySelector("#tRf").onclick=()=>{w.innerHTML='<p class="hint">טוען…</p>';toursUI(o,q,1)};
+  w.querySelector("#tGo").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="שומר…";try{await oPost("oedit",{k:o.k,p:{toff:T,tx:TX}});toast("✓ הסיורים עודכנו – מתעדכן בפורטל ובדוח");b.textContent="✓ נשמר"}catch(err){toast("שגיאה: "+err.message);b.textContent="💾 שמור סיורים"}b.disabled=false}};
+ draw()}
 async function linksUI(o,q){let LK=o.links;
  if(LK===undefined){q("#uSt").textContent="טוען קישורים…";try{const j=await(await fetch(U.sync.url+"?t="+encodeURIComponent(U.sync.token))).json();LK=JSON.parse(((j||{}).data||{})["url_"+o.id]||"{}")}catch(e){LK={}}q("#uSt").textContent=""}
  LK=Object.assign({g:{},x:[]},LK||{});LK.g=LK.g||{};LK.x=LK.x||[];
@@ -221,6 +238,7 @@ function mngPanel(o,x){const off=o.off||{},V=o.views||{},M=o.match||{},rv=V.real
   <div class="cnt2"><span>🎯 קונים מתאימים</span><span class="hint">אמיתי ${rm}</span><button type="button" class="btn ghost sm" data-d="m" data-s="-1">−1</button><input id="mM" inputmode="numeric" value="${+off.m||0}"><button type="button" class="btn ghost sm" data-d="m" data-s="1">+1</button><b id="mMt">= ${Math.max(0,rm+(+off.m||0))}</b></div>
   <p class="hint">התוספת נשמרת – המספר האמיתי ממשיך לעלות והתוספת נוספת עליו. פניות קונים מוסיפים ב"➕ פעולה" ← פנייה מקונה.</p>`)+
  sec("🔑 כניסה לפורטל",`<div class="g2"><label class="l">שם משתמש (ריק = כניסה במייל/טלפון)<input id="mU" dir="ltr" autocapitalize="none" placeholder="${E(o.email||"למשל ronen344")}" value="${E(o.user||"")}"></label><span></span></div><p class="hint">בעל הנכס יכול להיכנס עם שם המשתמש, המייל או הטלפון – כולם עם אותו קוד.</p><div class="g2"><label class="l">קוד כניסה (אפשר לשנות לקוד שתבחר)<input id="mK" dir="ltr" autocapitalize="characters" value="${E(String(o.pin||""))}"></label><span></span></div><p class="hint">לפחות 6 תווים: אותיות באנגלית, ספרות ומקף. שינוי הקוד – הקוד הישן מפסיק לעבוד.</p><label class="chk"><input type="checkbox" id="mR"> או: צור קוד אקראי חדש (אות ראשונה של המייל + מס׳ נכס + 3 ספרות)</label>`)+
+ sec("🏠 סיורים בנכס (מהיומן)",`<div id="tL"><p class="hint">טוען פגישות מהיומן…</p></div>`)+
  sec("🔗 קישורי השיווק (בעל הנכס רואה ולוחץ בפורטל)",`<p class="hint">מדביקים את הקישור למודעה / לפוסט. רק קישורים שמתחילים ב-https. שדה ריק = לא מוצג.</p>
   <div class="g2"><label class="l">🏷️ יד2<input id="uY2" dir="ltr" inputmode="url" placeholder="https://www.yad2.co.il/item/…"></label><label class="l">🗺️ מדלן<input id="uMd" dir="ltr" inputmode="url" placeholder="https://www.madlan.co.il/listings/…"></label></div>
   <div class="g2"><label class="l">📘 פוסט בדף הפייסבוק העסקי<input id="uFb" dir="ltr" inputmode="url"></label><label class="l">📸 אינסטגרם<input id="uIg" dir="ltr" inputmode="url"></label></div>
@@ -236,7 +254,7 @@ function mngPanel(o,x){const off=o.off||{},V=o.views||{},M=o.match||{},rv=V.real
  sec("📜 כל הפעולות ביומן (עריכה / מחיקה)",LG.length?LG.slice().reverse().map(l=>`<div class="lg"><span>${(OTYPES[l.type]||OTYPES.other)[0]} <b>${E((OTYPES[l.type]||OTYPES.other)[1])}</b> ${E(l.text)}<br><small class="hint">${E(String(l.d).slice(0,10))} · ${l.show?"מוצג":"מוסתר"}</small></span><button type="button" class="btn ghost sm" data-ed="${l.row}">✏️</button></div>`).join(""):'<p class="hint">אין פעולות.</p>')+
  `<div class="hr"></div><button class="btn ghost" id="mOff">⛔ סגירת הפורטל לנכס</button>`;
  const q=s=>x.querySelector(s);
- linksUI(o,q);
+ linksUI(o,q);toursUI(o,q);
  const tot=()=>{q("#mVt").textContent="= "+Math.max(0,rv+(+q("#mV").value||0));q("#mMt").textContent="= "+Math.max(0,rm+(+q("#mM").value||0))};
  x.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const i=q(b.dataset.d==="v"?"#mV":"#mM");i.value=(+i.value||0)+ +b.dataset.s;tot()});q("#mV").oninput=tot;q("#mM").oninput=tot;
  x.querySelectorAll("[data-ext]").forEach(b=>b.onclick=()=>{const t=q("#mT");t.value=addM(t.value||iso(new Date()),+b.dataset.ext);toast("עד "+t.value+" – לא לשכוח לשמור")});
