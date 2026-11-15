@@ -53,7 +53,7 @@ def mng_actions(pg):
     pg.wait_for_timeout(15000); p2 = f'{OUT}/manage_desktop.png'
     pg.set_viewport_size({'width': 1200, 'height': 900}); pg.wait_for_timeout(800); pg.screenshot(path=p2, full_page=True); SHOTS.append(p2); return {'mng_text': pg.locator('.mx').inner_text()[:200].replace('\n', ' | ') if pg.locator('.mx').count() else 'NO PANEL'}
 def buy_actions(pg):
-    n = pg.locator('li.card').count(); r = {'buyer_cards': n, 'first_buyers': [t.split('\n')[2][:40] for t in pg.locator('li.card').all_inner_texts()[:6]]}
+    n = pg.locator('li.card').count(); r = {'buyer_cards': n, 'first_buyers_last': [([x for x in t.split('\n') if 'קשר אחרון' in x or 'אין תאריך' in x] or ['?'])[0][:30] for t in pg.locator('li.card').all_inner_texts()[:6]]}
     b = pg.locator('button:has-text("📅 סיור")')
     r['tour_btns'] = b.count()
     if b.count(): b.first.click(); pg.wait_for_timeout(500); r['tour_form'] = pg.locator('.tourf').count()
