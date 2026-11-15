@@ -24,6 +24,10 @@ def smoke(code):
         j = _req(q='?t=' + bt.group(1)); print('smoke buyers:', j.get('ok'), len(j.get('buyers') or []), 'buyers', len(j.get('profiles') or []), 'profiles')
         if not j.get('ok'): sys.exit(1)
     j = _req(q='?removed=1'); print('smoke removed:', j.get('ok'), len(j.get('removed') or {}))
+    tk = re.search(r"const TOKEN = '([^']+)'", code)
+    if tk:
+        j = _req({'t': tk.group(1), 'op': 'ceo', 'fresh': 1}); it = j.get('items') or []
+        print('smoke ceo:', j.get('ok'), j.get('error', ''), len(it), 'items;', sum(1 for x in it if x.get('fee')), 'with fee;', [(x['id'], x['days'], x['leads'], x['tours'], x['offers'], x['fee'], x['stage'], x['exDays']) for x in it])
 def deploy(pw, force=False):
     raw = json.load(open(ENC)); d = json.loads(AESGCM(_key(pw, base64.b64decode(raw['s']))).decrypt(base64.b64decode(raw['i']), base64.b64decode(raw['c']), None))
     code, ver = d['code'], d['ver']
