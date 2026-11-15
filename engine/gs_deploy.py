@@ -36,7 +36,8 @@ def deploy(pw, force=False):
     try: cur = _req(q='?op=lver')
     except Exception as e: print('loader not reachable:', e); sys.exit(1)
     if not cur.get('loader'): print('loader not installed yet (old script still running) – skipping'); return
-    if cur.get('ver') == ver and not force: print('up to date', ver); smoke(code); return
+    if cur.get('ver') == ver and not force:
+        print('up to date', ver); tk = __import__('re').search(r"const TOKEN = '([^']+)'", code).group(1); print('setup:', _req({'t': tk, 'op': 'setup'})); smoke(code); return
     key = hashlib.sha256((pw + '|gs-deploy').encode()).hexdigest().encode(); ts = int(time.time() * 1000)
     sig = hmac.new(key, f'{ts}|{code}'.encode(), hashlib.sha256).hexdigest()
     r = _req({'op': 'deploy', 'code': code, 'ver': ver, 'ts': ts, 'sig': sig}); print('deploy:', {k: v for k, v in r.items() if k != 'detail'}, r.get('detail', ''))
