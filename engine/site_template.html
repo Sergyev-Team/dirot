@@ -351,7 +351,7 @@ const CUTOFF = (()=>{ const d=new Date(); d.setHours(0,0,0,0); d.setMonth(d.getM
 const D = (__DATA__).filter(x => !x.last || new Date(x.last+"T00:00:00") >= CUTOFF);
 const WA = "972549071916";
 // listings the broker took down from the broker board (live, before the next site update)
-const RM_API = "https://script.google.com/macros/s/AKfycby9RrAFbToMqEzYgG2BFRDhkOfX3jv9Ytme7QBheeSQ8g_NqF0aLnBYXDPHfPSfsLH1/exec";
+const RM_API = "https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
 try{ fetch(RM_API+"?removed=1").then(r=>r.json()).then(j=>{ if(!j||!j.ok) return; const rm=j.removed||{}; let n=0;
   for(let i=D.length-1;i>=0;i--) if(rm[String(D[i].id)]){ D.splice(i,1); n++; }
   if(n && typeof applyPreset=="function") applyPreset(); }).catch(()=>{}); }catch(e){}

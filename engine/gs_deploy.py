@@ -17,6 +17,13 @@ def pack(path, pw):
 def _req(data=None, q=''):
     r = urllib.request.Request(URL + q, data=json.dumps(data).encode() if data is not None else None, headers={'Content-Type': 'text/plain;charset=utf-8'})
     return json.loads(urllib.request.urlopen(r, timeout=120).read().decode())
+def smoke(code):
+    import re
+    bt = re.search(r"const BUY_TOKEN = '([^']+)'", code)
+    if bt:
+        j = _req(q='?t=' + bt.group(1)); print('smoke buyers:', j.get('ok'), len(j.get('buyers') or []), 'buyers', len(j.get('profiles') or []), 'profiles')
+        if not j.get('ok'): sys.exit(1)
+    j = _req(q='?removed=1'); print('smoke removed:', j.get('ok'), len(j.get('removed') or {}))
 def deploy(pw, force=False):
     raw = json.load(open(ENC)); d = json.loads(AESGCM(_key(pw, base64.b64decode(raw['s']))).decrypt(base64.b64decode(raw['i']), base64.b64decode(raw['c']), None))
     code, ver = d['code'], d['ver']
@@ -25,7 +32,7 @@ def deploy(pw, force=False):
     try: cur = _req(q='?op=lver')
     except Exception as e: print('loader not reachable:', e); sys.exit(1)
     if not cur.get('loader'): print('loader not installed yet (old script still running) – skipping'); return
-    if cur.get('ver') == ver and not force: print('up to date', ver); return
+    if cur.get('ver') == ver and not force: print('up to date', ver); smoke(code); return
     key = hashlib.sha256((pw + '|gs-deploy').encode()).hexdigest().encode(); ts = int(time.time() * 1000)
     sig = hmac.new(key, f'{ts}|{code}'.encode(), hashlib.sha256).hexdigest()
     r = _req({'op': 'deploy', 'code': code, 'ver': ver, 'ts': ts, 'sig': sig}); print('deploy:', {k: v for k, v in r.items() if k != 'detail'}, r.get('detail', ''))
@@ -33,6 +40,7 @@ def deploy(pw, force=False):
     tok = __import__('re').search(r"const TOKEN = '([^']+)'", code).group(1)
     h = _req({'t': tok, 'op': 'setup'}); print('setup:', h)
     hh = _req({'t': tok, 'op': 'health'}); print('health:', json.dumps(hh, ensure_ascii=False))
+    smoke(code)
     if not h.get('ok'):
         ts = int(time.time() * 1000); rb = _req({'op': 'rollback', 'ts': ts, 'sig': hmac.new(key, f'{ts}|rollback'.encode(), hashlib.sha256).hexdigest()})
         print('ROLLED BACK:', rb); sys.exit(1)
