@@ -26,6 +26,7 @@ def smoke(code):
     j = _req(q='?removed=1'); print('smoke removed:', j.get('ok'), len(j.get('removed') or {}))
     tk = re.search(r"const TOKEN = '([^']+)'", code)
     if tk:
+        js = _req({'t': tk.group(1), 'op': 'supasync'}); print('smoke supasync:', json.dumps(js, ensure_ascii=False)[:600])
         for op in ('dlist', 'tlist'):
             jj = _req({'t': tk.group(1), 'op': op}); print('smoke', op + ':', jj.get('ok'), jj.get('error', ''), len(jj.get('items') or []))
         jd = _req({'t': tk.group(1), 'op': 'cdrafts'}); print('smoke drafts:', jd.get('ok'), jd.get('error', ''), len(jd.get('items') or []), 'drafts')
