@@ -64,7 +64,7 @@ function sizeBar(){document.documentElement.style.setProperty("--bh",document.ge
 function start(){document.getElementById("lock").hidden=true;document.getElementById("app").hidden=false;sizeBar();
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
   const h=location.hash.match(/^#(ceo|buy|con|mkt|upl|sgn)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
-window.addEventListener("resize",sizeBar);
+window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe(document.getElementById("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
 document.getElementById("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
 document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const pw=document.getElementById("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else document.getElementById("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s&&await check(s))start();else{ls.del(KEY);document.getElementById("pw").focus()}})();

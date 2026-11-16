@@ -35,7 +35,15 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px
 .brand{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 h1{font-size:22px;font-weight:800;margin:0}
 h1 b{color:var(--gold)}
-#flt{display:flex;flex-direction:column;gap:8px}#flt.min{display:none}
+.chips.qv{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}.qv::-webkit-scrollbar{display:none}.qv .chip{flex:0 0 auto}
+.ctl{display:flex;gap:8px;align-items:center}.ctl select{flex:1;min-width:0}
+.advT{font:inherit;font-size:15px;font-weight:800;border:1.5px solid var(--gold);color:var(--gold);background:var(--surface);border-radius:12px;padding:6px 12px;min-height:40px;cursor:pointer;white-space:nowrap}
+.advT[aria-expanded="true"]{background:var(--gold);color:var(--ink-on)}.advT #advN:not(:empty){margin-inline-start:6px;background:var(--fg);color:var(--bg);border-radius:99px;padding:0 7px;font-size:13px}
+.actf{display:flex;gap:6px;flex-wrap:wrap}.actf:empty{display:none}.actf button{font:inherit;font-size:13px;font-weight:800;border:0;background:var(--gold-soft);color:var(--gold);border-radius:99px;padding:4px 10px;cursor:pointer}.actf .clr{background:none;color:var(--muted);text-decoration:underline}
+.adv{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:12px;max-height:62vh;overflow:auto}
+.ag{display:grid;gap:6px}.al{font-size:14px;font-weight:800;color:var(--muted)}.ah{font-size:12px;color:var(--muted)}
+.bud{display:flex;gap:6px;align-items:center}.bud input{font:inherit;width:100%;min-width:0;padding:7px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+.adv select{width:100%}.aft{display:flex;gap:8px;position:sticky;bottom:-12px;background:var(--surface);padding:8px 0 2px}.aft .add{flex:1}.ghostb{font:inherit;font-weight:800;border:1.5px solid var(--line);background:none;color:var(--fg);border-radius:12px;padding:0 14px;min-height:48px;cursor:pointer}
 .fltT{font:inherit;font-size:14px;font-weight:800;border:1.5px solid var(--gold);color:var(--gold);background:var(--surface);border-radius:999px;padding:3px 12px;min-height:32px;cursor:pointer}
 .sync{font-size:13px;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--warn-bg);color:var(--warn)}
 .sync.ok{background:var(--ok-bg);color:var(--ok)} .sync.err{background:var(--off-bg);color:var(--off)}
@@ -148,20 +156,24 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><h1>לוח <b>קונים</b></h1><span style="display:flex;gap:8px;align-items:center"><button type="button" id="sgnT" class="fltT">✍️ החתמות</button><button type="button" id="fltT" class="fltT">⚙️ סינון ▾</button><span class="sync" id="sync">שמור בטלפון</span></span></div>
-    <div class="mode" role="group" aria-label="מצב"><button type="button" id="mB" aria-pressed="true">קונים</button><button type="button" id="mA" aria-pressed="false">דירה ← קונים מתאימים</button></div>
+    <div class="brand"><h1>לוח <b>קונים</b></h1><span style="display:flex;gap:8px;align-items:center"><button type="button" id="sgnT" class="fltT">✍️ החתמות</button><span class="sync" id="sync">שמור בטלפון</span></span></div>
+    <div class="mode" role="group" aria-label="מצב"><button type="button" id="mB" aria-pressed="true">קונים</button><button type="button" id="mA" aria-pressed="false">🏠 לפי דירה</button></div>
     <div class="bar">
       <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="חיפוש לפי שם, טלפון או פרופיל" aria-label="חיפוש קונה">
       <button type="button" class="add buyersOnly" id="addBtn">+ קונה חדש</button>
     </div>
-    <div id="flt">
-    <div class="chips buyersOnly" id="views" role="group" aria-label="תצוגה"></div>
-    <div class="chips buyersOnly" id="rmf" role="group" aria-label="סינון לפי חדרים"></div>
-    <div class="chips buyersOnly" role="group" aria-label="סינון">
-      <span class="chips" id="rates"></span>
-      <select id="sort" aria-label="מיון"><option value="fresh">🔥 החדשים קודם (התקשרו / נכנסו לאחרונה)</option><option value="new">קשר אחרון: מהחדש לישן</option><option value="old">קשר אחרון: מהישן לחדש</option><option value="rate">לפי דירוג</option></select>
-      <select id="status" aria-label="סטטוס"><option value="פעיל">פעילים</option><option value="בהקפאה">בהקפאה</option><option value="קנה">קנו</option><option value="">כולם</option></select>
-    </div>
+    <div class="chips buyersOnly qv" id="views" role="group" aria-label="תצוגה"></div>
+    <div class="ctl buyersOnly"><button type="button" id="advT" class="advT" aria-expanded="false" aria-controls="adv">🔎 חיפוש מתקדם<span id="advN"></span></button>
+      <select id="sort" aria-label="מיון"><option value="fresh">🔥 החדשים קודם</option><option value="new">קשר אחרון – מהחדש</option><option value="old">קשר אחרון – מהישן</option><option value="rate">לפי דירוג</option></select></div>
+    <div class="actf buyersOnly" id="actf"></div>
+    <div class="adv buyersOnly" id="adv" hidden>
+      <div class="ag"><span class="al">חדרים</span><div class="chips" id="rmf" role="group" aria-label="חדרים"></div></div>
+      <div class="ag"><span class="al">חייב שיהיה</span><div class="chips" id="mustf" role="group" aria-label="חייב שיהיה"></div><span class="ah">מציג רק קונים שסימנו את זה כ"חובה" בפרופיל</span></div>
+      <div class="ag"><span class="al">תקציב הקונה</span><div class="bud"><input id="bMin" inputmode="decimal" placeholder="מ- (למשל 2)" aria-label="תקציב מינימום במיליונים"><span>–</span><input id="bMax" inputmode="decimal" placeholder="עד (למשל 3.2)" aria-label="תקציב מקסימום במיליונים"><span class="ah">מיליון ₪</span></div></div>
+      <div class="ag"><span class="al">שכונה</span><select id="hoodf" aria-label="שכונה"><option value="">כל השכונות</option></select></div>
+      <div class="ag"><span class="al">דירוג</span><div class="chips" id="rates" role="group" aria-label="דירוג"></div></div>
+      <div class="ag"><span class="al">סטטוס</span><select id="status" aria-label="סטטוס"><option value="פעיל">פעילים</option><option value="בהקפאה">בהקפאה</option><option value="קנה">קנו</option><option value="">כולם</option></select></div>
+      <div class="aft"><button type="button" class="ghostb" id="advClr">נקה הכל</button><button type="button" class="add" id="advGo">הצג קונים</button></div>
     </div>
   </div>
   <div id="banner"></div>
@@ -263,9 +275,7 @@ document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementByI
 })();
 </script>
 
-<script>(function(){const b=document.getElementById("fltT"),f=document.getElementById("flt");let m;try{m=localStorage.getItem("kb_flt_min")}catch(e){}
-const set=v=>{f.classList.toggle("min",v);b.textContent=v?"⚙️ סינון ▾":"⚙️ סינון ▴";try{localStorage.setItem("kb_flt_min",v?"1":"0")}catch(e){}};
-set(m==null?true:m==="1");b.onclick=()=>set(!f.classList.contains("min"))})();</script>
+
 
 <script>
 function boot(DATA){
@@ -283,7 +293,7 @@ if(DATA.script) fetch(DATA.script+"?removed=1").then(r=>r.json()).then(j=>{ if(!
   for(let i=APTS.length-1;i>=0;i--) if(rm[String(APTS[i].id)]){ APTS.splice(i,1); n++; } if(n) render(); }).catch(()=>{});
 let S=store.get(K_CACHE,null) || {buyers:DATA.buyers, profiles:DATA.profiles, at:DATA.built};
 let PEND=store.get(K_PEND,[]);
-const st={view:"all", qmore:false, rate:"", status:"פעיל", q:"", sort:"fresh", rooms:new Set()};
+const st={view:"all", qmore:false, rate:"", status:"פעיל", q:"", sort:"fresh", rooms:new Set(), must:new Set(), bmin:0, bmax:0, hood:""};
 let syncState=DATA.script?"…":"local";
 
 // ---- matching
@@ -405,11 +415,37 @@ function views(){ const all=S.buyers.filter(b=>!st.status||(b.status||"פעיל"
   if(unset){ const c=el("button","chip","בלי הגדרה"); c.type="button"; c.setAttribute("aria-pressed",st.view=="unset"); c.append(el("span","n",unset)); c.onclick=()=>{st.view=st.view=="unset"?"all":"unset"; render();}; box.append(c); }
   const nd=all.filter(b=>DONE.has(bkey(b))).length; if(nd){ const c=el("button","chip dn",HIDE_DONE?"הצג מי שטופל היום":"הסתר מי שטופל היום"); c.type="button"; c.setAttribute("aria-pressed",HIDE_DONE); c.append(el("span","n","✓"+nd));
     c.onclick=()=>{ HIDE_DONE=!HIDE_DONE; try{localStorage.setItem("kb_hidedone",HIDE_DONE?"1":"0");}catch(_){} render(); }; box.append(c); }
-  const rf=$("rmf"); rf.innerHTML=""; rf.append(el("span","rml","חדרים:"));
+  const rf=$("rmf"); rf.innerHTML="";
   RMF.forEach(([t],i)=>{ const one=new Set([i]); const save=st.rooms; st.rooms=one; const n=all.filter(wantsRooms).length; st.rooms=save;
     const c=el("button","chip",t+" חד׳"); c.type="button"; c.setAttribute("aria-pressed",st.rooms.has(i)); c.append(el("span","n rmn",n));
     c.onclick=()=>{ st.rooms.has(i)?st.rooms.delete(i):st.rooms.add(i); try{localStorage.setItem("kb_rooms",JSON.stringify([...st.rooms]));}catch(_){} render(); }; rf.append(c); });
-  const rb=$("rates"); rb.innerHTML=""; ["A++","A+","A","ללא"].forEach(r=>{ const c=el("button","chip",r); c.type="button"; c.style.direction="ltr"; c.setAttribute("aria-pressed",st.rate==r); c.onclick=()=>{st.rate=st.rate==r?"":r; render();}; rb.append(c); }); }
+  const rb=$("rates"); rb.innerHTML=""; ["A++","A+","A","ללא"].forEach(r=>{ const c=el("button","chip",r); c.type="button"; c.style.direction="ltr"; c.setAttribute("aria-pressed",st.rate==r); c.onclick=()=>{st.rate=st.rate==r?"":r; advSave(); render();}; rb.append(c); }); advUI(all); }
+// ---- חיפוש מתקדם: חובה (חניה/מעלית/ממ"ד), תקציב, שכונה + סיכום מסננים פעילים
+const MUST=[["pk","🚗 חניה"],["el","🛗 מעלית"],["mm","🛡️ ממ״ד"]];
+function advSave(){ try{localStorage.setItem("kb_adv",JSON.stringify({must:[...st.must],bmin:st.bmin,bmax:st.bmax,hood:st.hood,rate:st.rate,status:st.status}));}catch(_){} }
+function mil(v){ const n=parseFloat(String(v||"").replace(/[^\d.]/g,"")); if(!n) return 0; return n<100?n*1e6:n; }
+function advMatch(b){ const p=prof(b.profile);
+  if(st.must.size){ if(!p) return false; for(const k of st.must) if(!/^חובה/.test(p[k]||"")) return false; }
+  if(st.bmin||st.bmax){ if(!p||!p.budget) return false; if(st.bmin&&p.budget<st.bmin) return false; if(st.bmax&&p.budget>st.bmax) return false; }
+  if(st.hood){ if(!p||!String(p.hoods||"").split(/[,،]/).map(x=>x.trim()).includes(st.hood)) return false; }
+  return true; }
+function advUI(all){ const mf=$("mustf"); mf.innerHTML="";
+  MUST.forEach(([k,t])=>{ const c=el("button","chip",t); c.type="button"; c.setAttribute("aria-pressed",st.must.has(k)); const save=st.must; st.must=new Set([k]); const n=all.filter(advMatch).length; st.must=save; c.append(el("span","n rmn",n));
+    c.onclick=()=>{ st.must.has(k)?st.must.delete(k):st.must.add(k); advSave(); render(); }; mf.append(c); });
+  const hs=$("hoodf"); if(hs.options.length<=1){ const H=new Map(); S.profiles.forEach(p=>String(p.hoods||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).forEach(h=>H.set(h,(H.get(h)||0)+1)));
+    [...H.entries()].sort((a,b)=>b[1]-a[1]).forEach(([h])=>{ const o=el("option",null,h); o.value=h; hs.append(o); }); }
+  hs.value=st.hood||""; $("status").value=st.status; if(document.activeElement!==$("bMin")) $("bMin").value=st.bmin?st.bmin/1e6:""; if(document.activeElement!==$("bMax")) $("bMax").value=st.bmax?st.bmax/1e6:"";
+  const A=[]; const RL=RMF.map(r=>r[0]);
+  [...st.rooms].sort().forEach(i=>A.push([RL[i]+" חד׳",()=>{st.rooms.delete(i);try{localStorage.setItem("kb_rooms",JSON.stringify([...st.rooms]));}catch(_){}}]));
+  [...st.must].forEach(k=>A.push([MUST.find(m=>m[0]==k)[1],()=>st.must.delete(k)]));
+  if(st.bmin||st.bmax) A.push([(st.bmin?"מ-"+st.bmin/1e6+"M ":"")+(st.bmax?"עד "+st.bmax/1e6+"M":"")+" ₪",()=>{st.bmin=0;st.bmax=0;}]);
+  if(st.hood) A.push(["📍 "+st.hood,()=>{st.hood="";}]);
+  if(st.rate) A.push(["דירוג "+st.rate,()=>{st.rate="";}]);
+  if(st.status!=="פעיל") A.push([st.status?"סטטוס: "+st.status:"כל הסטטוסים",()=>{st.status="פעיל";}]);
+  const af=$("actf"); af.innerHTML=""; A.forEach(([t,f])=>{ const c=el("button",null,t+" ✕"); c.type="button"; c.setAttribute("aria-label","להסיר "+t); c.onclick=()=>{f();advSave();render();}; af.append(c); });
+  if(A.length>1){ const c=el("button","clr","נקה הכל"); c.type="button"; c.onclick=advClear; af.append(c); }
+  $("advN").textContent=A.length?A.length:""; }
+function advClear(){ st.rooms.clear(); st.must.clear(); st.bmin=0; st.bmax=0; st.hood=""; st.rate=""; st.status="פעיל"; try{localStorage.setItem("kb_rooms","[]");}catch(_){} advSave(); render(); }
 const RMF=[["3",3,3],["3.5",3.5,3.5],["4",4,4],["4.5",4.5,4.5],["5+",5,99]];
 function wantsRooms(b){ const p=prof(b.profile); if(!p||!p.deal||!p.rmin) return false; const mx=p.rmax||p.rmin;
   return [...st.rooms].some(i=>{ const [,lo,hi]=RMF[i]; return p.rmin<=hi && mx>=lo; }); }
@@ -583,7 +619,7 @@ function setMode(m){ st.mode=m; $("mB").setAttribute("aria-pressed",m=="b"); $("
 function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   let r=S.buyers.filter(b=>!st.status||(b.status||"פעיל")==st.status);
   if(st.rate) r=r.filter(b=>st.rate=="ללא"?!b.rating:b.rating==st.rate);
-  if(st.rooms.size) r=r.filter(wantsRooms);
+  if(st.rooms.size) r=r.filter(wantsRooms);  r=r.filter(advMatch);
   if(st.view=="today"){ const K="kb_batch2_"+today(); let B=store.get(K,null);
     if(!B||!B.length){ B=S.buyers.filter(inQueue).sort(QCMP).slice(0,10).map(bkey); store.set(K,B); }
     const bs=new Set(B); r=r.filter(b=>bs.has(bkey(b))); }
@@ -602,7 +638,7 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   if(!FROZEN || FROZEN_SORT!==fk){ FROZEN=new Map(S.buyers.slice().sort(st.view=="today"?QCMP:cmp).map((b,i)=>[bkey(b),i])); FROZEN_SORT=fk; }
   const pos=b=>FROZEN.has(bkey(b))?FROZEN.get(bkey(b)):-1;
   r.sort((a,b)=>pos(a)-pos(b));
-  $("sect").textContent=r.length+" קונים"+(st.rooms.size?" שמחפשים "+[...st.rooms].map(i=>RMF[i][0]).join(" / ")+" חד׳":"")+(st.view=="late"?" שלא דיברנו איתם יותר משבוע":st.view=="new"?" עם דירות חדשות מאז הקשר האחרון":"");
+  $("advGo").textContent="הצג "+r.length+" קונים"; $("sect").textContent=r.length+" קונים"+(st.rooms.size?" שמחפשים "+[...st.rooms].map(i=>RMF[i][0]).join(" / ")+" חד׳":"")+(st.must.size?" · חובה: "+[...st.must].map(k=>MUST.find(m=>m[0]==k)[1].replace(/^\S+\s/,"")).join(", "):"")+(st.bmax?" · עד "+st.bmax/1e6+"M":"")+(st.bmin?" · מ-"+st.bmin/1e6+"M":"")+(st.hood?" · "+st.hood:"")+(st.view=="late"?" שלא דיברנו איתם יותר משבוע":st.view=="new"?" עם דירות חדשות מאז הקשר האחרון":"");
   const list=$("list"); list.innerHTML="";
   if(st.view=="today"){ const dn=r.filter(b=>DONE.has(bkey(b))).length; $("sect").textContent=dn>=r.length&&r.length?"🎉 סיימת את "+r.length+" הקונים של היום! מחר מחכים לך 10 חדשים.":"10 הקונים של היום · טופלו "+dn+" מתוך "+r.length; }
   if(!r.length){ list.append(el("li","empty",st.view=="today"?"🎉 סיימת את התור של היום! כל הקונים קיבלו יחס.":"אין קונים בתצוגה הזאת.")); return; }
@@ -611,7 +647,13 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   if(show.length<r.length){ const m=el("li","empty"); const bt=el("button","btn","עוד "+(r.length-show.length)+" ממתינים (לא חובה היום) ↓"); bt.type="button"; bt.onclick=()=>{st.qmore=true; render();}; m.append(bt); list.append(m); } }
 $("banner").innerHTML=""; if(!DATA.script){ $("banner").append(el("div","banner","הלוח עדיין לא מחובר לגיליון. דירוג, הערות ותאריכי קשר נשמרים בינתיים בטלפון הזה, ויעברו לגיליון ברגע שהחיבור יוגדר.")); }
 $("q").oninput=e=>{st.q=e.target.value; if(st.mode=="a"){ st.aid=null; QUEUE=null; } render();};
-$("status").onchange=e=>{st.status=e.target.value; render();};
+$("status").onchange=e=>{st.status=e.target.value; advSave(); render();};
+  try{ const a=JSON.parse(localStorage.getItem("kb_adv")||"null"); if(a){ (a.must||[]).forEach(k=>st.must.add(k)); st.bmin=a.bmin||0; st.bmax=a.bmax||0; st.hood=a.hood||""; st.rate=a.rate||""; if(typeof a.status=="string") st.status=a.status; } }catch(_){}
+  $("advT").onclick=()=>{ const a=$("adv"),o=a.hidden; a.hidden=!o; $("advT").setAttribute("aria-expanded",o); };
+  $("advGo").onclick=()=>{ $("adv").hidden=true; $("advT").setAttribute("aria-expanded","false"); window.scrollTo({top:0}); };
+  $("advClr").onclick=advClear;
+  $("hoodf").onchange=e=>{ st.hood=e.target.value; advSave(); render(); };
+  const bud=()=>{ st.bmin=mil($("bMin").value); st.bmax=mil($("bMax").value); advSave(); render(); }; $("bMin").onchange=bud; $("bMax").onchange=bud;
 $("sort").onchange=e=>{st.sort=e.target.value; try{localStorage.setItem("kb_sort2",st.sort);}catch(_){} render();};
 try{ const rr=JSON.parse(localStorage.getItem("kb_rooms")||"[]"); rr.forEach(i=>st.rooms.add(i)); }catch(_){}
 try{ const s=localStorage.getItem("kb_sort2"); if(s){ st.sort=s; $("sort").value=s; } else $("sort").value="fresh"; }catch(_){}

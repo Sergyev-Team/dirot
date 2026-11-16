@@ -33,7 +33,7 @@
  <div class="frames" id="frames"></div>
 </div>
 <script>
-const KEY="sergyev_console_pw",SALT="D/wtUjkuKuqziZ6pNxMBnw==",IV="N4kE+wKYP5GesxH1",CT="mRqy8u64OSUEAWcPgihE6/seXvw=",IT=250000;
+const KEY="sergyev_console_pw",SALT="aRpH11nKNeJigDpaXDbaXA==",IV="EO0mafgFUlbkq1XQ",CT="qzsiC/9r9gGG9ibl5Q7LwQD/dtA=",IT=250000;
 const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",ceo:"de7f766b5893b.html#ceo"};
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
@@ -53,7 +53,7 @@ function sizeBar(){document.documentElement.style.setProperty("--bh",document.ge
 function start(){document.getElementById("lock").hidden=true;document.getElementById("app").hidden=false;sizeBar();
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.t));
   const h=location.hash.match(/^#(ceo|buy|con|mkt|upl|sgn)/);show(h?h[1]:(ls.get("office_tab")||"mkt"))}
-window.addEventListener("resize",sizeBar);
+window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe(document.getElementById("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
 document.getElementById("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
 document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const pw=document.getElementById("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else document.getElementById("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s&&await check(s))start();else{ls.del(KEY);document.getElementById("pw").focus()}})();
