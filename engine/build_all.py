@@ -86,7 +86,7 @@ def desc_of(d):
     if d['mm']=='כן': f.append('ממ״ד')
     if d['prev']: f.append('ירד מחיר!')
     return ' · '.join(f)
-SITE='https://sergyev-team.github.io/dirot/'
+SITE='https://sergeyev-team.com/'
 def dpage(d):
     t=H.escape(title_of(d),quote=True); ds=H.escape((desc_of(d)+' | ' if desc_of(d) else '')+'צוות סרגייב – לחצו לתמונות ופרטים',quote=True); i=d['id']
     return f'''<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -166,7 +166,7 @@ def write_all():
     b=json.load(open(S+'/buyers_snapshot.json')); b['apts']=apts(); b['built']=datetime.datetime.now(datetime.timezone.utc).isoformat(); b['sync']=json.load(open(S+'/mkt.json')).get('sync')
     encrypt_into(R+'/x/b018b2a874ee8.html',b,pw)
     mk=json.load(open(S+'/mkt.json')); rows,alias=mkt_rows(); BL=buyer_match(rows)
-    encrypt_into(R+'/x/eacbed7dad154.html',dict(rows=rows,alias=alias,buyers=BL,site='https://sergyev-team.github.io/dirot/',**mk),pw)
+    encrypt_into(R+'/x/eacbed7dad154.html',dict(rows=rows,alias=alias,buyers=BL,site='https://sergeyev-team.com/',**mk),pw)
     if os.path.exists(R+'/x/3a256a46e8e4d.html'): encrypt_into(R+'/x/3a256a46e8e4d.html',upload_data(),pw)
     if os.path.exists(R+'/x/de7f766b5893b.html'): encrypt_into(R+'/x/de7f766b5893b.html',sign_data(),pw)
     print('built',len(D),'active; og rendered',len(todo))

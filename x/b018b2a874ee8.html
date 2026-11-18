@@ -215,7 +215,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 <dialog id="sgD"><button class="x" type="button" onclick="this.closest('dialog').close()" aria-label="סגור">×</button><div class="in" id="sgI"></div></dialog>
 <script>
 (function(){
-const SITE="https://sergyev-team.github.io/dirot/";
+const SITE="https://sergeyev-team.com/";
 const E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
 const pad=n=>("0000"+n).slice(-5);
@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementByI
 
 <script>
 function boot(DATA){
-const SITE="https://sergyev-team.github.io/dirot/";
+const SITE="https://sergeyev-team.com/";
 const K_CACHE="kb_cache_v1", K_PEND="kb_pending_v1";
 const $=id=>document.getElementById(id);
 const el=(t,c,x)=>{const e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e;};

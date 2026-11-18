@@ -142,7 +142,7 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
  const wa="https://wa.me/972"+String(P.broker.phone).replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent("שלום, אני "+(p.name||"")+" – בעל/ת הנכס ב"+addr);
  const lkI=(c,ic,t,sub,u)=>`<li><a href="${E(u)}" target="_blank" rel="noopener"><span class="ic" style="--c:${c}" aria-hidden="true">${ic}</span><span><b>${E(t)}</b>${sub?`<small>${E(sub)}</small>`:""}</span><em>לצפייה ›</em></a></li>`;
  const gL=Object.keys(LK.g||{}).filter(k=>okU(LK.g[k])),gN=gL.length;
- const lkH=[L?lkI("#16191F","⌂","דף הנכס באתר שלנו","sergyev-team.github.io","../d/"+p.id+".html"):"",okU(LK.y2)?lkI(CH.y2.c,CH.y2.i,"המודעה ביד2","",LK.y2):"",okU(LK.md)?lkI(CH.md.c,CH.md.i,"המודעה במדלן","",LK.md):"",okU(LK.fbp)?lkI(CH.fb.c,CH.fb.i,"הפוסט בדף הפייסבוק שלנו","",LK.fbp):"",
+ const lkH=[L?lkI("#16191F","⌂","דף הנכס באתר שלנו","sergeyev-team.com","../d/"+p.id+".html"):"",okU(LK.y2)?lkI(CH.y2.c,CH.y2.i,"המודעה ביד2","",LK.y2):"",okU(LK.md)?lkI(CH.md.c,CH.md.i,"המודעה במדלן","",LK.md):"",okU(LK.fbp)?lkI(CH.fb.c,CH.fb.i,"הפוסט בדף הפייסבוק שלנו","",LK.fbp):"",
   ...gL.map(k=>lkI(CH.fb.c,CH.fb.i,OGROUPS[k]||"קבוצת פייסבוק","פוסט בקבוצת פייסבוק",LK.g[k])),okU(LK.ig)?lkI(CH.ig.c,CH.ig.i,"הפוסט באינסטגרם","",LK.ig):"",okU(LK.tt)?lkI("#111","♪","הסרטון בטיקטוק","",LK.tt):"",
   ...(LK.x||[]).filter(e=>okU(e.u)).map(e=>lkI(CH.more.c,"🔗",e.t||"קישור","",e.u))].join("");
  const spec=L?[L.rooms?L.rooms+" חדרים":"",L.sqm?L.sqm+" מ״ר":"",L.floor!==""&&L.floor!=null?"קומה "+L.floor:""].filter(Boolean).join(" · "):"";

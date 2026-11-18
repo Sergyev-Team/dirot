@@ -337,7 +337,7 @@ function showForms(list){$("#paste-host").innerHTML=list.length>1?`<p class="hin
 
 
 /* ---------- update existing ---------- */
-const SITE="https://sergyev-team.github.io/dirot/";
+const SITE="https://sergeyev-team.com/";
 let TABLE=null;
 async function liveTable(){if(TABLE)return TABLE;const s=U.sync;const r=await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=table");const j=await r.json();if(!j.rows)throw new Error(j.error||"אין גישה לגיליון");TABLE=j.rows;return TABLE}
 const num=v=>{const n=String(v??"").replace(/[^\d.]/g,"");return n===""?"":+n};

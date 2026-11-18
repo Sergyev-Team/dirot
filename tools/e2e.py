@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-SITE = 'https://sergyev-team.github.io/dirot/'; PW = os.environ['DIROT_PW']; OUT = '/tmp/e2e'; os.makedirs(OUT, exist_ok=True)
+SITE = 'https://sergeyev-team.com/'; PW = os.environ['DIROT_PW']; OUT = '/tmp/e2e'; os.makedirs(OUT, exist_ok=True)
 REPORT = []; SHOTS = []
 def run_page(pg, name, url, actions=None, unlock=True, wait=6000):
     errs, slow, fails = [], [], []
