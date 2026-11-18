@@ -25,20 +25,28 @@ button{cursor:pointer}
 a{color:inherit}
 .page{max-width:680px;margin:0 auto;padding:18px 16px calc(92px + env(safe-area-inset-bottom))}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;min-height:44px}
+.head-acts{display:flex;align-items:center;gap:4px;flex:none}
 h1{font-size:25px;line-height:1.2;margin:0;font-weight:700}
 h2{font-size:15px;font-weight:700;color:var(--muted);margin:22px 0 8px}
 .sub{color:var(--muted);font-size:15px;margin:2px 0 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;text-decoration:none;white-space:nowrap}
 .btn.pri{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.btn.bad{color:var(--bad)}
 .btn.wide{width:100%}
 .btn.sm{min-height:38px;padding:5px 12px;font-size:15px}
 .btn.link{background:none;border:0;color:var(--muted);font-weight:600;padding:6px 8px;min-height:40px}
 .btn:disabled{opacity:.55;cursor:default}
+.count{display:inline-block;min-width:20px;padding:0 5px;border-radius:10px;background:var(--bad);color:#fff;font-size:13px;line-height:20px;text-align:center}
 .field{display:block;margin-bottom:12px}
 .field>span{display:block;font-size:15px;font-weight:600;color:var(--muted);margin-bottom:4px}
 .in{width:100%;min-height:46px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
 textarea.in{min-height:84px;resize:vertical;display:block}
 .ltr{direction:ltr;text-align:right}
+.flts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.flt span{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.flt select{min-height:42px;padding:6px 8px;font-size:16px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;margin-bottom:6px}
+.bar .sub{margin:0}
 .list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:62px;padding:10px 14px;background:none;border:0;border-bottom:1px solid var(--line);text-align:right;text-decoration:none}
 .row:last-child{border-bottom:0}
@@ -50,11 +58,11 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .now{color:var(--gold-ink);font-weight:700}
 .tag{display:inline-block;font-size:13px;font-weight:700;padding:1px 7px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);direction:ltr}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.stat{padding:12px 8px;text-align:center;background:none;border:0;border-inline-start:1px solid var(--line)}
+.stat{padding:12px 8px;text-align:center;background:none;border:0;border-inline-start:1px solid var(--line);text-decoration:none}
 .stat:first-child{border-inline-start:0}
 .stat b{display:block;font-size:26px;line-height:1.15}
 .stat span{font-size:14px;color:var(--muted)}
-.chips{display:flex;gap:6px;overflow-x:auto;margin:10px -16px 12px;padding:2px 16px;scrollbar-width:none}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:10px -16px 10px;padding:2px 16px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;min-height:38px;padding:5px 13px;border-radius:19px;border:1px solid var(--line);background:var(--surface);font-size:15px;font-weight:600}
 .chip[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
@@ -67,6 +75,7 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .card>h2:first-child{margin-top:0}
 .quick{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .quick .btn{padding:5px 9px}
+.outs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .note{padding:8px 0;border-bottom:1px solid var(--line);font-size:16px;white-space:pre-wrap;overflow-wrap:anywhere}
 .note:last-child{border-bottom:0;padding-bottom:0}
 .empty{padding:22px 14px;text-align:center;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:12px}
@@ -80,7 +89,19 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .task.done .txt{text-decoration:line-through;color:var(--muted)}
 .task small{color:var(--muted);font-size:14px}
 .x{flex:none;width:40px;height:40px;background:none;border:0;color:var(--muted);display:grid;place-items:center;border-radius:8px}
-.add{display:grid;grid-template-columns:1fr 150px auto;gap:8px;margin-bottom:12px}
+.add{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.add .t{grid-column:1/-1}
+.price{font-size:24px;font-weight:700;margin:6px 0 10px}
+.specs{display:flex;flex-wrap:wrap;gap:6px}
+.spec{padding:3px 9px;border-radius:7px;background:var(--bg);font-size:15px;font-weight:600}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:16px}
+.kv span{color:var(--muted)}
+.person{padding:12px 0;border-bottom:1px solid var(--line)}
+.person:last-child{border-bottom:0;padding-bottom:0}
+.person:first-of-type{padding-top:0}
+.person b{display:block}
+.person small{display:block;color:var(--muted);font-size:15px;overflow-wrap:anywhere}
+.person .acts{margin:10px 0 0}
 .nav{position:fixed;inset:auto 0 0 0;z-index:5;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .nav div{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none}
@@ -97,7 +118,6 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .toast{position:fixed;z-index:9;inset-inline:16px;bottom:calc(76px + env(safe-area-inset-bottom));max-width:420px;margin:0 auto;padding:11px 14px;border-radius:10px;background:var(--fg);color:var(--bg);font-weight:600;text-align:center}
 .load{padding:60px 0;text-align:center;color:var(--muted)}
 .more{margin-top:10px}
-@media (max-width:460px){.add{grid-template-columns:1fr 1fr}.add .t{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -109,14 +129,19 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 var SB = 'https://zqpgzcgvvhaokaimedio.supabase.co';
 var KEY = 'sb_publishable_pHWmO4yjoVO3CvkNUE8u3g_spxQJHib';
 var SHEET_API = 'https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec';
-var RT_KEY = 'sg_app_rt';
-var PAGE = 60;
-var TZ = 'Asia/Jerusalem';
+var SITE = 'https://sergeyev-team.com/';
+var RT_KEY = 'sg_app_rt', SIGN_KEY = 'sergyev_agent_code';
+var PAGE = 60, TZ = 'Asia/Jerusalem';
+var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at';
+var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at';
+var INTERVAL = { 'A++': 3, 'A+': 7, 'A': 14 };
 
 var app = document.getElementById('app');
-var S = { at: null, exp: 0, rt: null, uid: null };
-var D = { me: null, buyers: [], tasks: [], props: [], outbox: null, loadedAt: 0 };
-var UI = { q: '', f: 'active', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, login: { step: 'email', email: '', err: '', busy: false }, showDone: false };
+var S = { at: null, exp: 0, rt: null, uid: null, email: '' };
+var D = { me: null, buyers: [], tasks: [], props: [], agents: [], requests: [], outbox: null, signCode: null, loadedAt: 0 };
+var UI = { q: '', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, login: { step: 'email', email: '', err: '', busy: false } };
+function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' } }; }
+var F = freshFilters();
 
 function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -133,6 +158,10 @@ function waNum(v) { var d = digits(v); return d.charAt(0) === '0' ? '972' + d.sl
 function money(n) { return n ? '₪' + Number(n).toLocaleString('he-IL') : ''; }
 function dueClass(d) { if (!d) return ''; var t = today(); return d < t ? 'late' : d === t ? 'now' : ''; }
 function dueText(d) { if (!d) return ''; var t = today(); return d === t ? 'היום' : d === addDays(t, 1) ? 'מחר' : dm(d); }
+function isAdmin() { return !!D.me && D.me.role === 'admin'; }
+function agentName(id) { var a = D.agents.filter(function (x) { return x.id === id; })[0]; return a ? a.name : ''; }
+function activeAgents() { return D.agents.filter(function (a) { return a.active; }); }
+function uniq(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }).sort(function (x, y) { return String(x).localeCompare(String(y), 'he'); }); }
 
 var tt;
 function toast(msg) { var el = document.getElementById('toast'); el.textContent = msg; el.hidden = false; clearTimeout(tt); tt = setTimeout(function () { el.hidden = true; }, 2600); }
@@ -143,8 +172,8 @@ function authCall(path, body) {
     return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.msg || j.error_description || 'auth'); e.status = r.status; e.code = j.error_code || j.code; throw e; } return j; });
   });
 }
-function setSession(j) { S.at = j.access_token; S.exp = Date.now() + (j.expires_in - 60) * 1000; S.rt = j.refresh_token; S.uid = j.user && j.user.id; lsSet(RT_KEY, S.rt); }
-function clearSession() { S.at = null; S.exp = 0; S.rt = null; S.uid = null; lsSet(RT_KEY, null); }
+function setSession(j) { S.at = j.access_token; S.exp = Date.now() + (j.expires_in - 60) * 1000; S.rt = j.refresh_token; S.uid = j.user && j.user.id; S.email = (j.user && j.user.email) || S.email; lsSet(RT_KEY, S.rt); }
+function clearSession() { S.at = null; S.exp = 0; S.rt = null; S.uid = null; S.email = ''; lsSet(RT_KEY, null); lsSet(SIGN_KEY, null); }
 var refreshing = null;
 function refresh() {
   if (refreshing) return refreshing;
@@ -163,6 +192,7 @@ function db(path, opt) {
   }
   return (Date.now() > S.exp && S.rt ? refresh() : Promise.resolve()).then(function () { return go(true); });
 }
+function rpc(name, body) { return db('rpc/' + name, { method: 'POST', body: body || {} }); }
 
 // ===== הודעה לגיליון שיש שינוי (אם נכשל, הגיליון מושך לבד כל 15 דקות) =====
 var kt;
@@ -171,28 +201,48 @@ function kick() { clearTimeout(kt); kt = setTimeout(function () { sendKick(); se
 
 // ===== טעינת נתונים =====
 function loadAll() {
-  var cut = addDays(today(), -14);
   return Promise.all([
-    db('buyers?select=id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at&order=id.desc'),
-    db('tasks?select=id,agent_id,due,text,ref,ref_label,done,done_at,created_at&or=(done.is.false,done_at.gte.' + cut + ')&order=id.desc'),
-    db('properties?select=id,deal,type,city,neighborhood,street,house_no,floor,rooms,sqm,price&status=eq.' + encodeURIComponent('פעיל') + '&order=id.desc'),
-    isManager() ? db('rpc/outbox_status', { method: 'POST', body: {} }).catch(function () { return null; }) : Promise.resolve(null)
-  ]).then(function (r) { D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.outbox = r[3]; D.loadedAt = Date.now(); });
+    db('buyers?select=' + BUYER_COLS + '&order=id.desc'),
+    db('tasks?select=' + TASK_COLS + '&order=id.desc&limit=800'),
+    db('properties?select=id,deal,type,city,neighborhood,street,house_no,floor,rooms,sqm,price,prev_price,has_elevator,has_parking,has_mamad,source&status=eq.' + encodeURIComponent('פעיל') + '&order=id.desc'),
+    isAdmin() ? db('agents?select=id,slug,name,phone,email,license,role,active&order=name.asc') : Promise.resolve([D.me]),
+    isAdmin() ? db('agent_requests?select=id,email,name,phone,license,created_at&status=eq.pending&order=created_at.asc') : Promise.resolve([]),
+    isAdmin() ? rpc('outbox_status').catch(function () { return null; }) : Promise.resolve(null)
+  ]).then(function (r) { D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.loadedAt = Date.now(); });
 }
-function isManager() { return D.me && (D.me.role === 'admin' || D.me.role === 'manager'); }
 function enter() {
   app.innerHTML = '<div class="load">טוען…</div>';
-  return db('agents?select=id,slug,name,role,active&id=eq.' + S.uid).then(function (r) {
+  return db('agents?select=id,slug,name,phone,email,role,active&id=eq.' + S.uid).then(function (r) {
     D.me = r && r[0] && r[0].active ? r[0] : null;
-    if (!D.me) { noAccess(); return; }
-    return loadAll().then(render);
+    if (!D.me) return accessScreen();
+    return rpc('my_sign_code').catch(function () { return null; }).then(function (code) {
+      D.signCode = code || null;
+      if (D.signCode && !isAdmin()) lsSet(SIGN_KEY, D.signCode);
+      return loadAll().then(render);
+    });
   }).catch(function (e) {
     if (e.status === 400 || e.status === 401 || e.status === 403) { clearSession(); UI.login.step = 'email'; renderLogin(); return; }
-    app.innerHTML = '<div class="login"><form onsubmit="return false"><h1>אין חיבור</h1><p>בדוק את האינטרנט ונסה שוב.</p><button class="btn pri wide" type="button" data-act="retry">נסה שוב</button></form></div>';
+    message('אין חיבור', 'בדוק את האינטרנט ונסה שוב.', '<button class="btn pri wide" type="button" data-act="retry">נסה שוב</button>');
   });
 }
-function noAccess() {
-  app.innerHTML = '<div class="login"><form onsubmit="return false"><h1>אין הרשאה</h1><p>המייל הזה עדיין לא הוזמן למשרד. פנה למנהל המשרד כדי לקבל גישה.</p><button class="btn wide" type="button" data-act="logout">יציאה</button></form></div>';
+function message(title, text, buttons) { app.innerHTML = '<div class="login"><form onsubmit="return false"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p>' + buttons + '</form></div>'; }
+var OUT_BTN = '<button class="btn link wide" type="button" data-act="logout">יציאה</button>';
+function accessScreen() {
+  return db('agent_requests?select=status&id=eq.' + S.uid).then(function (r) {
+    var st = r && r[0] && r[0].status;
+    if (!st) return requestForm();
+    if (st === 'pending') return message('הבקשה ממתינה לאישור', 'משה יאשר את החשבון שלך, ואז תוכל להיכנס למערכת.', '<button class="btn pri wide" type="button" data-act="retry">בדיקה אם אושרתי</button>' + OUT_BTN);
+    if (st === 'rejected') return message('הבקשה לא אושרה', 'לפרטים נוספים פנה למנהל המשרד.', OUT_BTN);
+    message('החשבון הושבת', 'לפרטים נוספים פנה למנהל המשרד.', OUT_BTN);
+  });
+}
+function requestForm() {
+  app.innerHTML = '<div class="login"><form data-form="request"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>בקשת הצטרפות</h1><p>מלא את הפרטים. החשבון ייפתח אחרי אישור של משה.</p>' +
+    '<label class="field"><span>שם מלא</span><input class="in" id="rn" required maxlength="80" autocomplete="name"></label>' +
+    '<label class="field"><span>טלפון</span><input class="in ltr" id="rp" type="tel" inputmode="tel" required autocomplete="tel"></label>' +
+    '<label class="field"><span>מספר רישיון תיווך</span><input class="in ltr" id="rl" inputmode="numeric" required maxlength="20"></label>' +
+    '<label class="field"><span>תעודת זהות (להסכמי תיווך)</span><input class="in ltr" id="ri" inputmode="numeric" required maxlength="9"></label>' +
+    '<button class="btn pri wide" type="submit">שליחת בקשה</button>' + OUT_BTN + '</form></div>';
 }
 
 // ===== מסך כניסה =====
@@ -218,13 +268,15 @@ function loginErr(e) {
 }
 
 // ===== שמירה =====
+function byId(id) { return D.buyers.filter(function (b) { return String(b.id) === String(id); })[0]; }
+function taskById(id) { return D.tasks.filter(function (t) { return String(t.id) === String(id); })[0]; }
+function propById(id) { return D.props.filter(function (p) { return String(p.id) === String(id); })[0]; }
 function patchBuyer(id, f, msg) {
   var b = byId(id); if (!b) return;
   var old = Object.assign({}, b); Object.assign(b, f); render();
   return db('buyers?id=eq.' + id, { method: 'PATCH', body: f, prefer: 'return=minimal' }).then(function () { toast(msg || 'נשמר'); kick(); }).catch(function () { Object.assign(b, old); render(); toast('לא נשמר. נסה שוב.'); });
 }
-function byId(id) { return D.buyers.filter(function (b) { return String(b.id) === String(id); })[0]; }
-function taskById(id) { return D.tasks.filter(function (t) { return String(t.id) === String(id); })[0]; }
+function withNote(b, text) { return [stamp() + ' – ' + text].concat(String(b.notes || '').split('\n').filter(function (x) { return x.trim(); })).join('\n'); }
 
 // ===== רכיבים =====
 var IC = {
@@ -236,139 +288,230 @@ var IC = {
 };
 function ic(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + IC[n] + '</svg>'; }
 function nav(cur) {
-  var sign = isManager() ? '../x/de7f766b5893b.html' : '../x/1103bc8f62e33.html';
+  var sign = isAdmin() ? '../x/de7f766b5893b.html' : '../x/1103bc8f62e33.html';
   function a(h, n, t) { return '<a href="#' + h + '"' + (cur === h ? ' aria-current="page"' : '') + '>' + ic(n) + t + '</a>'; }
   return '<nav class="nav" aria-label="ניווט ראשי"><div>' + a('today', 'today', 'היום שלי') + a('buyers', 'buyers', 'קונים') + a('tasks', 'tasks', 'משימות') + a('props', 'props', 'נכסים') +
-    '<a href="' + sign + '" target="_blank" rel="noopener">' + ic('sign') + 'החתמות</a></div></nav>';
+    '<a href="' + sign + '" target="_blank" rel="noopener" data-act="sign">' + ic('sign') + 'החתמות</a></div></nav>';
 }
+function sel(key, label, opts, val) {
+  return '<label class="flt"><span>' + esc(label) + '</span><select class="in" data-flt="' + key + '">' + opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(val) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>';
+}
+function chips(key, opts, val, label) { return '<div class="chips" role="group" aria-label="' + esc(label) + '">' + opts.map(function (o) { return '<button class="chip" type="button" data-act="chip" data-k="' + key + '" data-v="' + esc(o[0]) + '" aria-pressed="' + (o[0] === val) + '">' + esc(o[1]) + '</button>'; }).join('') + '</div>'; }
+function agentOpts(all) { return [['', all]].concat(activeAgents().map(function (a) { return [a.id, a.name]; })); }
+function agentField(id, value) { return '<label class="field"><span>שיוך לסוכן</span><select class="in" id="' + id + '">' + activeAgents().map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === value ? ' selected' : '') + '>' + esc(a.name) + '</option>'; }).join('') + '</select></label>'; }
+function resultBar(n, word, dirty, act) { return '<div class="bar"><p class="sub">' + n + ' ' + word + '</p>' + (dirty ? '<button class="btn link" type="button" data-act="' + act + '">ניקוי סינון</button>' : '') + '</div>'; }
 function buyerRow(b) {
-  var d = b.next_contact, side = d ? '<span class="' + dueClass(d) + '">' + esc(dueText(d)) + '</span>' : '';
-  return '<a class="row" href="#b/' + b.id + '"><span class="main"><b>' + esc(b.name) + (b.rating ? ' <span class="tag">' + esc(b.rating) + '</span>' : '') + '</b><small>' + esc(b.profile_name || 'ללא פרופיל') + '</small></span><span class="side">' + side + '</span></a>';
+  var d = b.next_contact, side = d ? '<span class="' + dueClass(d) + '">' + esc(dueText(d)) + '</span>' : '', who = isAdmin() && b.agent_id !== D.me.id ? agentName(b.agent_id) : '';
+  return '<a class="row" href="#b/' + b.id + '"><span class="main"><b>' + esc(b.name) + (b.rating ? ' <span class="tag">' + esc(b.rating) + '</span>' : '') + '</b><small>' + esc([b.profile_name || 'ללא פרופיל', who].filter(Boolean).join(' · ')) + '</small></span><span class="side">' + side + '</span></a>';
 }
 function taskRow(t) {
-  var meta = [t.due ? '<span class="' + (t.done ? '' : dueClass(t.due)) + '">' + esc(dueText(t.due)) + '</span>' : '', t.ref_label ? esc(t.ref_label) : ''].filter(Boolean).join(' · ');
+  var who = isAdmin() && t.agent_id && t.agent_id !== D.me.id ? agentName(t.agent_id) : '';
+  var meta = [t.due ? '<span class="' + (t.done ? '' : dueClass(t.due)) + '">' + esc(dueText(t.due)) + '</span>' : '', t.ref_label ? esc(t.ref_label) : '', who ? esc(who) : '', t.done && t.done_at ? 'בוצע ' + esc(dm(new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(t.done_at)))) : ''].filter(Boolean).join(' · ');
   return '<div class="task' + (t.done ? ' done' : '') + '"><button class="check" type="button" data-act="toggleTask" data-id="' + t.id + '" aria-pressed="' + !!t.done + '" aria-label="' + (t.done ? 'החזר לפתוחות' : 'סמן כבוצע') + '">' +
     (t.done ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;stroke-width:3"><path d="m5 12.5 4 4L19 7"/></svg>' : '') + '</button>' +
     '<div class="main"><div class="txt">' + esc(t.text) + '</div>' + (meta ? '<small>' + meta + '</small>' : '') + '</div>' +
     '<button class="x" type="button" data-act="delTask" data-id="' + t.id + '" aria-label="מחק משימה"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:19px;height:19px"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>';
 }
-function dueBuyers() { var t = today(); return D.buyers.filter(function (b) { return b.status === 'פעיל' && b.next_contact && b.next_contact <= t; }).sort(function (a, b) { return a.next_contact < b.next_contact ? -1 : 1; }); }
 function openTasks() { return D.tasks.filter(function (t) { return !t.done; }).sort(function (a, b) { return (a.due || '9') < (b.due || '9') ? -1 : 1; }); }
 
-// ===== מסכים =====
+// ===== היום שלי =====
 function vToday() {
-  var t = today(), due = dueBuyers(), open = openTasks(), todayTasks = open.filter(function (x) { return x.due && x.due <= t; });
+  var t = today(), who = F.d.agent, mine = function (x) { return !who || x.agent_id === who; };
+  var due = D.buyers.filter(function (b) { return mine(b) && b.status === 'פעיל' && b.next_contact && b.next_contact <= t; }).sort(function (a, b) { return a.next_contact < b.next_contact ? -1 : 1; });
+  var open = openTasks().filter(mine), todayTasks = open.filter(function (x) { return x.due && x.due <= t; }), active = D.buyers.filter(function (b) { return mine(b) && b.status === 'פעיל'; }).length;
   var h = +new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' }).format(new Date());
   var hello = h < 12 ? 'בוקר טוב' : h < 17 ? 'צהריים טובים' : h < 22 ? 'ערב טוב' : 'לילה טוב';
   var date = new Intl.DateTimeFormat('he-IL', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   var stuck = D.outbox && D.outbox.stuck ? '<div class="alert" role="alert">' + D.outbox.stuck + ' שינויים לא הגיעו לגיליון. צריך לבדוק את הסנכרון.</div>' : '';
-  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><button class="btn link" type="button" data-act="logout">יציאה</button></div>' + stuck +
-    '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue" style="text-decoration:none"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" style="text-decoration:none"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive" style="text-decoration:none"><b>' + D.buyers.filter(function (b) { return b.status === 'פעיל'; }).length + '</b><span>קונים פעילים</span></a></div>' +
-    '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>') +
-    '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>') + '</main>' + nav('today');
+  var team = isAdmin() ? '<a class="btn sm" href="#team">צוות' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a>' : '';
+  var show = F.d.show, buyersBlock = '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
+  var tasksBlock = '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>');
+  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
+    '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" data-act="filterOpen"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive"><b>' + active + '</b><span>קונים פעילים</span></a></div>' +
+    chips('d.show', [['all', 'הכול'], ['buyers', 'קונים'], ['tasks', 'משימות']], show, 'מה להציג') +
+    (isAdmin() ? '<div class="flts" style="grid-template-columns:1fr">' + sel('d.agent', 'סוכן', agentOpts('כל הצוות'), who) + '</div>' : '') +
+    (show !== 'tasks' ? buyersBlock : '') + (show !== 'buyers' ? tasksBlock : '') + '</main>' + nav('today');
 }
-var FILTERS = [['active', 'פעילים'], ['due', 'לחזור היום'], ['hot', 'מדורגים'], ['frozen', 'בהקפאה'], ['bought', 'קנו']];
+
+// ===== קונים =====
 function buyerMatches() {
-  var q = UI.q.trim().toLowerCase(), qd = digits(q), t = today();
+  var q = UI.q.trim().toLowerCase(), qd = digits(q), t = today(), f = F.b, week = addDays(t, 7), st = { active: 'פעיל', frozen: 'בהקפאה', bought: 'קנה' }[f.status];
   return D.buyers.filter(function (b) {
-    var f = UI.f;
-    if (f === 'active' && b.status !== 'פעיל') return false;
-    if (f === 'due' && !(b.status === 'פעיל' && b.next_contact && b.next_contact <= t)) return false;
-    if (f === 'hot' && !(b.status === 'פעיל' && b.rating)) return false;
-    if (f === 'frozen' && b.status !== 'בהקפאה') return false;
-    if (f === 'bought' && b.status !== 'קנה') return false;
+    if (st && b.status !== st) return false;
+    if (f.due === 'due' && !(b.next_contact && b.next_contact <= t)) return false;
+    if (f.due === 'week' && !(b.next_contact && b.next_contact <= week)) return false;
+    if (f.due === 'none' && b.next_contact) return false;
+    if (f.rate === 'none' && b.rating) return false;
+    if (f.rate && f.rate !== 'none' && b.rating !== f.rate) return false;
+    if (f.agent && b.agent_id !== f.agent) return false;
     if (!q) return true;
     return String(b.name).toLowerCase().indexOf(q) >= 0 || String(b.profile_name || '').toLowerCase().indexOf(q) >= 0 || (qd.length >= 3 && digits(b.phone).indexOf(qd) >= 0);
   }).sort(function (a, b) { var ad = a.next_contact || '9', bd = b.next_contact || '9'; return ad === bd ? b.id - a.id : ad < bd ? -1 : 1; });
 }
 function drawBuyerList() {
   var el = document.getElementById('list'); if (!el) return;
-  var m = buyerMatches();
-  el.innerHTML = '<p class="sub" style="margin:0 0 8px">' + m.length + ' קונים</p>' + (m.length ? '<div class="list">' + m.slice(0, UI.max).map(buyerRow).join('') + '</div>' + (m.length > UI.max ? '<button class="btn wide more" type="button" data-act="moreBuyers">הצג עוד</button>' : '') : '<div class="empty">לא נמצאו קונים.</div>');
+  var m = buyerMatches(), f = F.b, dirty = f.status !== 'active' || f.due || f.rate || f.agent || UI.q;
+  el.innerHTML = resultBar(m.length, 'קונים', dirty, 'clearBuyers') + (m.length ? '<div class="list">' + m.slice(0, UI.max).map(buyerRow).join('') + '</div>' + (m.length > UI.max ? '<button class="btn wide more" type="button" data-act="moreBuyers">הצג עוד</button>' : '') : '<div class="empty">לא נמצאו קונים. נסה לשנות את הסינון.</div>');
 }
 function vBuyers() {
+  var f = F.b;
   return '<main class="page"><div class="head"><h1>קונים</h1><a class="btn pri sm" href="#new">קונה חדש</a></div>' +
     '<input class="in" id="q" type="search" placeholder="חיפוש לפי שם, טלפון או פרופיל" aria-label="חיפוש קונים" value="' + esc(UI.q) + '">' +
-    '<div class="chips" role="group" aria-label="סינון">' + FILTERS.map(function (f) { return '<button class="chip" type="button" data-act="filter" data-f="' + f[0] + '" aria-pressed="' + (UI.f === f[0]) + '">' + f[1] + '</button>'; }).join('') + '</div><div id="list"></div></main>' + nav('buyers');
+    chips('b.status', [['active', 'פעילים'], ['frozen', 'בהקפאה'], ['bought', 'קנו'], ['all', 'הכול']], f.status, 'סטטוס') +
+    '<div class="flts">' + sel('b.due', 'חזרה ללקוח', [['', 'הכול'], ['due', 'היום ובאיחור'], ['week', 'עד שבוע'], ['none', 'ללא תאריך']], f.due) + sel('b.rate', 'דירוג', [['', 'הכול'], ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['none', 'ללא דירוג']], f.rate) +
+    (isAdmin() ? '<div style="grid-column:1/-1">' + sel('b.agent', 'סוכן', agentOpts('כל הסוכנים'), f.agent) + '</div>' : '') + '</div><div id="list"></div></main>' + nav('buyers');
 }
 function vBuyer(id) {
   var b = byId(id);
   if (!b) return '<main class="page"><a class="back" href="#buyers">חזרה לקונים</a><div class="empty">הקונה לא נמצא.</div></main>' + nav('buyers');
-  var t = today(), notes = String(b.notes || '').split('\n').filter(function (x) { return x.trim(); });
+  var notes = String(b.notes || '').split('\n').filter(function (x) { return x.trim(); });
   var ratings = ['A', 'A+', 'A++'].map(function (r) { return '<button type="button" dir="ltr" data-act="rate" data-v="' + r + '" aria-pressed="' + (b.rating === r) + '">' + r + '</button>'; }).join('');
   var statuses = ['פעיל', 'בהקפאה', 'קנה'].map(function (s) { return '<option' + (b.status === s ? ' selected' : '') + '>' + s + '</option>'; }).join('');
   var quick = [['מחר', 1], ['3 ימים', 3], ['שבוע', 7], ['חודש', 30]].map(function (q) { return '<button class="btn sm" type="button" data-act="nextIn" data-n="' + q[1] + '">' + q[0] + '</button>'; }).join('');
+  var outs = [['ans', 'ענה'], ['noans', 'לא ענה'], ['sent', 'שלחתי דירות'], ['irr', 'לא רלוונטי כרגע']].map(function (o) { return '<button class="btn" type="button" data-act="outcome" data-k="' + o[0] + '">' + o[1] + '</button>'; }).join('');
   return '<main class="page" data-b="' + b.id + '"><a class="back" href="#buyers">חזרה לקונים</a><h1>' + esc(b.name) + '</h1><p class="sub">' + esc(b.profile_name || 'ללא פרופיל') + '</p>' +
     (b.phone ? '<div class="acts"><a class="btn pri" href="tel:' + esc(digits(b.phone)) + '">התקשר</a><a class="btn" href="https://wa.me/' + esc(waNum(b.phone)) + '" target="_blank" rel="noopener">וואטסאפ</a></div>' : '<div style="height:14px"></div>') +
-    '<div class="card"><h2>חזרה ללקוח</h2><label class="field" style="margin-bottom:0"><span>תאריך חזרה</span><input class="in ltr" id="next" type="date" value="' + esc(b.next_contact || '') + '" aria-label="תאריך חזרה"></label><div class="quick">' + quick + (b.next_contact ? '<button class="btn sm link" type="button" data-act="nextClear">ללא תאריך</button>' : '') + '</div>' +
-    '<button class="btn wide" style="margin-top:12px" type="button" data-act="talked"' + (b.last_contact === t ? ' disabled' : '') + '>' + (b.last_contact === t ? 'דיברתם היום' : 'דיברנו היום') + '</button>' + (b.last_contact && b.last_contact !== t ? '<p class="sub" style="margin-top:6px">קשר אחרון: ' + esc(dm(b.last_contact)) + '</p>' : '') + '</div>' +
+    '<div class="card"><h2>מה היה בשיחה?</h2><div class="outs">' + outs + '</div>' + (b.last_contact ? '<p class="sub" style="margin-top:8px">קשר אחרון: ' + esc(dm(b.last_contact)) + '</p>' : '') + '</div>' +
+    '<div class="card"><h2>חזרה ללקוח</h2><label class="field" style="margin-bottom:0"><span>תאריך חזרה</span><input class="in ltr" id="next" type="date" value="' + esc(b.next_contact || '') + '"></label><div class="quick">' + quick + (b.next_contact ? '<button class="btn sm link" type="button" data-act="nextClear">ללא תאריך</button>' : '') + '</div></div>' +
     '<div class="card"><h2>הערה חדשה</h2><textarea class="in" id="note" aria-label="הערה חדשה">' + esc(UI.draft[b.id] || '') + '</textarea><button class="btn pri wide" style="margin-top:8px" type="button" data-act="addNote">שמירת הערה</button>' +
     (notes.length ? '<h2>הערות קודמות</h2>' + notes.map(function (n) { return '<div class="note">' + esc(n) + '</div>'; }).join('') : '') + '</div>' +
-    '<div class="card"><h2>דירוג</h2><div class="seg">' + ratings + '</div><label class="field" style="margin:14px 0 0"><span>סטטוס</span><select class="in" id="status">' + statuses + '</select></label></div></main>' + nav('buyers');
+    '<div class="card"><h2>דירוג וסטטוס</h2><div class="seg">' + ratings + '</div><label class="field" style="margin:14px 0 0"><span>סטטוס</span><select class="in" id="status">' + statuses + '</select></label>' +
+    (isAdmin() ? '<div style="margin-top:14px">' + agentField('assign', b.agent_id).replace('class="field"', 'class="field" style="margin:0"') + '</div>' : '') + '</div></main>' + nav('buyers');
 }
 function vNew() {
   return '<main class="page"><a class="back" href="#buyers">חזרה לקונים</a><h1 style="margin-bottom:14px">קונה חדש</h1><form class="card" data-form="newBuyer">' +
     '<label class="field"><span>שם</span><input class="in" id="nn" required maxlength="80" autocomplete="off"></label>' +
     '<label class="field"><span>טלפון</span><input class="in ltr" id="np" type="tel" inputmode="tel" required autocomplete="off"></label>' +
-    '<label class="field"><span>מה הוא מחפש</span><textarea class="in" id="nt"></textarea></label><button class="btn pri wide" type="submit">שמירה</button></form></main>' + nav('buyers');
+    '<label class="field"><span>מה הוא מחפש</span><textarea class="in" id="nt"></textarea></label>' + (isAdmin() ? agentField('na', D.me.id) : '') + '<button class="btn pri wide" type="submit">שמירה</button></form></main>' + nav('buyers');
+}
+
+// ===== משימות =====
+function taskMatches() {
+  var t = today(), week = addDays(t, 7), f = F.t;
+  var list = f.view === 'done' ? D.tasks.filter(function (x) { return x.done; }).sort(function (a, b) { return String(a.done_at || '') < String(b.done_at || '') ? 1 : -1; }) : openTasks();
+  return list.filter(function (x) {
+    if (f.agent && x.agent_id !== f.agent) return false;
+    if (f.view === 'today') return x.due === t;
+    if (f.view === 'late') return x.due && x.due < t;
+    if (f.view === 'week') return x.due && x.due <= week;
+    return true;
+  });
 }
 function vTasks() {
-  var open = openTasks(), done = D.tasks.filter(function (t) { return t.done; });
-  return '<main class="page"><div class="head"><h1>משימות</h1></div><form class="add" data-form="newTask"><input class="in t" id="tt" required maxlength="300" placeholder="משימה חדשה" aria-label="משימה חדשה"><input class="in ltr" id="td" type="date" value="' + today() + '" aria-label="עד תאריך"><button class="btn pri" type="submit">הוספה</button></form>' +
-    (open.length ? '<div class="list">' + open.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות פתוחות.</div>') +
-    (done.length ? '<button class="btn link wide more" type="button" data-act="toggleDone">' + (UI.showDone ? 'הסתר' : 'הצג') + ' משימות שבוצעו (' + done.length + ')</button>' + (UI.showDone ? '<div class="list">' + done.map(taskRow).join('') + '</div>' : '') : '') + '</main>' + nav('tasks');
+  var f = F.t, m = taskMatches(), doneCount = D.tasks.filter(function (x) { return x.done; }).length;
+  var empty = { open: 'אין משימות פתוחות.', today: 'אין משימות להיום.', late: 'אין משימות באיחור.', week: 'אין משימות לשבוע הקרוב.', done: 'עדיין אין משימות שבוצעו.' }[f.view];
+  return '<main class="page"><div class="head"><h1>משימות</h1></div><form class="add" data-form="newTask"><input class="in t" id="tt" required maxlength="300" placeholder="משימה חדשה" aria-label="משימה חדשה"><input class="in ltr" id="td" type="date" value="' + today() + '" aria-label="עד תאריך">' +
+    (isAdmin() ? '<select class="in" id="ta" aria-label="שיוך לסוכן">' + activeAgents().map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === D.me.id ? ' selected' : '') + '>' + esc(a.name) + '</option>'; }).join('') + '</select>' : '') +
+    '<button class="btn pri' + (isAdmin() ? ' t' : '') + '" type="submit">הוספה</button></form>' +
+    chips('t.view', [['open', 'פתוחות'], ['today', 'היום'], ['late', 'באיחור'], ['week', 'השבוע'], ['done', 'בוצעו (' + doneCount + ')']], f.view, 'סינון משימות') +
+    (isAdmin() ? '<div class="flts" style="grid-template-columns:1fr">' + sel('t.agent', 'סוכן', agentOpts('כל הצוות'), f.agent) + '</div>' : '') +
+    (m.length ? '<div class="list">' + m.map(taskRow).join('') + '</div>' : '<div class="empty">' + empty + '</div>') + '</main>' + nav('tasks');
 }
+
+// ===== נכסים =====
 function propAddr(p) { return [p.street, p.house_no].filter(Boolean).join(' ') || p.neighborhood || 'ללא כתובת'; }
+function propSpec(p) { return [p.rooms ? p.rooms + ' חד׳' : '', p.floor !== null && p.floor !== '' ? 'קומה ' + p.floor : '', p.sqm ? p.sqm + ' מ״ר' : ''].filter(Boolean); }
 function propMatches() {
-  var q = UI.pq.trim().toLowerCase();
-  return D.props.filter(function (p) { if (p.deal !== UI.deal) return false; if (!q) return true; return [p.id, p.street, p.neighborhood, p.city, p.type].join(' ').toLowerCase().indexOf(q) >= 0; });
+  var q = UI.pq.trim().toLowerCase(), f = F.p;
+  return D.props.filter(function (p) {
+    var s = p.source || {};
+    if (p.deal !== UI.deal) return false;
+    if (f.city && p.city !== f.city) return false;
+    if (f.nb && p.neighborhood !== f.nb) return false;
+    if (f.rooms && !(+p.rooms >= +f.rooms)) return false;
+    if (f.max && !(p.price && +p.price <= +f.max)) return false;
+    if (!q) return true;
+    return [p.id, p.street, p.neighborhood, p.city, p.type, s.broker, s.broker_phone].join(' ').toLowerCase().indexOf(q) >= 0;
+  });
 }
 function drawProps() {
   var el = document.getElementById('plist'); if (!el) return;
-  var m = propMatches();
-  el.innerHTML = '<p class="sub" style="margin:0 0 8px">' + m.length + ' נכסים</p>' + (m.length ? '<div class="list">' + m.slice(0, UI.pmax).map(function (p) {
-    var meta = [p.neighborhood, p.city].filter(Boolean).join(', '), spec = [p.rooms ? p.rooms + ' חד׳' : '', p.floor !== null && p.floor !== '' ? 'קומה ' + p.floor : '', p.sqm ? p.sqm + ' מ״ר' : ''].filter(Boolean).join(' · ');
-    return '<a class="row" href="../d/' + p.id + '.html" target="_blank" rel="noopener"><span class="main"><b>' + esc(propAddr(p)) + '</b><small>' + esc(meta) + '</small><small>' + esc(spec) + '</small></span><span class="side"><b style="color:var(--fg)">' + esc(money(p.price)) + '</b>#' + p.id + '</span></a>';
-  }).join('') + '</div>' + (m.length > UI.pmax ? '<button class="btn wide more" type="button" data-act="moreProps">הצג עוד</button>' : '') : '<div class="empty">לא נמצאו נכסים.</div>');
+  var m = propMatches(), f = F.p, dirty = f.city || f.nb || f.rooms || f.max || UI.pq;
+  el.innerHTML = resultBar(m.length, 'נכסים', dirty, 'clearProps') + (m.length ? '<div class="list">' + m.slice(0, UI.pmax).map(function (p) {
+    return '<a class="row" href="#p/' + p.id + '"><span class="main"><b>' + esc(propAddr(p)) + '</b><small>' + esc([p.neighborhood, p.city].filter(Boolean).join(', ')) + '</small><small>' + esc(propSpec(p).join(' · ')) + '</small></span><span class="side"><b style="color:var(--fg)">' + esc(money(p.price)) + '</b>#' + p.id + '</span></a>';
+  }).join('') + '</div>' + (m.length > UI.pmax ? '<button class="btn wide more" type="button" data-act="moreProps">הצג עוד</button>' : '') : '<div class="empty">לא נמצאו נכסים. נסה לשנות את הסינון.</div>');
 }
 function vProps() {
-  return '<main class="page"><div class="head"><h1>נכסים</h1></div><input class="in" id="pq" type="search" placeholder="חיפוש לפי רחוב, שכונה, עיר או מספר" aria-label="חיפוש נכסים" value="' + esc(UI.pq) + '">' +
-    '<div class="chips" role="group" aria-label="סוג עסקה">' + ['מכירה', 'השכרה'].map(function (d) { return '<button class="chip" type="button" data-act="deal" data-v="' + d + '" aria-pressed="' + (UI.deal === d) + '">' + d + '</button>'; }).join('') + '</div><div id="plist"></div></main>' + nav('props');
+  var f = F.p, inDeal = D.props.filter(function (p) { return p.deal === UI.deal; });
+  var cities = uniq(inDeal.map(function (p) { return p.city; })), nbs = uniq(inDeal.filter(function (p) { return !f.city || p.city === f.city; }).map(function (p) { return p.neighborhood; }));
+  var prices = UI.deal === 'השכרה' ? [4000, 5000, 6000, 8000, 10000] : [1500000, 2000000, 2500000, 3000000, 4000000];
+  return '<main class="page"><div class="head"><h1>נכסים</h1></div><input class="in" id="pq" type="search" placeholder="חיפוש לפי רחוב, מספר נכס או מתווך" aria-label="חיפוש נכסים" value="' + esc(UI.pq) + '">' +
+    chips('deal', [['מכירה', 'מכירה'], ['השכרה', 'השכרה']], UI.deal, 'סוג עסקה') +
+    '<div class="flts">' + sel('p.city', 'עיר', [['', 'כל הערים']].concat(cities.map(function (c) { return [c, c]; })), f.city) + sel('p.nb', 'שכונה', [['', 'כל השכונות']].concat(nbs.map(function (c) { return [c, c]; })), f.nb) +
+    sel('p.rooms', 'חדרים', [['', 'הכול'], ['2', '2 ומעלה'], ['3', '3 ומעלה'], ['4', '4 ומעלה'], ['5', '5 ומעלה']], f.rooms) + sel('p.max', 'מחיר עד', [['', 'ללא הגבלה']].concat(prices.map(function (n) { return [n, money(n)]; })), f.max) + '</div><div id="plist"></div></main>' + nav('props');
 }
+function vProp(id) {
+  var p = propById(id);
+  if (!p) return '<main class="page"><a class="back" href="#props">חזרה לנכסים</a><div class="empty">הנכס לא נמצא.</div></main>' + nav('props');
+  var s = p.source || {}, specs = propSpec(p).concat([p.has_elevator ? 'מעלית' : '', p.has_parking ? 'חניה' : '', p.has_mamad ? 'ממ״ד' : '', s.balcony && s.balcony !== 'לא' ? 'מרפסת' : '', s.condition || '']).filter(Boolean);
+  var page = SITE + 'd/' + p.id + '.html', share = 'https://wa.me/?text=' + encodeURIComponent(propAddr(p) + ', ' + (p.city || '') + '\n' + page), phone = digits(s.broker_phone);
+  return '<main class="page"><a class="back" href="#props">חזרה לנכסים</a><h1>' + esc(propAddr(p)) + '</h1><p class="sub">' + esc([p.neighborhood, p.city].filter(Boolean).join(', ')) + ' · נכס #' + p.id + '</p><div class="price">' + esc(money(p.price)) + '</div>' +
+    '<div class="specs">' + specs.map(function (x) { return '<span class="spec">' + esc(x) + '</span>'; }).join('') + '</div>' +
+    '<div class="acts"><a class="btn pri" href="' + esc(share) + '" target="_blank" rel="noopener">שליחה ללקוח</a><a class="btn" href="../d/' + p.id + '.html" target="_blank" rel="noopener">דף הנכס</a></div>' +
+    '<div class="card"><h2>מתווך או מפרסם</h2><div class="kv"><span>שם</span><b>' + esc(s.broker || 'לא צוין') + '</b></div>' + (phone ? '<div class="kv"><span>טלפון</span><b dir="ltr">' + esc(s.broker_phone) + '</b></div><div class="acts" style="margin-bottom:0"><a class="btn" href="tel:' + esc(phone) + '">התקשר</a><button class="btn" type="button" data-act="copy" data-v="' + esc(s.broker_phone) + '">העתקת מספר</button></div>' : '') + (s.last_post ? '<div class="kv"><span>פורסם לאחרונה</span><b>' + esc(dm(s.last_post)) + '</b></div>' : '') + '</div></main>' + nav('props');
+}
+
+// ===== צוות (מנהל) =====
+function vTeam() {
+  var roles = { admin: 'מנהל ראשי', manager: 'מנהל', agent: 'סוכן' };
+  var reqs = D.requests.map(function (r) {
+    return '<div class="person"><b>' + esc(r.name) + '</b><small dir="ltr" style="text-align:right">' + esc(r.email) + '</small><small dir="ltr" style="text-align:right">' + esc(r.phone) + '</small>' + (r.license ? '<small>רישיון ' + esc(r.license) + '</small>' : '') +
+      '<div class="acts"><button class="btn pri" type="button" data-act="approve" data-id="' + esc(r.id) + '">אישור</button><button class="btn bad" type="button" data-act="reject" data-id="' + esc(r.id) + '">דחייה</button></div></div>';
+  }).join('');
+  var team = D.agents.map(function (a) {
+    return '<div class="person"><b>' + esc(a.name) + (a.active ? '' : ' (מושבת)') + '</b><small>' + esc(roles[a.role] || a.role) + '</small><small dir="ltr" style="text-align:right">' + esc(a.email || '') + '</small>' +
+      (a.id !== D.me.id ? '<div class="quick"><button class="btn sm' + (a.active ? ' bad' : '') + '" type="button" data-act="toggleAgent" data-id="' + esc(a.id) + '">' + (a.active ? 'השבתת חשבון' : 'הפעלת חשבון') + '</button></div>' : '') + '</div>';
+  }).join('');
+  return '<main class="page"><a class="back" href="#today">חזרה</a><h1 style="margin-bottom:14px">צוות</h1><div class="card"><h2>בקשות ממתינות</h2>' + (reqs || '<p class="sub">אין בקשות חדשות.</p>') + '</div><div class="card"><h2>חשבונות</h2>' + team + '</div></main>' + nav('today');
+}
+
 function route() { return (location.hash || '#today').slice(1); }
 function render() {
   if (!D.me) return;
   var r = route(), y = window.scrollY, same = render.last === r;
   if (r.indexOf('b/') === 0) app.innerHTML = vBuyer(r.slice(2));
+  else if (r.indexOf('p/') === 0) app.innerHTML = vProp(r.slice(2));
   else if (r === 'new') app.innerHTML = vNew();
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
   else if (r === 'props') { app.innerHTML = vProps(); drawProps(); }
+  else if (r === 'team' && isAdmin()) app.innerHTML = vTeam();
   else app.innerHTML = vToday();
   render.last = r; window.scrollTo(0, same ? y : 0);
 }
 
 // ===== פעולות =====
+function cur() { var m = document.querySelector('[data-b]'); return byId(m.dataset.b); }
+function teamAction(call, msg) { return call.then(function () { sendKick(); return loadAll(); }).then(function () { render(); toast(msg); }).catch(function () { toast('הפעולה נכשלה. נסה שוב.'); }); }
 var ACT = {
   retry: function () { enter(); },
-  logout: function () { var rt = S.at; clearSession(); D.me = null; UI.login = { step: 'email', email: '', err: '', busy: false }; if (rt) fetch(SB + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + rt } }).catch(function () {}); location.hash = ''; renderLogin(); },
+  logout: function () { var at = S.at; clearSession(); D.me = null; F = freshFilters(); UI.login = { step: 'email', email: '', err: '', busy: false }; if (at) fetch(SB + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + at } }).catch(function () {}); location.hash = ''; renderLogin(); },
   otherMail: function () { UI.login.step = 'email'; UI.login.err = ''; renderLogin(); },
-  filter: function (el) { UI.f = el.dataset.f; UI.max = PAGE; render(); },
-  filterDue: function () { UI.f = 'due'; UI.q = ''; UI.max = PAGE; },
-  filterActive: function () { UI.f = 'active'; UI.q = ''; UI.max = PAGE; },
+  sign: function (el, e) { if (!isAdmin() && !D.signCode) { e.preventDefault(); toast('חשבון ההחתמות בהכנה. נסה שוב בעוד דקה.'); } },
+  chip: function (el) { var k = el.dataset.k, v = el.dataset.v; if (k === 'deal') { UI.deal = v; F.p = { city: '', nb: '', rooms: '', max: '' }; UI.pmax = PAGE; } else { var p = k.split('.'); F[p[0]][p[1]] = v; UI.max = PAGE; } render(); },
+  filterDue: function () { F.b = { status: 'active', due: 'due', rate: '', agent: F.d.agent }; UI.q = ''; UI.max = PAGE; },
+  filterActive: function () { F.b = { status: 'active', due: '', rate: '', agent: F.d.agent }; UI.q = ''; UI.max = PAGE; },
+  filterOpen: function () { F.t = { view: 'open', agent: F.d.agent }; },
+  clearBuyers: function () { F.b = freshFilters().b; UI.q = ''; UI.max = PAGE; render(); },
+  clearProps: function () { F.p = freshFilters().p; UI.pq = ''; UI.pmax = PAGE; render(); },
   moreBuyers: function () { UI.max += PAGE; drawBuyerList(); },
   moreProps: function () { UI.pmax += PAGE; drawProps(); },
-  deal: function (el) { UI.deal = el.dataset.v; UI.pmax = PAGE; render(); },
   rate: function (el) { var b = cur(); patchBuyer(b.id, { rating: b.rating === el.dataset.v ? null : el.dataset.v }); },
   nextIn: function (el) { patchBuyer(cur().id, { next_contact: addDays(today(), +el.dataset.n) }); },
   nextClear: function () { patchBuyer(cur().id, { next_contact: null }); },
-  talked: function () { patchBuyer(cur().id, { last_contact: today() }, 'עודכן קשר אחרון'); },
+  outcome: function (el) {
+    var b = cur(), k = el.dataset.k, t = today(), iv = INTERVAL[b.rating || ''] || 30, f = {};
+    if (k === 'ans' || k === 'sent') { f.last_contact = t; f.next_contact = addDays(t, iv); }
+    if (k === 'noans') f.next_contact = addDays(t, 1);
+    if (k === 'irr') f.next_contact = addDays(t, 60);
+    f.notes = withNote(b, { ans: 'ענה', sent: 'שלחתי דירות', noans: 'לא ענה', irr: 'לא רלוונטי כרגע' }[k]);
+    patchBuyer(b.id, f, 'עודכן. חזרה ב-' + dm(f.next_contact));
+  },
   addNote: function () {
     var b = cur(), el = document.getElementById('note'), v = el.value.trim(); if (!v) { el.focus(); return; }
-    var text = stamp() + ' – ' + v.replace(/\s*\n\s*/g, ' '); delete UI.draft[b.id];
-    patchBuyer(b.id, { notes: [text].concat(String(b.notes || '').split('\n').filter(function (x) { return x.trim(); })).join('\n') }, 'ההערה נשמרה');
+    delete UI.draft[b.id]; patchBuyer(b.id, { notes: withNote(b, v.replace(/\s*\n\s*/g, ' ')) }, 'ההערה נשמרה');
   },
-  toggleDone: function () { UI.showDone = !UI.showDone; render(); },
+  copy: function (el) { var v = el.dataset.v; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { toast('המספר הועתק'); }).catch(function () { toast(v); }); },
   toggleTask: function (el) {
     var t = taskById(el.dataset.id); if (!t) return;
     var old = { done: t.done, done_at: t.done_at }, f = { done: !t.done, done_at: t.done ? null : new Date().toISOString() }; Object.assign(t, f); render();
@@ -378,9 +521,15 @@ var ACT = {
     var t = taskById(el.dataset.id); if (!t || !confirm('למחוק את המשימה?')) return;
     var all = D.tasks; D.tasks = all.filter(function (x) { return x !== t; }); render();
     db('tasks?id=eq.' + t.id, { method: 'DELETE', prefer: 'return=minimal' }).then(function () { toast('המשימה נמחקה'); kick(); }).catch(function () { D.tasks = all; render(); toast('לא נמחק. נסה שוב.'); });
+  },
+  approve: function (el) { teamAction(rpc('approve_agent', { p_id: el.dataset.id }), 'החשבון אושר'); },
+  reject: function (el) { if (confirm('לדחות את הבקשה?')) teamAction(rpc('reject_agent', { p_id: el.dataset.id }), 'הבקשה נדחתה'); },
+  toggleAgent: function (el) {
+    var a = D.agents.filter(function (x) { return x.id === el.dataset.id; })[0]; if (!a) return;
+    if (a.active && !confirm('להשבית את החשבון של ' + a.name + '?')) return;
+    teamAction(rpc('set_agent_active', { p_id: a.id, p_active: !a.active }), a.active ? 'החשבון הושבת' : 'החשבון הופעל');
   }
 };
-function cur() { var m = document.querySelector('[data-b]'); return byId(m.dataset.b); }
 var FORM = {
   email: function () {
     var L = UI.login; L.email = document.getElementById('em').value.trim().toLowerCase(); L.busy = true; L.err = ''; renderLogin();
@@ -390,21 +539,28 @@ var FORM = {
     var L = UI.login, token = digits(document.getElementById('cd').value); L.busy = true; L.err = ''; renderLogin();
     authCall('verify', { type: 'email', email: L.email, token: token }).then(function (j) { setSession(j); L.busy = false; if (!location.hash) location.hash = '#today'; return enter(); }).catch(function (e) { L.busy = false; L.err = loginErr(e); renderLogin(); });
   },
+  request: function () {
+    var v = function (id) { return document.getElementById(id).value.trim(); }, phone = digits(v('rp')), idn = digits(v('ri'));
+    if (phone.length < 9 || phone.length > 12) { toast('בדוק את מספר הטלפון'); return; }
+    if (idn.length < 8 || idn.length > 9) { toast('בדוק את תעודת הזהות'); return; }
+    db('agent_requests', { method: 'POST', body: { id: S.uid, email: S.email, name: v('rn'), phone: phone, license: v('rl'), id_number: idn }, prefer: 'return=minimal' }).then(function () { sendKick(); return enter(); }).catch(function () { toast('הבקשה לא נשלחה. נסה שוב.'); });
+  },
   newBuyer: function () {
-    var name = document.getElementById('nn').value.trim(), phone = digits(document.getElementById('np').value), note = document.getElementById('nt').value.trim();
+    var name = document.getElementById('nn').value.trim(), phone = digits(document.getElementById('np').value), note = document.getElementById('nt').value.trim(), na = document.getElementById('na');
     if (phone.length < 9 || phone.length > 12) { toast('בדוק את מספר הטלפון'); return; }
     var p9 = phone.slice(-9), dup = D.buyers.filter(function (b) { return digits(b.phone).slice(-9) === p9; })[0];
     if (dup) { toast('הקונה כבר קיים'); location.hash = '#b/' + dup.id; return; }
-    var body = { agent_id: D.me.id, name: name, phone: phone, status: 'פעיל', last_contact: today(), source: 'app', notes: note ? stamp() + ' – ' + note.replace(/\s*\n\s*/g, ' ') : null };
-    db('buyers?select=id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at', { method: 'POST', body: body, prefer: 'return=representation' }).then(function (r) { D.buyers.unshift(r[0]); toast('הקונה נוסף'); kick(); location.hash = '#b/' + r[0].id; }).catch(function () { toast('לא נשמר. נסה שוב.'); });
+    var body = { agent_id: na ? na.value : D.me.id, name: name, phone: phone, status: 'פעיל', last_contact: today(), source: 'app', notes: note ? stamp() + ' – ' + note.replace(/\s*\n\s*/g, ' ') : null };
+    db('buyers?select=' + BUYER_COLS, { method: 'POST', body: body, prefer: 'return=representation' }).then(function (r) { D.buyers.unshift(r[0]); toast('הקונה נוסף'); kick(); location.hash = '#b/' + r[0].id; }).catch(function () { toast('לא נשמר. נסה שוב.'); });
   },
   newTask: function () {
-    var text = document.getElementById('tt').value.trim(), due = document.getElementById('td').value || null; if (!text) return;
-    db('tasks?select=id,agent_id,due,text,ref,ref_label,done,done_at,created_at', { method: 'POST', body: { text: text, due: due }, prefer: 'return=representation' }).then(function (r) { D.tasks.unshift(r[0]); render(); toast('המשימה נוספה'); kick(); }).catch(function () { toast('לא נשמר. נסה שוב.'); });
+    var text = document.getElementById('tt').value.trim(), due = document.getElementById('td').value || null, ta = document.getElementById('ta'); if (!text) return;
+    var body = { text: text, due: due }; if (ta) body.agent_id = ta.value;
+    db('tasks?select=' + TASK_COLS, { method: 'POST', body: body, prefer: 'return=representation' }).then(function (r) { D.tasks.unshift(r[0]); F.t.view = 'open'; render(); toast('המשימה נוספה'); kick(); }).catch(function () { toast('לא נשמר. נסה שוב.'); });
   }
 };
 
-document.addEventListener('click', function (e) { var el = e.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) ACT[el.dataset.act](el); });
+document.addEventListener('click', function (e) { var el = e.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) ACT[el.dataset.act](el, e); });
 document.addEventListener('submit', function (e) { var f = e.target.closest('[data-form]'); if (f) { e.preventDefault(); FORM[f.dataset.form](); } });
 document.addEventListener('input', function (e) {
   var id = e.target.id;
@@ -413,9 +569,11 @@ document.addEventListener('input', function (e) {
   else if (id === 'note') { UI.draft[cur().id] = e.target.value; }
 });
 document.addEventListener('change', function (e) {
-  var id = e.target.id;
+  var id = e.target.id, k = e.target.dataset && e.target.dataset.flt;
+  if (k) { var p = k.split('.'); F[p[0]][p[1]] = e.target.value; if (k === 'p.city') F.p.nb = ''; UI.max = PAGE; UI.pmax = PAGE; render(); return; }
   if (id === 'next') patchBuyer(cur().id, { next_contact: e.target.value || null });
   else if (id === 'status') patchBuyer(cur().id, { status: e.target.value });
+  else if (id === 'assign') patchBuyer(cur().id, { agent_id: e.target.value }, 'הקונה שויך');
 });
 window.addEventListener('hashchange', render);
 document.addEventListener('visibilitychange', function () {
