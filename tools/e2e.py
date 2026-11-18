@@ -69,7 +69,7 @@ with sync_playwright() as p:
     run_page(page(), 'site_detail', SITE + '#p=399', unlock=False, wait=3000)
     run_page(page(), 'site_desktop', SITE, unlock=False, wait=3000) if False else None
     run_page(page(), 'dpage', SITE + 'd/399.html', unlock=False, wait=2500)
-    for n, u in [('privacy', SITE + 'privacy.html'), ('terms', SITE + 'terms.html'), ('portal_login', SITE + 'o/')]:
+    for n, u in [('privacy', SITE + 'privacy.html'), ('terms', SITE + 'terms.html'), ('portal_login', SITE + 'o/'), ('app_login', SITE + 'app/')]:
         run_page(page(), n, u, unlock=False, wait=2500)
     run_page(page(), 'hub', SITE + 'x/a0d769373a49b.html', wait=8000)
     run_page(page(), 'buyers', SITE + 'x/b018b2a874ee8.html', buy_actions, wait=9000)
