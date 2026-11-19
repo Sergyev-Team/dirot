@@ -109,7 +109,7 @@ body.mngmode .wrap{max-width:1180px}body.mngmode .oc{border:0;background:none;pa
 </style></head><body>
 <div class="wrap">
  <h1>לוח <b>החתמות</b></h1><p class="sub">שליחת טפסי תיווך לחתימה דיגיטלית בוואטסאפ</p>
- <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button><button data-m="own" id="ownT">🏠 פורטל בעלים</button><button data-m="cli" class="adm">👤 לקוח</button><button data-m="tsk" class="adm">✅ משימות</button></div>
+ <div class="tabs" id="modes"><button data-m="new">➕ טופס חדש</button><button data-m="list">📄 טפסים שנשלחו</button><button data-m="own" id="ownT">🏠 פורטל בעלים</button></div>
  <section class="mode" id="m-new"><div id="cdr"></div><div class="card" id="nw"></div></section>
  <div class="card" id="mngHd" hidden><b style="font-size:19px"></b><p class="hint" style="margin:4px 0 0">כל שינוי כאן מתעדכן בפורטל של בעל הנכס. אפשר לסגור את הלשונית בסיום.</p></div><section class="mode" id="m-own"><p class="hint upd" id="oUp" hidden>🔄 מעדכן נתונים…</p><div class="card own-top"><div class="row"><button class="btn" id="oNewT" style="flex:1">➕ פורטל חדש לבעל נכס</button><button class="btn ghost sm" id="oR">🔄</button></div><div id="oNew" hidden></div></div><div id="oLs"><p class="hint">טוען…</p></div></section>
  <section class="mode ceo" id="m-ceo" hidden></section>
@@ -119,6 +119,7 @@ body.mngmode .wrap{max-width:1180px}body.mngmode .oc{border:0;background:none;pa
 </div>
 <div class="toast" id="toast"></div>
 <script>
+let ID_NAME="משה מאיר כהן",ID_SHORT="משה כהן",ID_FIRST="משה",ID_PHONE="054-9071916";
 /* ===== לוח החתמות – משרד סרגייב ===== */
 let U=null;
 const SITE="https://sergeyev-team.com/";
@@ -133,7 +134,7 @@ const WHO={sell:["🏷️ בעל נכס – מכירה","הסכמה + בלעדי
 const TL={sell:"מוכר",let:"משכיר",buy:"קונה",rentin:"שוכר"};
 const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(/^972/,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
 const stN=p=>{let s=String(p&&p.addr||"").split(",")[0].replace(/\s*\d+[א-ת]?\s*$/,"").trim();if(!s)return"";return /^(רחוב|רח'|שד'|שדרות|סמטת|דרך|כיכר)/.test(s)?"ב"+s.replace(/^רח'\s*/,"רחוב "):"ברחוב "+s};
-const msg=(name,link,two,pr,tp)=>(tp==="sell"||tp==="let")?"שלום "+(name||"")+" 👋\nשמחים על האמון שלכם ועל ההחלטה "+(tp==="let"?"להשכיר":"לשווק")+" את הדירה"+(stN(pr&&pr[0])?" "+stN(pr[0]):"")+" דרכנו 🏡\n\nמצרף קישור לחתימה על הסכם שיווק"+(two?" ובלעדיות":"")+". החתימה דיגיטלית ולוקחת דקה 🙏\n👇\n"+link+"\n\n"+(two?"מיד אחרי החתימה יגיע אליכם מייל עם כניסה לפורטל אישי של הנכס – שם תוכלו לראות בכל רגע את הפרסומים, הפניות, הקונים המתאימים והפגישות.\n\n":"")+"יוצאים לדרך! 💪\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916":"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916";
+const msg=(name,link,two,pr,tp)=>(tp==="sell"||tp==="let")?"שלום "+(name||"")+" 👋\nשמחים על האמון שלכם ועל ההחלטה "+(tp==="let"?"להשכיר":"לשווק")+" את הדירה"+(stN(pr&&pr[0])?" "+stN(pr[0]):"")+" דרכנו 🏡\n\nמצרף קישור לחתימה על הסכם שיווק"+(two?" ובלעדיות":"")+". החתימה דיגיטלית ולוקחת דקה 🙏\n👇\n"+link+"\n\n"+(two?"מיד אחרי החתימה יגיע אליכם מייל עם כניסה לפורטל אישי של הנכס – שם תוכלו לראות בכל רגע את הפרסומים, הפניות, הקונים המתאימים והפגישות.\n\n":"")+"יוצאים לדרך! 💪\n"+ID_NAME+" – צוות סרגייב\n📞 "+ID_PHONE+"":"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\n"+ID_NAME+" – צוות סרגייב\n📞 "+ID_PHONE+"";
 let F=null;
 /* נכסים ידניים ולקוחות שמורים – נשמרים בטלפון ובגיליון */
 let SAVED={props:[],clients:[]};try{const s=JSON.parse(localStorage.getItem("sg_saved")||"null");if(s){SAVED.props=s.props||[];SAVED.clients=s.clients||[]}}catch(e){}
@@ -180,7 +181,7 @@ async function cliShow(ph){const o=$("#cOut"),d=String(ph||"").replace(/\D/g,"")
  let C;try{C=await oPost("client",{phone:d})}catch(e){o.innerHTML='<div class="card"><p class="hint">שגיאה: '+E(e.message)+'</p></div>';return}
  const TN={buy:"קונה",sell:"מוכר",rentin:"שוכר",rentout:"משכיר"},sec=(t,h)=>`<div class="sec"><p class="lbl">${t}</p>${h}</div>`,ph0=C.phone,phF=ph0.replace(/^(\d{3})(\d{3})(\d+)$/,"$1-$2-$3");
  const b=C.buyers[0];
- o.innerHTML=`<div class="card cc"><h2>${E(C.name||"לקוח")}</h2><div class="row" style="margin-top:6px"><a class="btn sm" href="tel:${E(ph0)}" dir="ltr">📞 ${E(phF)}</a><a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(ph0,"שלום "+(C.name||"").split(" ")[0]+", כאן משה מצוות סרגייב 🙂 "))}">💬 וואטסאפ</a><button type="button" class="btn ghost sm" id="cNewF">✍️ טופס חדש</button></div>
+ o.innerHTML=`<div class="card cc"><h2>${E(C.name||"לקוח")}</h2><div class="row" style="margin-top:6px"><a class="btn sm" href="tel:${E(ph0)}" dir="ltr">📞 ${E(phF)}</a><a class="btn wa sm" target="_blank" rel="noopener" href="${E(wa(ph0,"שלום "+(C.name||"").split(" ")[0]+", כאן "+ID_FIRST+" מצוות סרגייב 🙂 "))}">💬 וואטסאפ</a><button type="button" class="btn ghost sm" id="cNewF">✍️ טופס חדש</button></div>
  ${sec("👥 בלוח הקונים",C.buyers.length?C.buyers.map(x=>`<div class="it"><span><b>${E(x.profile||"בלי פרופיל")}</b> · ${E(x.status||"פעיל")}${x.rating?" · "+E(x.rating):""}<br><small>${x.last?"קשר אחרון "+E(x.last):""}${x.next?" · לחזור ב-"+E(x.next):""}</small>${x.notes?`<br><small>${E(x.notes)}</small>`:""}</span></div>`).join(""):'<p class="hint">לא בלוח הקונים.</p>')}
  ${sec("✍️ הסכמים",C.contracts.length?C.contracts.slice().reverse().map(c=>`<div class="it"><span><span class="tp">${TN[c.type]||c.type}${c.excl?" + בלעדיות":""}</span> טופס ${pad(c.n)} · ${E((c.props||[]).map(a=>String(a).split(",")[0]).join(" · "))}<br><small>${c.signed?"✓ נחתם "+E(c.signed):"⏳ ממתין לחתימה · נשלח "+E(c.created)}</small></span>${c.pdf?`<a class="btn ghost sm" target="_blank" rel="noopener" href="${E(c.pdf)}">📄 PDF</a>`:""}</div>`).join(""):'<p class="hint">אין הסכמים.</p>')}
  ${C.owner.length?sec("🏠 בעל נכס",C.owner.map(x=>`<div class="it"><span>#${E(x.id)} ${E(x.addr)}</span><a class="btn ghost sm" target="_blank" rel="noopener" href="${E(mngUrl(x.id))}">ניהול ↗</a></div>`).join("")):""}
@@ -311,7 +312,7 @@ async function loadOwn(){const s=U.sync,h=$("#oLs");if(!OWN)OWN=cGet("sg_own");i
 function mngUrl(id){return location.href.split("#")[0]+"#m="+id}
 const oLink=k=>SITE+"o/?k="+k;
 const oUser=o=>o.user||o.email||String(o.phone||"").replace(/\D/g,"")||"(אין – הוסף מייל או שם משתמש)";
-const oMsg=(o,a)=>"שלום "+(o.name||"")+",\nפתחנו עבורך פורטל אישי לנכס"+(a?" ב"+a:"")+" – כאן אפשר לראות בכל רגע את כל פעולות השיווק שלנו ולכתוב לנו:\n"+oLink(o.k)+"\n\nאו בכתובת "+SITE+"o/\nמייל: "+oUser(o)+"\nקוד כניסה: "+String(o.pin||"")+"\n\nמשה מאיר כהן – צוות סרגייב";
+const oMsg=(o,a)=>"שלום "+(o.name||"")+",\nפתחנו עבורך פורטל אישי לנכס"+(a?" ב"+a:"")+" – כאן אפשר לראות בכל רגע את כל פעולות השיווק שלנו ולכתוב לנו:\n"+oLink(o.k)+"\n\nאו בכתובת "+SITE+"o/\nמייל: "+oUser(o)+"\nקוד כניסה: "+String(o.pin||"")+"\n\n"+ID_NAME+" – צוות סרגייב";
 function aAddr(id){const a=(U.apts||[]).find(x=>String(x.id)===String(id));return a?a.street+" "+a.hn+", "+a.city:""}
 function drawOwn(){const h=$("#oLs");if(!OWN)return;DIRTY=false;
  if(MNG_ID&&!OWN.some(o=>String(o.id)===MNG_ID)){h.innerHTML='<p class="hint">לא נמצא פורטל פעיל לנכס #'+E(MNG_ID)+'.</p>';return}if(!OWN.length){h.innerHTML='<p class="hint">עוד אין פורטלים. פורטל נוצר אוטומטית כשבעל נכס חותם על בלעדיות (מנכס שנבחר מהלוח), או ידנית בכפתור למעלה.</p>';return}
@@ -453,7 +454,7 @@ function drawONew(){const w=$("#oNew");if(!w.hidden){w.hidden=true;return}w.hidd
 
 function mode(m){$$("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));$$(".mode").forEach(s=>s.hidden=s.id!=="m-"+m);if(m==="new"&&CDR===null&&!MNG_ID&&!/^#(ceo|m=)/.test(location.hash))loadDrafts();if(m==="tsk")tasksView();if(m==="cli")setTimeout(()=>{const q=$("#cq");if(q&&!q.value)q.focus()},50);if(m==="list")loadList();if(m==="own")loadOwn()}
 let BUY=[];
-function boot(data){U=data;BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
+function boot(data){U=data;if(data.agent&&data.agent.name){ID_NAME=data.agent.name;ID_SHORT=data.agent.name;ID_FIRST=data.agent.name.split(" ")[0];if(data.agent.phone)ID_PHONE=data.agent.phone}BUY=data.buyers||[];if(!data.agent)try{const c=JSON.parse(localStorage.getItem("kb_cache_v1")||"null");if(c&&Array.isArray(c.buyers)&&c.buyers.length)BUY=c.buyers}catch(e){}
  if(data.bscript&&data.btoken)fetch(data.bscript+"?t="+encodeURIComponent(data.btoken)).then(r=>r.json()).then(j=>{if(j&&j.ok&&Array.isArray(j.buyers)&&j.buyers.length)BUY=j.buyers}).catch(()=>{});reset("sell");drawNew();svPull();$$("#modes button").forEach(b=>b.onclick=()=>mode(b.dataset.m));mode("new");$("#lq").oninput=drawList;$("#lr").onclick=loadList;if(data.agent){document.body.classList.add("agent");$(".adm").forEach(x=>x.remove())}else{$("#cgo").onclick=()=>cliShow($("#cq").value);$("#cq").onkeydown=e=>{if(e.key==="Enter")cliShow($("#cq").value)};$("#oNewT").onclick=drawONew;$("#oR").onclick=loadOwn;
   const mm=location.hash.match(/^#m=(\d+)/);if(mm){MNG_ID=mm[1];document.body.classList.add("mngmode");const hd=$("#mngHd");if(hd){hd.hidden=false;hd.querySelector("b").textContent="⚙️ ניהול נכס #"+MNG_ID+" · "+aAddr(MNG_ID)}mode("own")}
   if(/^#ceo/.test(location.hash)){document.body.classList.add("ceomode");$$(".mode").forEach(x=>x.hidden=true);$("#m-ceo").hidden=false;document.title="דשבורד מנכ״ל – צוות סרגייב";ceoView()}}}

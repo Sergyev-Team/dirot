@@ -119,7 +119,7 @@ const STATUS = {active:["באתר","active"], removed:["הוסר מהאתר","ex
 function mktUrl(x){
   const yn=(k,t)=>x[k]=="כן"?t:(x[k]=="לא"?"בלי "+t:"");
   const f=[x.type||"דירה", x.rooms&&(x.rooms+" חדרים"), ST(x)&&("רחוב "+ST(x)), x.nb, x.city, (x.floor!==""&&x.floor!=null)&&(x.floor==0?"קומת קרקע":"קומה "+x.floor), x.sqm&&(x.sqm+" מ״ר"), x.price&&("מחיר מבוקש "+nf(x.price)+" ₪"), x.prev&&("מחיר קודם "+nf(x.prev)+" ₪"), yn("el","מעלית"), yn("pk","חניה"), yn("mm","ממ״ד"), yn("bal","מרפסת"), x.cond, x.ren, x.first&&("פורסם לראשונה "+dd(x.first))].filter(Boolean).join(" · ");
-  const q="תכין הערכת שווי וניתוח שוק לפי המודל של צוות סרגייב (sergeyev-market-analysis) לנכס הזה:\n"+f+"\nמספר נכס באתר: "+x.id+"\n\nתמצא בעצמך דירות דומות שמשווקות עכשיו ביד 2, ועסקאות שנמכרו באזור לפי רשות המיסים (govmap), ותבנה את המצגת. איש קשר בסוף: משה מאיר כהן 054-9071916.";
+  const q="תכין הערכת שווי וניתוח שוק לפי המודל של צוות סרגייב (sergeyev-market-analysis) לנכס הזה:\n"+f+"\nמספר נכס באתר: "+x.id+"\n\nתמצא בעצמך דירות דומות שמשווקות עכשיו ביד 2, ועסקאות שנמכרו באזור לפי רשות המיסים (govmap), ותבנה את המצגת. איש קשר בסוף: "+((P.agent&&P.agent.name)||"משה מאיר כהן")+" "+((P.agent&&P.agent.phone)||"054-9071916")+".";
   return "https://claude.ai/new?q="+encodeURIComponent(q);
 }
 function card(x){

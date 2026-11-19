@@ -213,7 +213,8 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 .sgB{font:inherit}
 </style>
 <dialog id="sgD"><button class="x" type="button" onclick="this.closest('dialog').close()" aria-label="סגור">×</button><div class="in" id="sgI"></div></dialog>
-<script>
+<script>var ID_NAME="משה מאיר כהן",ID_SHORT="משה כהן",ID_FIRST="משה",ID_PHONE="054-9071916";
+
 (function(){
 const SITE="https://sergeyev-team.com/";
 const E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -222,7 +223,7 @@ const pad=n=>("0000"+n).slice(-5);
 const sync=()=>(window.__KB&&window.__KB.DATA.sync)||null;
 const wa=(ph,txt)=>"https://wa.me/972"+String(ph||"").replace(/\D/g,"").replace(/^972/,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
 const stN=p=>{let s=String(p&&p.addr||"").split(",")[0].replace(/\s*\d+[א-ת]?\s*$/,"").trim();if(!s)return"";return /^(רחוב|רח'|שד'|שדרות|סמטת|דרך|כיכר)/.test(s)?"ב"+s.replace(/^רח'\s*/,"רחוב "):"ברחוב "+s};
-const msg=(name,link,pr)=>"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\nמשה מאיר כהן – צוות סרגייב\n📞 054-9071916";
+const msg=(name,link,pr)=>"שלום "+(name||"")+" 👋\nשמחים שקבענו פגישה"+(stN(pr&&pr[0])?" לראות את הדירה "+stN(pr[0]):"")+" 🏡\n\nכדי שנוכל להגיע ולהתמקד ישר בדירה, מצרף קישור לחתימה על הזמנת שירותי תיווך. נא לחתום לפני הפגישה 🙏\n👇\n"+link+"\n\nמחכים לראותך!\n"+ID_NAME+" – צוות סרגייב\n📞 "+ID_PHONE+"";
 let F=null;
 function open(b){F={name:(b&&b.name)||"",phone:(b&&b.phone)||"",props:[],fee:2,notes:""};drawNew();$D().showModal()}
 const $D=()=>document.getElementById("sgD"),$I=()=>document.getElementById("sgI");
@@ -279,6 +280,7 @@ document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementByI
 
 <script>
 function boot(DATA){
+if(DATA.agent&&DATA.agent.name){ID_NAME=DATA.agent.name;ID_SHORT=DATA.agent.name;ID_FIRST=DATA.agent.name.split(" ")[0];if(DATA.agent.phone)ID_PHONE=DATA.agent.phone}
 const SITE="https://sergeyev-team.com/";
 const K_CACHE="kb_cache_v1", K_PEND="kb_pending_v1";
 const $=id=>document.getElementById(id);
@@ -488,7 +490,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
     g.append(lt); o.append(g); li.append(o); }
   const r=el("div","row"); const code=I.p&&I.p.code; const link=code?SITE+"k/"+code+".html?d="+ddmm():(I.p&&I.p.deal&&I.p.rmin&&isPersonal(b.profile)?searchLink(I.p):"");
   const send=el("a","btn wa","שליחת דירות"); send.target="_blank"; send.rel="noopener";
-  if(link&&b.phone){ const msg=(I.nw&&I.l?"היי "+b.name+", כאן משה כהן מצוות סרגייב. עלו "+I.nw+" דירות חדשות שמתאימות לחיפוש שלך ("+c+") 👇":"היי "+b.name+", כאן משה כהן מצוות סרגייב. ריכזתי עבורך את הדירות שמתאימות לחיפוש שלך ("+c+") 👇")+"\n"+link;
+  if(link&&b.phone){ const msg=(I.nw&&I.l?"היי "+b.name+", כאן "+ID_SHORT+" מצוות סרגייב. עלו "+I.nw+" דירות חדשות שמתאימות לחיפוש שלך ("+c+") 👇":"היי "+b.name+", כאן "+ID_SHORT+" מצוות סרגייב. ריכזתי עבורך את הדירות שמתאימות לחיפוש שלך ("+c+") 👇")+"\n"+link;
     send.href="https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(msg); send.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); }
   else { send.removeAttribute("href"); send.setAttribute("aria-disabled","true"); send.style.opacity=.5; send.textContent=link?"אין טלפון":"אין קישור לפרופיל"; }
   r.append(send);
@@ -537,7 +539,7 @@ function buyersFor(a){ const ex=[],nr=[];
   const o=(x,y)=>(RANK[y.b.rating]||0)-(RANK[x.b.rating]||0) || dv(x.b)-dv(y.b);
   ex.sort(o); nr.sort(o); return {ex,nr}; }
 function aptMsg(a,b,near){ const head=near?"נכנסה דירה שיכולה לעניין אותך:":"נכנסה דירה שמתאימה בדיוק למה שחיפשת:";
-  return "היי "+b.name+", כאן משה כהן מצוות סרגייב.\n"+head+"\n🏠 "+specOf(a)+"\n📍 "+addrOf(a)+"\n💰 "+money(a.price)+"\nתמונות ופרטים 👇\n"+SITE+"d/"+a.id+".html"; }
+  return "היי "+b.name+", כאן "+ID_SHORT+" מצוות סרגייב.\n"+head+"\n🏠 "+specOf(a)+"\n📍 "+addrOf(a)+"\n💰 "+money(a.price)+"\nתמונות ופרטים 👇\n"+SITE+"d/"+a.id+".html"; }
 const waLink=(b,txt)=>"https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(txt);
 let QUEUE=null;
 function aptCard(a){ const c=el("div","apt");

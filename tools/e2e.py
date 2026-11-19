@@ -40,11 +40,9 @@ def sgn_actions(pg):
     r = {}
     def shot(n): p = f'{OUT}/sgn_{n}.png'; pg.screenshot(path=p, full_page=True); SHOTS.append(p)
     r['drafts'] = pg.locator('.cdi').count(); shot('new')
-    for m in ['list', 'own', 'tsk']:
+    for m in ['list', 'own']:
         pg.click(f'#modes button[data-m="{m}"]'); pg.wait_for_timeout(9000); shot(m)
-    r['list_groups'] = pg.locator('.cg').count(); r['owner_cards'] = pg.locator('.oc').count(); r['tasks_text'] = pg.locator('#tOut').inner_text()[:60]
-    pg.click('#modes button[data-m="cli"]'); pg.fill('#cq', '0549071916'); pg.click('#cgo'); pg.wait_for_timeout(15000); shot('cli')
-    r['client'] = pg.locator('#cOut').inner_text()[:80].replace('\n', ' | ')
+    r['list_groups'] = pg.locator('.cg').count(); r['owner_cards'] = pg.locator('.oc').count()
     return r
 def ceo_actions(pg):
     pg.wait_for_timeout(25000); t = pg.locator('#m-ceo').inner_text()

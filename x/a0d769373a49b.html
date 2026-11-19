@@ -15,10 +15,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .brand{display:flex;align-items:center;gap:10px;flex:none}
 .brand img{height:34px;border-radius:6px}
 .brand b{font-size:18px;white-space:nowrap}.brand b span{color:var(--gold)}
-.menu{position:relative;margin-inline-start:auto}
+.menu{position:relative}
+.brand{margin-inline-start:auto}
 .mbtn{display:flex;align-items:center;gap:8px;min-height:42px;padding:6px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:16px}
 .mbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-.mlist{position:absolute;top:calc(100% + 6px);inset-inline-end:0;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(27,29,33,.12);padding:6px;z-index:9}
+.mlist{position:absolute;top:calc(100% + 6px);inset-inline-start:0;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(27,29,33,.12);padding:6px;z-index:9}
 .mlist button,.mlist a{display:flex;width:100%;align-items:center;min-height:44px;padding:8px 12px;border:0;background:none;border-radius:8px;font-weight:600;font-size:16px;text-align:right;color:var(--fg);text-decoration:none}
 .mlist button:hover,.mlist a:hover{background:var(--gold-soft)}
 .mlist button[aria-current="page"]{background:var(--gold-soft);color:var(--gold-ink)}
@@ -41,6 +42,10 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
 .lk{display:flex;align-items:center;justify-content:center;min-height:52px;background:#fff;border:1px solid var(--line);border-radius:12px;font-weight:700;text-decoration:none;color:var(--fg)}
 .lk:hover{border-color:var(--gold);color:var(--gold-ink)}
 .note{color:var(--muted);font-size:14px;margin-top:18px}
+.alerts{margin-top:10px;display:grid;gap:8px}
+.al{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-inline-start:4px solid var(--c,var(--gold));border-radius:12px;padding:10px 14px;text-align:right;width:100%}
+.al b{display:block}.al span{display:block;color:var(--muted);font-size:14px}
+.al em{font-style:normal;color:var(--gold-ink);font-weight:700;flex:none}
 .lock{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
 .lock form{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px 22px;width:100%;max-width:380px;text-align:center;box-shadow:0 10px 30px rgba(27,29,33,.06)}
 .lock img{height:64px;border-radius:10px;margin-bottom:12px}
@@ -53,13 +58,15 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
 <div class="lock" id="lock"><form id="lf"><img src="../f/logo.jpg" alt="צוות סרגייב"><h1>משרד <span>סרגייב</span></h1><p>לוח בקרה · קונים · מתווך · שיווק · העלאה · החתמות</p>
 <input id="pw" type="password" placeholder="קוד כניסה" autocomplete="current-password" required><button type="submit">כניסה</button><p class="err" id="err" hidden>הקוד לא נכון. נסו שוב.</p></form></div>
 <div id="app" hidden>
- <header class="bar" id="bar"><div class="top"><div class="brand"><img src="../f/logo.jpg" alt=""><b>משרד <span>סרגייב</span></b></div>
+ <header class="bar" id="bar"><div class="top">
   <div class="menu"><button class="mbtn" id="mbtn" type="button" aria-haspopup="true" aria-expanded="false"><span id="mcur">לוח בקרה</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button>
    <div class="mlist" id="mlist" hidden role="menu"></div></div>
-  <button class="out" id="out" type="button">יציאה</button></div></header>
+  <div class="brand"><b>משרד <span>סרגייב</span></b><img src="../f/logo.jpg" alt=""></div><button class="out" id="out" type="button">יציאה</button></div></header>
  <div class="home" id="home"><div class="wrap">
   <h1 id="hello">לוח בקרה</h1><p class="sub" id="today"></p>
-  <h2>מה דורש טיפול</h2><div class="grid" id="act"></div>
+  <h2>מה דורש טיפול</h2><div class="grid" id="act"></div><div class="alerts" id="al"></div>
+  <h2>הכסף</h2><div class="grid" id="money"></div>
+  <h2>המשפך</h2><div class="grid" id="fun"></div>
   <h2>תמונת מצב</h2><div class="grid" id="kpi"></div>
   <h2>מעבר מהיר</h2><div class="links" id="go"></div>
   <p class="note" id="upd"></p>
@@ -68,8 +75,9 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
 </div>
 <script>
 const KEY="sergyev_console_pw",SALT="aRpH11nKNeJigDpaXDbaXA==",IV="EO0mafgFUlbkq1XQ",CT="qzsiC/9r9gGG9ibl5Q7LwQD/dtA=",IT=250000;
-const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",ceo:"de7f766b5893b.html#ceo"};
-const NAMES={home:"לוח בקרה",ceo:"דשבורד מנכ״ל",buy:"קונים",con:"מתווך",mkt:"שיווק",upl:"העלאה",sgn:"החתמות"};
+const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",ceo:"de7f766b5893b.html#ceo",asg:"../app/#assign"};
+const NAMES={home:"לוח בקרה",buy:"קונים",con:"מתווך",mkt:"שיווק",upl:"העלאה",sgn:"החתמות",asg:"שיוך לסוכנים",ceo:"טבלת נכסים מלאה"};
+const MENU=["home","buy","con","mkt","upl","sgn","asg"];
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),$=id=>document.getElementById(id);
 async function dec(pw,salt,iv,ct,it){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
@@ -79,7 +87,7 @@ async function dec(pw,salt,iv,ct,it){const base=await crypto.subtle.importKey("r
 async function check(pw){try{await dec(pw,SALT,IV,CT,IT);return true}catch(e){return false}}
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
-function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1");f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
+function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||(t==="asg"?B[t]:B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1"));f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=url}return f}
 function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);
  if(t==="home"){$("frames").hidden=true;$("home").hidden=false;dash();return}
  $("home").hidden=true;$("frames").hidden=false;frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
@@ -88,7 +96,7 @@ function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked
     const m=h.match(/x\/([0-9a-f]{13})\.html(#.*)?$/);if(m&&SLUGS[m[1]]){e.preventDefault();e.stopPropagation();show(SLUGS[m[1]],B[SLUGS[m[1]]]+(m[2]||""));return}
     if(/^(https?:)?\/\//.test(h)&&!h.includes(location.host)&&!a.target){a.target="_blank";a.rel="noopener"}},true);
   d.addEventListener("click",closeMenu)}catch(e){}}
-function drawMenu(cur){$("mlist").innerHTML=Object.keys(NAMES).map(k=>`<button type="button" role="menuitem" data-t="${k}"${k===cur?' aria-current="page"':""}>${NAMES[k]}</button>`).join("")+'<hr><a role="menuitem" href="../app/" target="_blank" rel="noopener">אפליקציית הסוכנים · צוות</a>';
+function drawMenu(cur){$("mlist").innerHTML=MENU.map(k=>`<button type="button" role="menuitem" data-t="${k}"${k===cur?' aria-current="page"':""}>${NAMES[k]}</button>`).join("")+'<hr><a role="menuitem" href="../app/" target="_blank" rel="noopener">אפליקציית הסוכנים</a>';
  $("mlist").querySelectorAll("button").forEach(b=>b.onclick=()=>show(b.dataset.t))}
 function closeMenu(){$("mlist").hidden=true;$("mbtn").setAttribute("aria-expanded","false")}
 $("mbtn").onclick=e=>{e.stopPropagation();const o=$("mlist").hidden;$("mlist").hidden=!o;$("mbtn").setAttribute("aria-expanded",String(o))};
@@ -106,7 +114,9 @@ async function dashData(){
  const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{},U=S.url,T=S.token;
  const post=b=>fetch(U,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:T},b))}).then(r=>r.json());
  const get=q=>fetch(U+"?t="+encodeURIComponent(T)+q).then(r=>r.json());
+ const ceoP=post({op:"ceo"}).catch(()=>null),dlP=post({op:"dlist"}).catch(()=>null);
  const [buy,tasks,cl,ol]=await Promise.all([d.bscript?fetch(d.bscript+"?t="+encodeURIComponent(d.btoken)).then(r=>r.json()).catch(()=>null):null,post({op:"tlist"}).catch(()=>null),get("&op=clist").catch(()=>null),get("&op=olist").catch(()=>null)]);
+ ceoP.then(c=>{if(DASH){DASH.ceo=c;drawDash()}});dlP.then(x=>{if(DASH){DASH.deals=x;drawDash()}});
  return {apts:(d.apts||[]).length,buy,tasks,cl,ol};
 }
 function drawDash(){
@@ -117,16 +127,28 @@ function drawDash(){
  const msgs=ol&&ol.reduce((n,o)=>n+(o.msgs||[]).filter(m=>m.from==="בעלים"&&!m.read).length,0),reqs=ol&&ol.reduce((n,o)=>n+(o.log||[]).filter(l=>(l.type==="tourplan"||l.type==="pricereq")&&(!l.st||l.st==="pending")).length,0);
  const ending=ol&&ol.filter(o=>o.toI&&o.toI>=t&&o.toI<=new Date(Date.now()+14*864e5).toISOString().slice(0,10)).length;
  $("act").innerHTML=tile("a1",due?due.length:null,"קונים לחזור אליהם היום","מתוך התור היומי","buy",1)+tile("a2",late?late.length:null,"משימות באיחור",tdy?tdy.length+" משימות להיום":"","sgn",1)+tile("a3",wait?wait.length:null,"טפסים ממתינים לחתימה","נשלחו ועוד לא נחתמו","sgn",0)+tile("a4",msgs,"הודעות חדשות מבעלי נכסים",reqs!=null?reqs+" בקשות ממתינות":"","sgn",1);
- $("kpi").innerHTML=tile("k1",active?active.length:null,"קונים פעילים",by?by.length+" בלוח הקונים":"","buy")+tile("k2",D.apts!=null?D.apts:null,"נכסים פעילים באתר","","con")+tile("k3",ol?ol.length:null,"נכסים בבלעדיות",ending!=null?ending+" מסתיימות בשבועיים הקרובים":"","mkt")+tile("k4",signedM?signedM.length:null,"הסכמים שנחתמו החודש","","sgn")+tile("k5",open?open.length:null,"משימות פתוחות","","sgn")+tile("k6","₪","דשבורד מנכ״ל","הכנסות, עמלות ועסקאות","ceo");
- $("go").innerHTML=["buy","con","mkt","upl","sgn","ceo"].map(k=>`<button class="lk" type="button" data-go="${k}">${NAMES[k]}</button>`).join("")+'<a class="lk" href="../app/#team" target="_blank" rel="noopener">צוות ובקשות הצטרפות</a>';
+ const C=D.ceo&&D.ceo.items,DL=D.deals&&D.deals.items,fmK=n=>n>=1e6?"₪"+(n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,"")+"M":n>=1e3?"₪"+Math.round(n/1e3)+"K":"₪"+Math.round(n||0);
+ let pipe=null,fun=null,AL=[];
+ if(C){const ym=t.slice(0,7),act=C.filter(x=>x.stage!=="off"&&!(x.stage==="closed"&&String(x.stAt).slice(0,7)!==ym));
+  pipe=act.reduce((s,x)=>{const fee=x.fee||2,base=x.stage==="closed"?(x.dealPrice||x.maxOffer||x.price):x.stage==="nego"?(x.maxOffer||x.price):x.stage==="offer"?x.maxOffer:0;return s+(base||0)*fee/100},0);
+  fun=C.reduce((f,x)=>({leads:f.leads+x.leads,tours:f.tours+x.tours,offers:f.offers+x.offers,deals:f.deals+(x.stage==="closed"?1:0)}),{leads:0,tours:0,offers:0,deals:0});
+  act.filter(x=>x.exDays!=null&&x.exDays<=30&&x.stage!=="closed").sort((a,b)=>a.exDays-b.exDays).forEach(x=>AL.push({c:x.exDays<=7?"var(--bad)":"#c58a12",t:"הבלעדיות ב"+x.addr+(x.exDays<0?" נגמרה לפני "+(-x.exDays)+" ימים":x.exDays===0?" נגמרת היום":" נגמרת בעוד "+x.exDays+" ימים"),s:x.owner||"",id:x.id}));
+  act.filter(x=>x.days>45&&!["closed","nego"].includes(x.stage)).sort((a,b)=>b.days-a.days).forEach(x=>AL.push({c:"var(--bad)",t:x.addr+" תקוע "+x.days+" ימים בשיווק",s:x.tours+" סיורים · "+x.leads+" פניות"+(x.maxOffer?" · הצעה גבוהה "+fmK(x.maxOffer):""),id:x.id}))}
+ const dt=DL&&DL.reduce((a,d)=>({t:a.t+((d.c||{}).total||0),p:a.p+((d.c||{}).paid||0),m:a.m+(String(d.date).slice(0,7)===t.slice(0,7)?((d.c||{}).total||0):0)}),{t:0,p:0,m:0});
+ $("al").innerHTML=AL.slice(0,6).map(a=>`<button class="al" type="button" style="--c:${a.c}" data-m="${esc(a.id)}"><span><b>${esc(a.t)}</b><span>${esc(a.s)}</span></span><em>לנכס ›</em></button>`).join("");
+ $("money").innerHTML=tile("m1",C?fmK(pipe):null,"הכסף בדרך","דמי תיווך צפויים מהמוכרים, לפני מע״מ","ceo")+tile("m2",dt?fmK(dt.m):null,"עמלות שנסגרו החודש","","sgn")+tile("m3",dt?fmK(dt.t-dt.p):null,"עוד לא נגבה","","sgn",dt&&dt.t-dt.p>0)+tile("m4",dt?fmK(dt.p):null,"נגבה","כל העסקאות","sgn");
+ $("fun").innerHTML=tile("f1",fun?fun.leads:null,"פניות של קונים","","ceo")+tile("f2",fun?fun.tours:null,"קונים בסיורים","","ceo")+tile("f3",fun?fun.offers:null,"הצעות מחיר","","ceo")+tile("f4",fun?fun.deals:null,"עסקאות","","ceo");
+ $("kpi").innerHTML=tile("k1",active?active.length:null,"קונים פעילים",by?by.length+" בלוח הקונים":"","buy")+tile("k2",D.apts!=null?D.apts:null,"נכסים פעילים באתר","","con")+tile("k3",ol?ol.length:null,"נכסים בבלעדיות",ending!=null?ending+" מסתיימות בשבועיים הקרובים":"","mkt")+tile("k4",signedM?signedM.length:null,"הסכמים שנחתמו החודש","","sgn")+tile("k5",open?open.length:null,"משימות פתוחות","","sgn");
+ $("go").innerHTML=["buy","con","mkt","upl","sgn","asg","ceo"].map(k=>`<button class="lk" type="button" data-go="${k}">${NAMES[k]}</button>`).join("");
  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
+ document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>show("sgn",B.sgn+"#m="+b.dataset.m));
  $("upd").textContent=dashAt?"עודכן ב-"+new Date(dashAt).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"}):"טוען נתונים…";
 }
 async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12?"בוקר טוב":h<17?"צהריים טובים":"ערב טוב")+", משה";$("today").textContent=new Intl.DateTimeFormat("he-IL",{timeZone:"Asia/Jerusalem",weekday:"long",day:"numeric",month:"long"}).format(new Date());
  drawDash();if(Date.now()-dashAt<120000)return;try{DASH=await dashData();dashAt=Date.now()}catch(e){$("upd").textContent="הנתונים לא נטענו. רענן את הדף."}drawDash()}
 
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
- const h=location.hash.match(/^#(home|ceo|buy|con|mkt|upl|sgn)/);show(h?h[1]:"home")}
+ const h=location.hash.match(/^#(home|ceo|buy|con|mkt|upl|sgn|asg)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
 $("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
