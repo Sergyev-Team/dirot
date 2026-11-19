@@ -1,9 +1,9 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style></head><body><title>לוח שיווק סרגייב</title>
+<!doctype html><html lang="he" dir="rtl" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style></head><body><title>לוח שיווק סרגייב</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gveret+Levin&family=Assistant:wght@400;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;700;800;900&display=swap">
 <style>
 :root{
-  --bg:#f5f3ee; --surface:#ffffff; --fg:#17150f; --muted:#615b4c; --line:#e3ddcf;
+  --bg:#fbfaf7; --surface:#ffffff; --fg:#17150f; --muted:#615b4c; --line:#e3ddcf;
   --gold:#a87b1e; --gold-soft:#f6ecd4; --wa:#138a4e; --off:#9b2c2c; --blue:#1d5fb8;
   --body:"Assistant","Arial Hebrew","Arial",sans-serif;
 }
@@ -762,7 +762,7 @@ async function boot(data){
   box.addEventListener("submit",async e=>{ e.preventDefault(); const pw=document.getElementById("pw").value;
     if(!(await tryPw(pw,true))){ document.getElementById("err").hidden=false; } });
   let saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
-  if(saved){ tryPw(saved,false).then(ok=>{ if(!ok){ try{ localStorage.removeItem(KEY); }catch(e){} } }); }
+  if(saved){ box.hidden=true; tryPw(saved,false).then(ok=>{ if(!ok){ box.hidden=false; try{ localStorage.removeItem(KEY); }catch(e){} } }); }
   else document.getElementById("pw").focus();
 })();
 

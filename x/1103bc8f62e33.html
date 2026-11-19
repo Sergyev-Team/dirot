@@ -1,8 +1,8 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<!doctype html><html lang="he" dir="rtl" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
 <title>משרד סרגייב – סוכן</title><link rel="apple-touch-icon" href="../f/app180.png"><meta name="theme-color" content="#0e0c09">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap">
 <style>
-:root{--bg:#f5f3ee;--surface:#fff;--fg:#17150f;--muted:#615b4c;--line:#e3ddcf;--gold:#a87b1e;--gold-soft:#f6ecd4;--wa:#138a4e;--off:#9b2c2c;--body:"Assistant","Arial Hebrew",Arial,sans-serif}
+:root{--bg:#fbfaf7;--surface:#fff;--fg:#17150f;--muted:#615b4c;--line:#e3ddcf;--gold:#a87b1e;--gold-soft:#f6ecd4;--wa:#138a4e;--off:#9b2c2c;--body:"Assistant","Arial Hebrew",Arial,sans-serif}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#12110e;--surface:#1c1a16;--fg:#f1ecdf;--muted:#b3ab98;--line:#322e26;--gold:#e3b858;--gold-soft:#2e2615;--wa:#1a9a5a;--off:#f19c9c;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#12110e;--surface:#1c1a16;--fg:#f1ecdf;--muted:#b3ab98;--line:#322e26;--gold:#e3b858;--gold-soft:#2e2615;--wa:#1a9a5a;--off:#f19c9c;color-scheme:dark}
 *{box-sizing:border-box}[hidden]{display:none!important}.agent .adm{display:none!important}
@@ -518,6 +518,9 @@ async function go(code,save){const e=document.getElementById("ae");e.hidden=true
   boot({sync:{url:API,token:code},apts:await siteApts(),buyers:[],agent:j.agent});return true}
  catch(err){e.textContent=err.message==="auth"?"הקוד לא נכון":"אין חיבור, נסו שוב";e.hidden=false;return false}}
 box.onsubmit=ev=>{ev.preventDefault();go(document.getElementById("ac").value.trim().toUpperCase(),true)};
-let s=null;try{s=localStorage.getItem(KEY)}catch(e){}if(s)go(s,false);
+let s=null;try{s=localStorage.getItem(KEY)}catch(e){}
+let P=null;try{P=window.parent!==window&&window.parent.SG_AGENT}catch(e){}
+if(P&&P.signCode){box.hidden=true;P.signCode().then(c=>c?go(String(c).toUpperCase(),true):false).then(ok=>{if(!ok)box.hidden=false}).catch(()=>{box.hidden=false})}
+else if(s){box.hidden=true;go(s,false).then(ok=>{if(!ok)box.hidden=false})}
 })();
 </script></body></html>

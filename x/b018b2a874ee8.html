@@ -1,4 +1,4 @@
-<!doctype html><html lang="he" dir="rtl"><head><script>if(self!==top)document.documentElement.classList.add("inframe")</script><style>.inframe .top{top:0!important}.inframe .queue{bottom:10px!important}.inframe #toast{bottom:16px!important}.grp.lnk .cnt{background:var(--gold-soft)}
+<!doctype html><html lang="he" dir="rtl" data-theme="light"><head><script>if(self!==top)document.documentElement.classList.add("inframe")</script><style>.inframe .top{top:0!important}.inframe .queue{bottom:10px!important}.inframe #toast{bottom:16px!important}.grp.lnk .cnt{background:var(--gold-soft)}
 .lnkbox{margin-top:14px}.lnkbox>summary{list-style:none;cursor:pointer;display:inline-flex}.lnkbox>summary::-webkit-details-marker{display:none}
 .lnkin{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .lg{border-bottom:1px solid var(--line);padding:6px 0}.lg:last-of-type{border-bottom:0}
@@ -15,7 +15,7 @@
 <style>
 /* Layout: sticky header with sync state + filters, then one column of buyer cards (who, what they want, when we last talked, one-tap actions). */
 :root{
-  --bg:#f5f3ee; --surface:#ffffff; --fg:#17150f; --muted:#615b4c; --line:#e3ddcf;
+  --bg:#fbfaf7; --surface:#ffffff; --fg:#17150f; --muted:#615b4c; --line:#e3ddcf;
   --gold:#a87b1e; --gold-soft:#f6ecd4; --wa:#138a4e; --wa-ink:#ffffff;
   --ok:#1f7a48; --ok-bg:#e5f3ea; --warn:#9a5b00; --warn-bg:#fbefd9; --off:#9b2c2c; --off-bg:#f8e3e3; --ink-on:#ffffff;
   --body:"Assistant","Arial Hebrew","Arial",sans-serif;
@@ -66,7 +66,7 @@ select{font:inherit;font-size:15px;font-weight:700;color:var(--fg);background:va
 .donebar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#e3f4ea;color:#11592f;border-radius:10px;padding:6px 10px;font-weight:800;font-size:15px}
 .donebar button{font:inherit;font-size:14px;font-weight:800;border:0;background:#1f8a4c;color:#fff;border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer}
 .chip.dn[aria-pressed="true"]{background:#1f8a4c;border-color:#1f8a4c;color:#fff}
-@media (prefers-color-scheme:dark){.donebar{background:#123824;color:#8fe0b0}.card.done{border-color:#3fbf78;box-shadow:inset 6px 0 0 #3fbf78}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .donebar{background:#123824;color:#8fe0b0}.card.done{border-color:#3fbf78;box-shadow:inset 6px 0 0 #3fbf78}}
 .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .name{font-size:20px;font-weight:800;margin:0}
 .rate{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-inline-start:auto}
@@ -696,7 +696,7 @@ window.addEventListener("online",flush);
   box.addEventListener("submit",async e=>{ e.preventDefault(); const pw=document.getElementById("pw").value;
     if(!(await tryPw(pw,true))){ document.getElementById("err").hidden=false; } });
   let saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
-  if(saved){ tryPw(saved,false).then(ok=>{ if(!ok){ try{ localStorage.removeItem(KEY); }catch(e){} } }); }
+  if(saved){ box.hidden=true; tryPw(saved,false).then(ok=>{ if(!ok){ box.hidden=false; try{ localStorage.removeItem(KEY); }catch(e){} } }); }
   else document.getElementById("pw").focus();
 })();
 
