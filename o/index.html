@@ -73,9 +73,10 @@ body.lgb{background:radial-gradient(120% 80% at 50% 0%,#2A2E36 0,#16191F 60%) fi
 .lge{color:#b42318;font-size:14px;min-height:20px;margin:10px 0 0;text-align:center}
 .lgf{font-size:14px;color:var(--muted);margin-top:8px}.lgf a{color:var(--gold);font-weight:600}
 .lgb2{color:#9AA0A8;font-size:13px;margin-top:18px}
-</style></head><body><div class="wrap" id="app"><p class="hint">טוען…</p></div>
+</style><link rel="preconnect" href="https://zqpgzcgvvhaokaimedio.supabase.co" crossorigin>
+</head><body><div class="wrap" id="app"><p class="hint">טוען…</p></div>
 <script>
-const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";
+const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";const FAST="https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/owner";
 let K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);const OK="sg_owner_k";
 try{if(K)localStorage.setItem(OK,K);else K=localStorage.getItem(OK)||""}catch(e){}
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -98,7 +99,7 @@ function loginView(msg){document.body.classList.add("lgb");$("#app").innerHTML=`
  <div class="lgf">שכחתם את הקוד? <a href="https://wa.me/972549071916?text=${encodeURIComponent("שלום, שכחתי את קוד הכניסה לפורטל הנכס")}" target="_blank" rel="noopener">כתבו לנו בוואטסאפ</a></div></div>
  <p class="lgb2">צוות סרגייב · מקצועיות, זריזות ואמינות<br><a href="../privacy.html" style="color:inherit">מדיניות פרטיות</a> · <a href="../terms.html" style="color:inherit">תנאי שימוש</a></p></main>`;
  $("#lf").onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector("button");b.disabled=true;$("#le").textContent="";
-  try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"ologin",u:$("#lu").value,pin:$("#lp").value})});const j=await r.json();
+  try{const lb=JSON.stringify({u:$("#lu").value,pin:$("#lp").value}),r=await fetch(FAST,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:lb.replace("{","{\"op\":\"login\",")}).then(x=>{if(!x.ok)throw 0;return x}).catch(()=>fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:lb.replace("{","{\"op\":\"ologin\",")}));const j=await r.json();
    if(!j.ok){$("#le").textContent=j.error==="locked"?"יותר מדי ניסיונות. נסו שוב בעוד 15 דקות.":"המייל או הקוד לא נכונים.";b.disabled=false;return}
    K=j.items[0].k;try{localStorage.setItem(OK,K)}catch(x){}load()}catch(x){$("#le").textContent="אין חיבור, נסו שוב.";b.disabled=false}}}
 function logout(){try{localStorage.removeItem(OK);Object.keys(localStorage).filter(k=>k.startsWith("sg_pc_")).forEach(k=>localStorage.removeItem(k))}catch(e){}K="";history.replaceState(null,"",location.pathname);loginView()}
@@ -109,7 +110,7 @@ async function load(){
  else $("#app").innerHTML='<div class="lgw"><p class="hint">טוען את הדוח של הנכס…</p></div>';
  const fetchL=id=>fetch("L/"+encodeURIComponent(id)+".json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>fetch("../index.html").then(r=>r.text()).then(t=>{const i=t.indexOf("const D = (");return i<0?null:(JSON.parse(t.slice(i+11,t.indexOf(").filter(",i))).find(x=>String(x.id)===String(id))||null)}).catch(()=>null));
  const pid=cached&&cached.P&&cached.P.p&&cached.P.p.id,lst=pid?fetchL(pid):null;
- let fresh;try{fresh=await (await fetch(API+"?op=oget&k="+encodeURIComponent(K))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
+ let fresh;try{fresh=await (await fetch(FAST+"?k="+encodeURIComponent(K)).then(r=>{if(!r.ok)throw 0;return r}).catch(()=>fetch(API+"?op=oget&k="+encodeURIComponent(K)))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
  if(!fresh.ok){try{localStorage.removeItem(OK);localStorage.removeItem(CK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
  P=fresh;const LL=(pid&&String(pid)===String(P.p.id))?await lst:await fetchL(P.p.id);if(LL)L=LL;
  try{localStorage.setItem(CK,JSON.stringify({P,L}))}catch(e){}
