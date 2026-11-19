@@ -89,7 +89,7 @@ const D = P.rows || P; const API = P.script || "", TOK = P.token || "";
 const CUT = "2026-09-10";
 const SITE = "https://sergeyev-team.com/";
 const SHEET = "https://docs.google.com/spreadsheets/d/1qhBZ4_kzrUbuBn5hTK63RGL1jzjoKA_wOI5ZxShYA6g/edit#gid=0&range=A";
-const ME = "היי, מה המצב? זה משה כהן מהצוות של אלכס סרגייב.";
+const ME = P.me || "היי, מה המצב? זה משה כהן מהצוות של אלכס סרגייב.";
 const byId = new Map(); D.forEach(x => x.ids.forEach(i => byId.set(i, x)));
 const $ = id => document.getElementById(id);
 const nf = n => Number(n).toLocaleString("en-US");
@@ -206,6 +206,7 @@ render();
   const st=document.createElement("style");
   st.textContent='.lock{max-width:380px;margin:12vh auto 0;padding-inline:16px;display:flex;flex-direction:column;gap:10px}.lock h1{font-size:28px}.lock label{font-weight:700}.lock input{font:inherit;font-size:20px;padding:10px 14px;min-height:52px;border-radius:12px;border:2px solid var(--gold);background:var(--surface);color:var(--fg);direction:ltr}.lock .err{color:var(--off);font-weight:700;margin:0}';
   document.head.appendChild(st); document.body.prepend(box);
+  try{const A=window.parent!==window&&window.parent.SG_AGENT;if(A&&A.agentMode){box.remove();const hs=document.createElement("style");hs.textContent=".btn.rm,a[href*=\"docs.google.com\"]{display:none!important}";document.head.appendChild(hs);A.board("broker").then(d=>{wrap.hidden=false;boot(d)}).catch(()=>{document.body.insertAdjacentHTML("afterbegin",'<p style="padding:24px;font:18px Arial">הלוח לא נטען. רענן את הדף.</p>')});return}}catch(e){}
   async function tryPw(pw,remember){
     try{ const data=await open(pw); box.remove(); wrap.hidden=false;
       if(remember){ try{ localStorage.setItem(KEY,pw); }catch(e){} }

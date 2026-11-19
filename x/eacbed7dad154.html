@@ -753,6 +753,7 @@ async function boot(data){
   const st=document.createElement("style");
   st.textContent='.lock{max-width:380px;margin:12vh auto 0;padding-inline:16px;display:flex;flex-direction:column;gap:10px}.lock h1{font-size:28px}.lock label{font-weight:700}.lock input{font:inherit;font-size:20px;padding:10px 14px;min-height:52px;border-radius:12px;border:2px solid var(--gold);background:var(--surface);color:var(--fg);direction:ltr}.lock .err{color:var(--off);font-weight:700;margin:0}';
   document.head.appendChild(st); document.body.prepend(box);
+  try{const A=window.parent!==window&&window.parent.SG_AGENT;if(A&&A.agentMode){box.remove();const hs=document.createElement("style");hs.textContent="details.set,#addf,[data-a=pprem],.sec:has([data-a=savn]),.sec:has([data-a=rsend]){display:none!important}";document.head.appendChild(hs);A.board("mkt").then(d=>{wrap.hidden=false;boot(d)}).catch(()=>{document.body.insertAdjacentHTML("afterbegin",'<p style="padding:24px;font:18px Arial">הלוח לא נטען. רענן את הדף.</p>')});return}}catch(e){}
   async function tryPw(pw,remember){
     try{ const data=await open(pw); box.remove(); wrap.hidden=false;
       if(remember){ try{ localStorage.setItem(KEY,pw); }catch(e){} }

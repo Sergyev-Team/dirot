@@ -109,6 +109,15 @@ def encrypt_into(path,data,pw):
     for k,v in (('SALT',b(salt)),('IV',b(iv)),('CT',b(ct))):
         t,n=re.subn(k+r'="[^"]*"',lambda m:f'{k}="{v}"',t,count=1); assert n==1
     open(path,'w').write(t)
+def publish_boards(boards):
+    # עותק של נתוני הלוחות לבסיס הנתונים (דרך הגיליון), כדי שסוכנים יקבלו אותם לפי ההרשאות שלהם בלי הסיסמה הראשית
+    url=os.environ.get('SHEET_URL',''); tok=os.environ.get('SHEET_TOKEN','')
+    if not (url and tok): return
+    import urllib.request
+    body=json.dumps(dict(t=tok,op='boards',boards=boards),ensure_ascii=False,separators=(',',':')).encode()
+    req=urllib.request.Request(url,data=body,headers={'Content-Type':'text/plain;charset=utf-8'})
+    try: print('boards published', urllib.request.urlopen(req,timeout=120).read()[:120])
+    except Exception as e: print('boards publish failed', str(e)[:200])
 def sign_data():
     bs=json.load(open(S+'/buyers_snapshot.json'))
     by=[dict(name=x.get('name',''),phone=x.get('phone',''),profile=x.get('profile',''),status=x.get('status','')) for x in bs.get('buyers',[]) if x.get('name')]
@@ -162,11 +171,14 @@ def write_all():
         for d in todo: man[str(d['id'])]=og_sig(d)
     json.dump(man,open(mf,'w'))
     # encrypted boards
-    encrypt_into(R+'/x/c84971d9f1d2f.html',dict(rows=console_rows(),**{k:v for k,v in json.load(open(S+'/rb/c84971d9f1d2f.json')).items() if k!='rows'}),pw)
+    broker=dict(rows=console_rows(),**{k:v for k,v in json.load(open(S+'/rb/c84971d9f1d2f.json')).items() if k!='rows'})
+    encrypt_into(R+'/x/c84971d9f1d2f.html',broker,pw)
     b=json.load(open(S+'/buyers_snapshot.json')); b['apts']=apts(); b['built']=datetime.datetime.now(datetime.timezone.utc).isoformat(); b['sync']=json.load(open(S+'/mkt.json')).get('sync')
     encrypt_into(R+'/x/b018b2a874ee8.html',b,pw)
     mk=json.load(open(S+'/mkt.json')); rows,alias=mkt_rows(); BL=buyer_match(rows)
-    encrypt_into(R+'/x/eacbed7dad154.html',dict(rows=rows,alias=alias,buyers=BL,site='https://sergeyev-team.com/',**mk),pw)
+    mkd=dict(rows=rows,alias=alias,buyers=BL,site='https://sergeyev-team.com/',**mk)
+    encrypt_into(R+'/x/eacbed7dad154.html',mkd,pw)
+    publish_boards(dict(broker=broker,buyers=b,mkt=mkd))
     if os.path.exists(R+'/x/3a256a46e8e4d.html'): encrypt_into(R+'/x/3a256a46e8e4d.html',upload_data(),pw)
     if os.path.exists(R+'/x/de7f766b5893b.html'): encrypt_into(R+'/x/de7f766b5893b.html',sign_data(),pw)
     print('built',len(D),'active; og rendered',len(todo))

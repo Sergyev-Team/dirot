@@ -23,7 +23,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 a{color:inherit}
-.page{max-width:680px;margin:0 auto;padding:18px 16px calc(92px + env(safe-area-inset-bottom))}
+.page{max-width:680px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom))}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;min-height:44px}
 .head-acts{display:flex;align-items:center;gap:4px;flex:none}
 h1{font-size:25px;line-height:1.2;margin:0;font-weight:700}
@@ -102,11 +102,23 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .person b{display:block}
 .person small{display:block;color:var(--muted);font-size:15px;overflow-wrap:anywhere}
 .person .acts{margin:10px 0 0}
-.nav{position:fixed;inset:auto 0 0 0;z-index:5;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.nav div{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
-.nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none}
-.nav a[aria-current="page"]{color:var(--gold-ink)}
-.nav svg,.ic{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bar{position:fixed;top:0;left:0;right:0;z-index:6;background:#0e0c09;color:#f5efe2;padding-top:env(safe-area-inset-top,0px);box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.bar .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px 2px}
+.bar .top b{font-size:18px;letter-spacing:.3px}
+.bar .top b span{color:#d4af5a}
+.bar .top img{height:30px;border-radius:6px;background:#fff;padding:2px 4px}
+.bar .out{background:none;border:1px solid #4a4334;color:#cfc6b4;border-radius:8px;font-size:14px;padding:5px 11px;min-height:34px}
+.bar .tabs{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.bar .tabs::-webkit-scrollbar{display:none}
+.bar .tabs a{flex:1 0 auto;color:#cfc6b4;font-weight:700;font-size:15px;white-space:nowrap;padding:10px 13px 11px;text-decoration:none;border-bottom:3px solid transparent;text-align:center}
+.bar .tabs a[aria-current="page"]{color:#fff;border-bottom-color:#d4af5a}
+.bar .count{margin-inline-start:4px}
+.frames{position:fixed;left:0;right:0;bottom:0;top:var(--bh,96px);z-index:1}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
+body.boards #app{display:none}
+body:not(.boards) .frames{display:none}
+body.in .page{padding-top:calc(var(--bh,96px) + 16px)}
 .back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 4px 0 10px;margin-inline-start:-4px;background:none;border:0;color:var(--muted);font-weight:600;text-decoration:none}
 .login{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
 .login form{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 22px}
@@ -142,7 +154,9 @@ details.card[open] summary{margin-bottom:12px}
 </style>
 </head>
 <body>
+<header class="bar" id="bar" hidden><div class="top"><b>משרד <span>סרגייב</span></b><div style="display:flex;gap:8px;align-items:center"><button class="out" type="button" data-act="logout">יציאה</button><img src="../f/logo.jpg" alt=""></div></div><nav class="tabs" id="tabs" aria-label="לשוניות"></nav></header>
 <div id="app"><div class="load">טוען…</div></div>
+<div class="frames" id="frames"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script>
 (function () {
@@ -253,7 +267,7 @@ function enter() {
     message('אין חיבור', 'בדוק את האינטרנט ונסה שוב.', '<button class="btn pri wide" type="button" data-act="retry">נסה שוב</button>');
   });
 }
-function message(title, text, buttons) { app.innerHTML = '<div class="login"><form onsubmit="return false"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p>' + buttons + '</form></div>'; }
+function message(title, text, buttons) { hideBar(); app.innerHTML = '<div class="login"><form onsubmit="return false"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p>' + buttons + '</form></div>'; }
 var OUT_BTN = '<button class="btn link wide" type="button" data-act="logout">יציאה</button>';
 function accessScreen() {
   return db('agent_requests?select=status&id=eq.' + S.uid).then(function (r) {
@@ -265,7 +279,7 @@ function accessScreen() {
   });
 }
 function requestForm() {
-  app.innerHTML = '<div class="login"><form data-form="request"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>בקשת הצטרפות</h1><p>מלא את הפרטים. החשבון ייפתח אחרי אישור של משה.</p>' +
+  hideBar(); app.innerHTML = '<div class="login"><form data-form="request"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>בקשת הצטרפות</h1><p>מלא את הפרטים. החשבון ייפתח אחרי אישור של משה.</p>' +
     '<label class="field"><span>שם מלא</span><input class="in" id="rn" required maxlength="80" autocomplete="name"></label>' +
     '<label class="field"><span>טלפון</span><input class="in ltr" id="rp" type="tel" inputmode="tel" required autocomplete="tel"></label>' +
     '<label class="field"><span>מספר רישיון תיווך</span><input class="in ltr" id="rl" inputmode="numeric" required maxlength="20"></label>' +
@@ -275,7 +289,7 @@ function requestForm() {
 
 // ===== מסך כניסה =====
 function renderLogin() {
-  var L = UI.login, err = L.err ? '<p class="err" role="alert">' + esc(L.err) + '</p>' : '';
+  hideBar(); var L = UI.login, err = L.err ? '<p class="err" role="alert">' + esc(L.err) + '</p>' : '';
   if (L.step === 'email') {
     app.innerHTML = '<div class="login"><form data-form="email"><img src="../s/logo.jpg" alt="צוות סרגייב"><h1>כניסה למשרד</h1><p>נשלח לך קוד כניסה למייל.</p>' + err +
       '<label class="field"><span>מייל</span><input class="in ltr" id="em" type="email" inputmode="email" autocomplete="email" required value="' + esc(L.email) + '"></label>' +
@@ -315,10 +329,55 @@ var IC = {
   sign: '<path d="M4 20h16"/><path d="m6 16 9.5-9.5a2.1 2.1 0 0 1 3 3L9 19l-4 1z"/>'
 };
 function ic(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + IC[n] + '</svg>'; }
-function nav(cur) {
-  function a(h, n, t) { return '<a href="#' + h + '"' + (cur === h ? ' aria-current="page"' : '') + '>' + ic(n) + t + '</a>'; }
-  return '<nav class="nav" aria-label="ניווט ראשי"><div>' + a('today', 'today', 'היום שלי') + a('buyers', 'buyers', 'קונים') + a('tasks', 'tasks', 'משימות') + a('props', 'props', 'נכסים') + a('sign', 'sign', 'החתמות') + '</div></nav>';
+function nav() { return ''; }
+// ===== משרד סרגייב: לשוניות למעלה, הלוחות המלאים בתוך מסגרות =====
+var BOARDS = { buy: 'b018b2a874ee8.html', con: 'c84971d9f1d2f.html', mkt: 'eacbed7dad154.html', upl: '3a256a46e8e4d.html', ceo: 'de7f766b5893b.html#ceo' };
+var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt', '3a256a46e8e4d': 'upl', de7f766b5893b: 'sgn', '1103bc8f62e33': 'sgn' };
+function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
+function tabsFor() {
+  var t = [['today', 'היום שלי'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות']];
+  if (isAdmin()) t = t.concat([['ceo', 'מנכ״ל'], ['upl', 'העלאה'], ['team', 'צוות']]);
+  return t;
 }
+function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
+function tabOf(r) { if (isBoard(r) || r === 'tasks' || r === 'team') return r; return 'today'; }
+function drawBar(r) {
+  var bar = document.getElementById('bar'), cur = tabOf(r);
+  bar.hidden = false; document.body.classList.add('in');
+  document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + x[1] + (x[0] === 'team' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + '</a>'; }).join('');
+  var on = document.querySelector('#tabs [aria-current]'); if (on) on.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  document.documentElement.style.setProperty('--bh', bar.offsetHeight + 'px');
+}
+function hideBar() { document.getElementById('bar').hidden = true; document.body.classList.remove('in', 'boards'); }
+var FR = {};
+function showBoard(t, hash) {
+  if (t === 'sgn' && !isAdmin() && !D.signCode) { toast('חשבון ההחתמות שלך בהכנה. נסה שוב בעוד דקה.'); }
+  var f = FR[t];
+  if (!f) { f = document.createElement('iframe'); f.title = t; f.src = boardUrl(t); f.onload = function () { hookFrame(f); }; document.getElementById('frames').appendChild(f); FR[t] = f; }
+  else if (hash) f.src = boardUrl(t).replace(/#.*$/, '') + hash;
+  Object.keys(FR).forEach(function (k) { FR[k].hidden = k !== t; });
+  document.body.classList.add('boards');
+}
+function hookFrame(f) {
+  try {
+    var d = f.contentDocument; if (!d || d._hooked) return; d._hooked = 1;
+    d.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href]'); if (!a) return; var h = a.getAttribute('href') || '';
+      var m = h.match(/x\/([0-9a-f]{13})\.html(#.*)?$/);
+      if (m && SLUG_TAB[m[1]]) { e.preventDefault(); e.stopPropagation(); var t = SLUG_TAB[m[1]]; location.hash = '#' + t; showBoard(t, m[2] || ''); return; }
+      if (/^(https?:)?\/\//.test(h) && h.indexOf(location.host) < 0 && !a.target) { a.target = '_blank'; a.rel = 'noopener'; }
+    }, true);
+  } catch (e) {}
+}
+// ממשק ללוחות שבתוך המסגרות: סוכן מקבל נתונים מסוננים במקום הסיסמה הראשית
+window.SG_AGENT = {
+  get agentMode() { return !!D.me && !isAdmin(); },
+  board: function (name) {
+    return (Date.now() > S.exp && S.rt ? refresh() : Promise.resolve()).then(function () {
+      return fetch(SB + '/functions/v1/agent-board', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + S.at, 'Content-Type': 'application/json' }, body: JSON.stringify({ board: name }) });
+    }).then(function (r) { return r.json(); }).then(function (j) { if (j.error) throw new Error(j.error); return j; });
+  }
+};
 // ===== התאמה בין קונה לנכס (אותם כללים כמו בגיליון) =====
 function profileOf(b) { return D.profiles.filter(function (p) { return p.name === b.profile_name; })[0] || null; }
 function fits(pr, p) {
@@ -366,10 +425,10 @@ function vToday() {
   var hello = h < 12 ? 'בוקר טוב' : h < 17 ? 'צהריים טובים' : h < 22 ? 'ערב טוב' : 'לילה טוב';
   var date = new Intl.DateTimeFormat('he-IL', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   var stuck = D.outbox && D.outbox.stuck ? '<div class="alert" role="alert">' + D.outbox.stuck + ' שינויים לא הגיעו לגיליון. צריך לבדוק את הסנכרון.</div>' : '';
-  var team = isAdmin() ? '<a class="btn sm" href="#team">צוות' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a>' : '';
+  var team = isAdmin() && D.requests.length ? '<a class="btn sm" href="#team">בקשות הצטרפות' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a>' : '';
   var show = F.d.show, buyersBlock = '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
   var tasksBlock = '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>');
-  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
+  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '</div></div>' + stuck +
     '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" data-act="filterOpen"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive"><b>' + active + '</b><span>קונים פעילים</span></a></div>' +
     chips('d.show', [['all', 'הכול'], ['buyers', 'קונים'], ['tasks', 'משימות']], show, 'מה להציג') +
     (isAdmin() ? '<div class="flts" style="grid-template-columns:1fr">' + sel('d.agent', 'סוכן', agentOpts('כל הצוות'), who) + '</div>' : '') +
@@ -574,7 +633,11 @@ function route() { return (location.hash || '#today').slice(1); }
 function render() {
   if (!D.me) return;
   var r = route(), y = window.scrollY, same = render.last === r;
-  if (r === 'sign' && same) return;
+  if (r === 'sign') r = 'sgn';
+  if (!isAdmin() && (r === 'ceo' || r === 'upl' || r === 'team')) r = 'today';
+  drawBar(r);
+  if (isBoard(r)) { showBoard(r); render.last = r; return; }
+  document.body.classList.remove('boards');
   if (r.indexOf('b/') === 0) app.innerHTML = vBuyer(r.slice(2));
   else if (r.indexOf('p/') === 0) app.innerHTML = vProp(r.slice(2));
   else if (r.indexOf('o/') === 0) app.innerHTML = vPortal(r.slice(2));
@@ -593,7 +656,9 @@ function cur() { var m = document.querySelector('[data-b]'); return byId(m.datas
 function teamAction(call, msg) { return call.then(function () { sendKick(); return loadAll(); }).then(function () { render(); toast(msg); }).catch(function () { toast('הפעולה נכשלה. נסה שוב.'); }); }
 var ACT = {
   retry: function () { enter(); },
-  logout: function () { var at = S.at; clearSession(); D.me = null; F = freshFilters(); UI.login = { step: 'email', email: '', err: '', busy: false }; if (at) fetch(SB + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + at } }).catch(function () {}); location.hash = ''; renderLogin(); },
+  logout: function () {
+    var at = S.at; clearSession(); D.me = null; F = freshFilters(); hideBar(); Object.keys(FR).forEach(function (k) { FR[k].remove(); delete FR[k]; });
+    try { Object.keys(localStorage).filter(function (k) { return /^(kb_|mk_|sg_|sergyev_console_pw|office_tab)/.test(k); }).forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {} UI.login = { step: 'email', email: '', err: '', busy: false }; if (at) fetch(SB + '/auth/v1/logout', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + at } }).catch(function () {}); location.hash = ''; renderLogin(); },
   otherMail: function () { UI.login.step = 'email'; UI.login.err = ''; renderLogin(); },
   sendApts: function () {
     var b = cur(), ids = Object.keys(UI.pick[b.id] || {}), list = D.props.filter(function (p) { return ids.indexOf(String(p.id)) >= 0; }); if (!list.length) return;
