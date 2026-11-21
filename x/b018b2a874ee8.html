@@ -10,6 +10,14 @@
 .m .unl{min-width:0!important;padding:6px 10px}
 .lgh .cnt{font-size:13px;font-weight:800;border-radius:999px;padding:1px 9px;background:var(--gold-soft);margin-inline-start:auto}
 .tourf{margin-top:10px;padding:12px;border:1.5px solid var(--line,#ddd);border-radius:14px;display:grid;gap:8px}.tourf label{display:grid;gap:4px;font-size:14px;font-weight:700}.tourf select,.tourf input{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid #ccc;width:100%;box-sizing:border-box}.tourf .tr2{display:grid;grid-template-columns:2fr 1fr;gap:8px}.tourf .tS{margin:0;font-size:14px}
+.asg{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;color:var(--muted)}.asg select{font:inherit;font-size:14px;padding:4px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);max-width:60%}
+.asg.on select{border-color:var(--gold);color:var(--gold);font-weight:700}
+.selb{width:24px;height:24px;accent-color:var(--gold);flex:none;margin-inline-end:8px;cursor:pointer}
+.card.sel{outline:2px solid var(--gold);outline-offset:-2px}
+#abar{position:fixed;inset-inline:0;bottom:0;z-index:60;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.08);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+#abar[hidden]{display:none}#abar b{font-size:15px}#abar select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+#abar button{font:inherit;font-weight:700;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}#abar .go{background:var(--gold);border-color:var(--gold);color:#fff}
+body.asgmode{padding-bottom:90px}
 </style><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>לוח קונים סרגייב</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap">
 <style>
@@ -163,7 +171,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
       <button type="button" class="add buyersOnly" id="addBtn">+ קונה חדש</button>
     </div>
     <div class="chips buyersOnly qv" id="views" role="group" aria-label="תצוגה"></div>
-    <div class="ctl buyersOnly"><button type="button" id="advT" class="advT" aria-expanded="false" aria-controls="adv">🔎 חיפוש מתקדם<span id="advN"></span></button>
+    <div class="ctl buyersOnly"><button type="button" id="asgT" class="advT" hidden aria-pressed="false">👥 שיוך לסוכן</button><button type="button" id="advT" class="advT" aria-expanded="false" aria-controls="adv">🔎 חיפוש מתקדם<span id="advN"></span></button>
       <select id="sort" aria-label="מיון"><option value="fresh">🔥 החדשים קודם</option><option value="new">קשר אחרון – מהחדש</option><option value="old">קשר אחרון – מהישן</option><option value="rate">לפי דירוג</option></select></div>
     <div class="actf buyersOnly" id="actf"></div>
     <div class="adv buyersOnly" id="adv" hidden>
@@ -172,7 +180,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
       <div class="ag"><span class="al">תקציב הקונה</span><div class="bud"><input id="bMin" inputmode="decimal" placeholder="מ- (למשל 2)" aria-label="תקציב מינימום במיליונים"><span>–</span><input id="bMax" inputmode="decimal" placeholder="עד (למשל 3.2)" aria-label="תקציב מקסימום במיליונים"><span class="ah">מיליון ₪</span></div></div>
       <div class="ag"><span class="al">שכונה</span><select id="hoodf" aria-label="שכונה"><option value="">כל השכונות</option></select></div>
       <div class="ag"><span class="al">דירוג</span><div class="chips" id="rates" role="group" aria-label="דירוג"></div></div>
-      <div class="ag"><span class="al">סטטוס</span><select id="status" aria-label="סטטוס"><option value="פעיל">פעילים</option><option value="בהקפאה">בהקפאה</option><option value="קנה">קנו</option><option value="">כולם</option></select></div>
+      <div class="ag" id="agfw" hidden><span class="al">סוכן</span><select id="agentf" aria-label="סוכן"><option value="">כל הסוכנים</option></select></div><div class="ag"><span class="al">סטטוס</span><select id="status" aria-label="סטטוס"><option value="פעיל">פעילים</option><option value="בהקפאה">בהקפאה</option><option value="קנה">קנו</option><option value="">כולם</option></select></div>
       <div class="aft"><button type="button" class="ghostb" id="advClr">נקה הכל</button><button type="button" class="add" id="advGo">הצג קונים</button></div>
     </div>
   </div>
@@ -391,21 +399,44 @@ function setSync(){ const s=$("sync"); const n=PEND.length;
   else if(syncState=="err"){ s.className="sync err"; s.textContent=n?"לא מחובר · "+n+" ממתינים":"לא מחובר לגיליון"; }
   else { s.className="sync"; s.textContent=n?"מסנכרן "+n+"…":"מתחבר…"; } }
 function save(){ store.set(K_CACHE,S); store.set(K_PEND,PEND); }
-function applyOp(op){ if(op.action=="setProfile"){ const i=S.profiles.findIndex(x=>x.name==op.profile.name); if(i>=0) S.profiles[i]=op.profile; else S.profiles.push(op.profile);
+function applyOp(op){ if(op.action=="assign"){ (op.rows||[]).forEach(x=>{ const b=S.buyers.find(y=>y.row==x.row); if(b) b.agent=op.agent=="moshe"?"":op.agent; }); return; }
+  if(op.action=="setProfile"){ const i=S.profiles.findIndex(x=>x.name==op.profile.name); if(i>=0) S.profiles[i]=op.profile; else S.profiles.push(op.profile);
     const b=S.buyers.find(x=>(op.row&&x.row==op.row)||(op.tmp&&x.tmp==op.tmp)); if(b) b.profile=op.profile.name; return; }
   if(op.action=="update"){ const b=S.buyers.find(x=>x.row==op.row); if(b) Object.assign(b,op.fields); }
   else if(op.action=="add" && !S.buyers.some(x=>x.tmp==op.tmp)){ S.buyers.unshift({row:0,tmp:op.tmp,id:"חדש",name:op.name,phone:op.phone,profile:op.profile,rating:op.rating||"",notes:"",month:"",last:today(),status:"פעיל"}); } }
 async function pull(){ if(!DATA.script) return; try{ const r=await fetch(DATA.script+"?t="+encodeURIComponent(DATA.token)); const j=await r.json(); if(!j.ok) throw 0;
-    const firstPull=!PULLED; PULLED=true; S={buyers:j.buyers,profiles:j.profiles,at:j.at}; OLD_SCRIPT=!j.v; PEND.forEach(applyOp); syncState="ok"; save(); if(firstPull) FROZEN=null; render(); flush(); }catch(e){ syncState="err"; setSync(); } }
+    const firstPull=!PULLED; PULLED=true; S={buyers:j.buyers,profiles:j.profiles,agents:j.agents||[],at:j.at}; OLD_SCRIPT=!j.v; PEND.forEach(applyOp); syncState="ok"; save(); if(firstPull) FROZEN=null; render(); flush(); }catch(e){ syncState="err"; setSync(); } }
 let flushing=false, OLD_SCRIPT=false;
 async function flush(){ if(!DATA.script||flushing||!PEND.length) { setSync(); return; } flushing=true; setSync();
   try{ let i=0; while(i<PEND.length){ const op=PEND[i]; if(op.action=="setProfile"&&OLD_SCRIPT){ i++; continue; }
       const r=await fetch(DATA.script,{method:"POST",body:JSON.stringify(Object.assign({t:DATA.token},op))}); const j=await r.json();
-      if(!j.ok && j.error!="row mismatch") throw 0;
+      if(!j.ok && j.error!="row mismatch" && j.error!="unknown agent") throw 0;
       if(op.action=="setProfile"&&!j.v){ OLD_SCRIPT=true; i++; continue; }
-      PEND.splice(i,1); if(j.ok){ S={buyers:j.buyers,profiles:j.profiles,at:j.at}; PEND.forEach(applyOp); } save(); }
+      PEND.splice(i,1); if(j.ok){ S={buyers:j.buyers,profiles:j.profiles,agents:j.agents||[],at:j.at}; PEND.forEach(applyOp); } save(); }
     syncState=PEND.some(o=>o.action=="setProfile")&&OLD_SCRIPT?"old":"ok"; }catch(e){ syncState="err"; }
   flushing=false; save(); setSync(); render(); }
+const AGENT_MODE=(()=>{try{const A=window.parent!==window&&window.parent.SG_AGENT;return !!(A&&A.agentMode)}catch(_){return false}})();
+const SEL=new Set(); let ASG=false, LAST_R=[];
+const agents=()=>(S.agents||[]);
+const canAssign=()=>!AGENT_MODE&&!!DATA.script&&agents().length>1;
+const agentOf=b=>b.agent||"moshe";
+const agentLabel=s=>s=="moshe"?"משרד סרגייב":((agents().find(a=>a.slug==s)||{}).name||s);
+function agentSelect(cur){ const s=el("select"); agents().forEach(a=>{ const o=el("option",null,agentLabel(a.slug)); o.value=a.slug; if(a.slug==cur) o.selected=true; s.append(o); }); return s; }
+function assign(list,slug){ list=list.filter(b=>b.row); if(!list.length){ toast("הקונה עוד לא נשמר בגיליון, נסה שוב בעוד רגע"); return; }
+  list.forEach(b=>b.agent=slug=="moshe"?"":slug);
+  PEND.push({action:"assign",agent:slug,rows:list.map(b=>({row:b.row,phone:b.phone}))});
+  toast(list.length==1?list[0].name+" עבר אל "+agentLabel(slug):list.length+" קונים עברו אל "+agentLabel(slug)); save(); render(); flush(); }
+function asgBar(){ let bar=$("abar"); if(!bar){ bar=el("div"); bar.id="abar"; document.body.append(bar); }
+  bar.hidden=!ASG; document.body.classList.toggle("asgmode",ASG); if(!ASG) return; bar.innerHTML="";
+  bar.append(el("b",null,"נבחרו "+SEL.size));
+  const all=el("button",null,"בחר את כל "+LAST_R.length+" המוצגים"); all.type="button"; all.onclick=()=>{ LAST_R.forEach(b=>SEL.add(bkey(b))); render(); }; bar.append(all);
+  if(SEL.size){ const cl=el("button",null,"נקה"); cl.type="button"; cl.onclick=()=>{ SEL.clear(); render(); }; bar.append(cl); }
+  bar.append(el("span",null,"העבר אל")); const s=agentSelect(""); s.id="abarAg"; const ph=el("option",null,"בחר סוכן…"); ph.value=""; ph.selected=true; s.prepend(ph); bar.append(s);
+  const go=el("button","go","העבר"); go.type="button"; go.onclick=()=>{ const to=$("abarAg").value; if(!to){ toast("בחר סוכן"); return; } if(!SEL.size){ toast("סמן קונים קודם"); return; }
+    const list=S.buyers.filter(b=>SEL.has(bkey(b))); SEL.clear(); assign(list,to); }; bar.append(go);
+  const x=el("button",null,"סיום"); x.type="button"; x.onclick=()=>{ ASG=false; SEL.clear(); $("asgT").setAttribute("aria-pressed","false"); render(); }; bar.append(x); }
+function asgSetup(){ const ok=canAssign(); $("asgT").hidden=!ok; $("agfw").hidden=!ok; if(!ok) return;
+  const f=$("agentf"); if(f.options.length!=agents().length+1){ const cur=st.agent||""; f.innerHTML='<option value="">כל הסוכנים</option>'; agents().forEach(a=>{ const o=el("option",null,agentLabel(a.slug)); o.value=a.slug; f.append(o); }); f.value=cur; } }
 function change(b,fields){ Object.assign(b,fields); markDone(b); if(b.row){ PEND.push({action:"update",row:b.row,phone:b.phone,fields}); } save(); render(); flush(); }
 
 // ---- UI
@@ -467,9 +498,11 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
   ["A","A+","A++"].forEach(r=>{ const x=el("button",null,r); x.type="button"; x.setAttribute("aria-pressed",b.rating==r); x.onclick=()=>change(b,{rating:b.rating==r?"":r}); rate.append(x); });
   head.append(rate); if(DONE.has(bkey(b))){ li.classList.add("done"); const db=el("div","donebar"); db.append(el("span",null,"✓ טופל היום"));
     const nx=el("button",null,"לקונה הבא ↓"); nx.type="button"; nx.onclick=()=>{ let n=li.nextElementSibling; while(n&&n.classList.contains("done")) n=n.nextElementSibling; (n||li.nextElementSibling||li).scrollIntoView({behavior:"smooth",block:"start"}); }; db.append(nx); li.append(db); }
+  if(ASG){ const cb=el("input","selb"); cb.type="checkbox"; cb.checked=SEL.has(bkey(b)); cb.setAttribute("aria-label","בחירת "+b.name); cb.onchange=()=>{ cb.checked?SEL.add(bkey(b)):SEL.delete(bkey(b)); li.classList.toggle("sel",cb.checked); asgBar(); }; head.prepend(cb); if(cb.checked) li.classList.add("sel"); }
   li.append(head);
   const tel=el("div","foot"); tel.append(el("span","tel",(b.phone||"").replace(/^(\d{3})(\d+)$/,"$1-$2")));
   if(b.id) tel.append(el("span",null,"· קונה "+b.id)); li.append(tel);
+  if(canAssign()){ const a=el("label","asg"+(agentOf(b)!="moshe"?" on":"")); a.append("👤 סוכן:"); const s=agentSelect(agentOf(b)); s.setAttribute("aria-label","הסוכן של "+b.name); s.onchange=()=>assign([b],s.value); a.append(s); li.append(a); }
   const w=el("p","want"); const c=crit(I.p); const set=I.p&&I.p.deal&&I.p.rmin;
   if(isPersonal(b.profile)){ w.append(el("b",null,"מחפש: "),(I.p.deal=="השכרה"?"שכירות · ":"")+c); if(I.p.hoods) w.append(" · "+I.p.hoods); if(I.p.note) w.append(" · "+I.p.note); }
   else { w.append("קונה של ",el("b",null,b.profile||"ללא פרופיל")); if(c) w.append(" · "+c); if(I.p&&I.p.hoods) w.append(" · "+I.p.hoods); }
@@ -621,7 +654,7 @@ function setMode(m){ st.mode=m; $("mB").setAttribute("aria-pressed",m=="b"); $("
 function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   let r=S.buyers.filter(b=>!st.status||(b.status||"פעיל")==st.status);
   if(st.rate) r=r.filter(b=>st.rate=="ללא"?!b.rating:b.rating==st.rate);
-  if(st.rooms.size) r=r.filter(wantsRooms);  r=r.filter(advMatch);
+  if(st.rooms.size) r=r.filter(wantsRooms);  r=r.filter(advMatch); asgSetup(); if(st.agent&&canAssign()) r=r.filter(b=>agentOf(b)==st.agent);
   if(st.view=="today"){ const K="kb_batch2_"+today(); let B=store.get(K,null);
     if(!B||!B.length){ B=S.buyers.filter(inQueue).sort(QCMP).slice(0,10).map(bkey); store.set(K,B); }
     const bs=new Set(B); r=r.filter(b=>bs.has(bkey(b))); }
@@ -641,6 +674,7 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   const pos=b=>FROZEN.has(bkey(b))?FROZEN.get(bkey(b)):-1;
   r.sort((a,b)=>pos(a)-pos(b));
   $("advGo").textContent="הצג "+r.length+" קונים"; $("sect").textContent=r.length+" קונים"+(st.rooms.size?" שמחפשים "+[...st.rooms].map(i=>RMF[i][0]).join(" / ")+" חד׳":"")+(st.must.size?" · חובה: "+[...st.must].map(k=>MUST.find(m=>m[0]==k)[1].replace(/^\S+\s/,"")).join(", "):"")+(st.bmax?" · עד "+st.bmax/1e6+"M":"")+(st.bmin?" · מ-"+st.bmin/1e6+"M":"")+(st.hood?" · "+st.hood:"")+(st.view=="late"?" שלא דיברנו איתם יותר משבוע":st.view=="new"?" עם דירות חדשות מאז הקשר האחרון":"");
+  LAST_R=r; asgBar();
   const list=$("list"); list.innerHTML="";
   if(st.view=="today"){ const dn=r.filter(b=>DONE.has(bkey(b))).length; $("sect").textContent=dn>=r.length&&r.length?"🎉 סיימת את "+r.length+" הקונים של היום! מחר מחכים לך 10 חדשים.":"10 הקונים של היום · טופלו "+dn+" מתוך "+r.length; }
   if(!r.length){ list.append(el("li","empty",st.view=="today"?"🎉 סיימת את התור של היום! כל הקונים קיבלו יחס.":"אין קונים בתצוגה הזאת.")); return; }
@@ -650,6 +684,8 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
 $("banner").innerHTML=""; if(!DATA.script){ $("banner").append(el("div","banner","הלוח עדיין לא מחובר לגיליון. דירוג, הערות ותאריכי קשר נשמרים בינתיים בטלפון הזה, ויעברו לגיליון ברגע שהחיבור יוגדר.")); }
 $("q").oninput=e=>{st.q=e.target.value; if(st.mode=="a"){ st.aid=null; QUEUE=null; } render();};
 $("status").onchange=e=>{st.status=e.target.value; advSave(); render();};
+$("agentf").onchange=e=>{st.agent=e.target.value; render();};
+$("asgT").onclick=()=>{ ASG=!ASG; if(!ASG) SEL.clear(); $("asgT").setAttribute("aria-pressed",ASG); render(); };
   try{ const a=JSON.parse(localStorage.getItem("kb_adv")||"null"); if(a){ (a.must||[]).forEach(k=>st.must.add(k)); st.bmin=a.bmin||0; st.bmax=a.bmax||0; st.hood=a.hood||""; st.rate=a.rate||""; if(typeof a.status=="string") st.status=a.status; } }catch(_){}
   $("advT").onclick=()=>{ const a=$("adv"),o=a.hidden; a.hidden=!o; $("advT").setAttribute("aria-expanded",o); };
   $("advGo").onclick=()=>{ $("adv").hidden=true; $("advT").setAttribute("aria-expanded","false"); window.scrollTo({top:0}); };
