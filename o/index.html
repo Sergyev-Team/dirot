@@ -17,7 +17,7 @@
 .F{font-weight:300}
 .wrap{max-width:680px;margin:0 auto;padding:0 14px 50px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 2px}.top img{height:44px;background:#fff;border-radius:10px;padding:3px 6px}.top small{color:var(--muted);font-weight:700}
-.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px}.tl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr)}.tl li{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;gap:4px;min-width:0}.tl li:not(:last-child)::after{content:"";position:absolute;top:14px;inset-inline-start:50%;width:100%;height:3px;background:var(--line)}.tl li.dn:not(:last-child)::after{background:var(--gold)}.tl i{font-style:normal;position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--card);border:2px solid var(--line);color:var(--muted)}.tl .dn i{background:var(--gold);border-color:var(--gold);color:#fff}.tl .cu i{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 4px var(--soft)}.tl b{font-size:13px}.tl small{font-size:11px;color:var(--muted);line-height:1.25}.tl .cu small{color:var(--gold);font-weight:700}.tln{margin:14px 0 0;padding:10px 12px;background:var(--soft);border-radius:12px;font-size:14px;line-height:1.5}
 h2{font-weight:600;font-size:21px;margin:26px 2px 10px}.card h2{margin:0 0 10px}
 .hero{position:relative;min-height:290px;margin:0 -14px;background:#2a2d33 center/cover no-repeat;color:#fff;display:flex;flex-direction:column;justify-content:space-between}
 .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,16,.55) 0,rgba(10,12,16,.08) 38%,rgba(10,12,16,.86) 100%)}
@@ -146,6 +146,14 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
  const lkH=[L?lkI("#16191F","⌂","דף הנכס באתר שלנו","sergeyev-team.com","../d/"+p.id+".html"):"",okU(LK.y2)?lkI(CH.y2.c,CH.y2.i,"המודעה ביד2","",LK.y2):"",okU(LK.md)?lkI(CH.md.c,CH.md.i,"המודעה במדלן","",LK.md):"",okU(LK.fbp)?lkI(CH.fb.c,CH.fb.i,"הפוסט בדף הפייסבוק שלנו","",LK.fbp):"",
   ...gL.map(k=>lkI(CH.fb.c,CH.fb.i,OGROUPS[k]||"קבוצת פייסבוק","פוסט בקבוצת פייסבוק",LK.g[k])),okU(LK.ig)?lkI(CH.ig.c,CH.ig.i,"הפוסט באינסטגרם","",LK.ig):"",okU(LK.tt)?lkI("#111","♪","הסרטון בטיקטוק","",LK.tt):"",
   ...(LK.x||[]).filter(e=>okU(e.u)).map(e=>lkI(CH.more.c,"🔗",e.t||"קישור","",e.u))].join("");
+ const stg=P.stage||"",first=a=>a.length?Math.min(...a.map(e=>e.ts)):0,ds=ts=>ts?new Date(ts).toLocaleDateString("he-IL",{day:"numeric",month:"numeric"}):"";
+ const pubE=ev.filter(e=>["fbgroup","fb","ig","story","y2","md"].includes(e.type)),phTs=first(ev.filter(e=>e.type==="photo"||e.type==="media"))||(L&&L.imgs&&L.imgs.length?(start||from):0);
+ const STP=[{n:"חתימה",ok:!!from,s:ds(from)},{n:"צילום",ok:!!phTs,s:ds(phTs)},{n:"פרסום",ok:pubE.length>0,s:pubE.length?pubE.length+" פרסומים":""},
+  {n:"סיורים",ok:tours>0,s:tours?tours+" קונים":""},{n:"הצעות",ok:offers>0||["offer","nego","closed"].includes(stg),s:offers?offers+" הצעות":"יש הצעה"},{n:"עסקה",ok:stg==="closed",s:"נסגרה"}];
+ let LD=-1;STP.forEach((s,i)=>{if(s.ok)LD=i});const CUR=LD+1<STP.length?LD+1:-1,nx=(CAL.next||[])[0];
+ const TXT=["אנחנו מכינים את הנכס ליציאה לשיווק.","מצלמים את הנכס ומכינים את חומרי השיווק.","מפרסמים את הנכס ביד2, במדלן, בפייסבוק ובאינסטגרם.",
+  "מזמינים קונים מתאימים לראות את הנכס."+(nx?" הסיור הבא: "+heD(dt(nx))+" ב-"+heT(dt(nx))+".":""),"מחכים להצעות מחיר מהקונים שראו את הנכס.",stg==="nego"?"אנחנו במשא ומתן מול קונה.":"עובדים על סגירת עסקה."];
+ const tlH=`<h2>איפה אנחנו בתהליך</h2><div class="card"><ol class="tl" aria-label="שלבי מכירת הנכס">${STP.map((s,i)=>`<li class="${i<=LD?"dn":i===CUR?"cu":""}"${i===CUR?' aria-current="step"':""}><i aria-hidden="true">${i<=LD?"✓":i+1}</i><b>${s.n}</b><small>${i<=LD?E(s.s):i===CUR?"עכשיו":""}</small></li>`).join("")}</ol><p class="tln">${CUR<0?"🎉 העסקה נסגרה. תודה שבחרתם בנו!":"<b>עכשיו:</b> "+E(TXT[CUR])}</p></div>`;
  const spec=L?[L.rooms?L.rooms+" חדרים":"",L.sqm?L.sqm+" מ״ר":"",L.floor!==""&&L.floor!=null?"קומה "+L.floor:""].filter(Boolean).join(" · "):"";
  $("#app").innerHTML=`<header class="hero" style="${img?`background-image:url('${E(img)}')`:""}"><div class="top"><img src="logo.jpg" alt="צוות סרגייב"><small><a href="#" id="lo">יציאה</a></small></div>
   <div class="hi"><p>שלום ${E(p.name||"")}, זה הדוח החי של הנכס שלכם</p><h1>${E(addr)}</h1><div class="meta">${E(spec)}</div></div></header>
@@ -153,6 +161,7 @@ function render(){document.body.classList.remove("lgb");const p=P.p,from=dt(p.fr
   <div class="k4"><div><b>${V.total||0}</b><span>צפיות בדף הנכס</span>${V.w7?`<i>+${V.w7} השבוע</i>`:""}</div><div><b>${leads}</b><span>פניות של קונים</span></div><div><b>${tours}</b><span>קונים בסיורים</span></div><div><b>${offers}</b><span>הצעות מחיר</span></div></div>
   ${MT.buyers?`<div class="match"><b>${MT.buyers}</b><p>קונים פעילים במאגר שלנו מחפשים בדיוק נכס כזה, והנכס נשלח לכל אחד מהם אישית.</p></div>`:""}
 </section>
+ ${tlH}
  ${lkH?`<h2>הנכס שלכם ברשת</h2><div class="card"><ul class="lks">${lkH}</ul>${gN?'<p class="hint" style="margin:8px 0 0">חלק מקבוצות הפייסבוק סגורות – כדי לראות את הפוסט צריך להיות חברים בקבוצה.</p>':""}</div>`:""}
  ${reqH?`<h2>מחכה לאישור שלכם</h2>${reqH}`:""}
  ${nextH}
