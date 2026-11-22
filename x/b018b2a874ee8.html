@@ -10,6 +10,7 @@
 .m .unl{min-width:0!important;padding:6px 10px}
 .lgh .cnt{font-size:13px;font-weight:800;border-radius:999px;padding:1px 9px;background:var(--gold-soft);margin-inline-start:auto}
 .tourf{margin-top:10px;padding:12px;border:1.5px solid var(--line,#ddd);border-radius:14px;display:grid;gap:8px}.tourf label{display:grid;gap:4px;font-size:14px;font-weight:700}.tourf select,.tourf input{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid #ccc;width:100%;box-sizing:border-box}.tourf .tr2{display:grid;grid-template-columns:2fr 1fr;gap:8px}.tourf .tS{margin:0;font-size:14px}
+.nbx{border:1.5px solid var(--gold);background:var(--gold-soft);border-radius:14px;padding:10px 12px;margin:6px 0 8px}.nbx b{display:block;margin-bottom:4px}.nbx a{color:inherit}.nbx .nbl{font-size:14px;line-height:1.7}.nbx .nbr{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.nbx button{font:inherit;font-size:14px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .asg{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;color:var(--muted)}.asg select{font:inherit;font-size:14px;padding:4px 8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);max-width:60%}
 .asg.on select{border-color:var(--gold);color:var(--gold);font-weight:700}
 .selb{width:24px;height:24px;accent-color:var(--gold);flex:none;margin-inline-end:8px;cursor:pointer}
@@ -303,7 +304,7 @@ if(DATA.script) fetch(DATA.script+"?removed=1").then(r=>r.json()).then(j=>{ if(!
   for(let i=APTS.length-1;i>=0;i--) if(rm[String(APTS[i].id)]){ APTS.splice(i,1); n++; } if(n) render(); }).catch(()=>{});
 let S=store.get(K_CACHE,null) || {buyers:DATA.buyers, profiles:DATA.profiles, at:DATA.built};
 let PEND=store.get(K_PEND,[]);
-const st={view:"all", qmore:false, rate:"", status:"פעיל", q:"", sort:"fresh", rooms:new Set(), must:new Set(), bmin:0, bmax:0, hood:""};
+const st={view:location.hash==="#nb"?"nb":"all", qmore:false, rate:"", status:"פעיל", q:"", sort:"fresh", rooms:new Set(), must:new Set(), bmin:0, bmax:0, hood:""};
 let syncState=DATA.script?"…":"local";
 
 // ---- matching
@@ -399,7 +400,8 @@ function setSync(){ const s=$("sync"); const n=PEND.length;
   else if(syncState=="err"){ s.className="sync err"; s.textContent=n?"לא מחובר · "+n+" ממתינים":"לא מחובר לגיליון"; }
   else { s.className="sync"; s.textContent=n?"מסנכרן "+n+"…":"מתחבר…"; } }
 function save(){ store.set(K_CACHE,S); store.set(K_PEND,PEND); }
-function applyOp(op){ if(op.action=="assign"){ (op.rows||[]).forEach(x=>{ const b=S.buyers.find(y=>y.row==x.row); if(b) b.agent=op.agent=="moshe"?"":op.agent; }); return; }
+function applyOp(op){ if(op.action=="nbdone"){ S.buyers.forEach(b=>{ if(String(b.phone||"").replace(/\D/g,"").slice(-9)===String(op.phone||"").replace(/\D/g,"").slice(-9)) b.isNew=""; }); return; }
+  if(op.action=="assign"){ (op.rows||[]).forEach(x=>{ const b=S.buyers.find(y=>y.row==x.row); if(b) b.agent=op.agent=="moshe"?"":op.agent; }); return; }
   if(op.action=="setProfile"){ const i=S.profiles.findIndex(x=>x.name==op.profile.name); if(i>=0) S.profiles[i]=op.profile; else S.profiles.push(op.profile);
     const b=S.buyers.find(x=>(op.row&&x.row==op.row)||(op.tmp&&x.tmp==op.tmp)); if(b) b.profile=op.profile.name; return; }
   if(op.action=="update"){ const b=S.buyers.find(x=>x.row==op.row); if(b) Object.assign(b,op.fields); }
@@ -437,12 +439,14 @@ function asgBar(){ let bar=$("abar"); if(!bar){ bar=el("div"); bar.id="abar"; do
   const x=el("button",null,"סיום"); x.type="button"; x.onclick=()=>{ ASG=false; SEL.clear(); $("asgT").setAttribute("aria-pressed","false"); render(); }; bar.append(x); }
 function asgSetup(){ const ok=canAssign(); $("asgT").hidden=!ok; $("agfw").hidden=!ok; if(!ok) return;
   const f=$("agentf"); if(f.options.length!=agents().length+1){ const cur=st.agent||""; f.innerHTML='<option value="">כל הסוכנים</option>'; agents().forEach(a=>{ const o=el("option",null,agentLabel(a.slug)); o.value=a.slug; f.append(o); }); f.value=cur; } }
+function nbDone(b){ if(!b.isNew) return; b.isNew=""; PEND.push({action:"nbdone",phone:b.phone}); save(); render(); flush(); }
 function change(b,fields){ Object.assign(b,fields); markDone(b); if(b.row){ PEND.push({action:"update",row:b.row,phone:b.phone,fields}); } save(); render(); flush(); }
 
 // ---- UI
 function views(){ const all=S.buyers.filter(b=>!st.status||(b.status||"פעיל")==st.status);
   const late=all.filter(b=>{const d=info(b).d; return d===null||d>7;}); const fresh=all.filter(b=>info(b).nw>0);
-  const V=[["all","כולם",all.length],["today","📋 10 של היום",10],["late","לחזור אליהם",late.length],["new","דירות חדשות",fresh.length]];
+  const nbN=S.buyers.filter(b=>b.isNew).length;
+  const V=(nbN||st.view=="nb"?[["nb","🆕 קונים חדשים",nbN]]:[]).concat([["all","כולם",all.length],["today","📋 10 של היום",10],["late","לחזור אליהם",late.length],["new","דירות חדשות",fresh.length]]);
   const box=$("views"); box.innerHTML=""; V.forEach(([k,t,n])=>{ const c=el("button","chip",t); c.type="button"; c.setAttribute("aria-pressed",st.view==k); c.append(el("span","n",n)); c.onclick=()=>{st.view=k; render();}; box.append(c); });
   const unset=all.filter(b=>{const p=prof(b.profile); return !(p&&p.deal&&p.rmin);}).length;
   if(unset){ const c=el("button","chip","בלי הגדרה"); c.type="button"; c.setAttribute("aria-pressed",st.view=="unset"); c.append(el("span","n",unset)); c.onclick=()=>{st.view=st.view=="unset"?"all":"unset"; render();}; box.append(c); }
@@ -500,6 +504,11 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
     const nx=el("button",null,"לקונה הבא ↓"); nx.type="button"; nx.onclick=()=>{ let n=li.nextElementSibling; while(n&&n.classList.contains("done")) n=n.nextElementSibling; (n||li.nextElementSibling||li).scrollIntoView({behavior:"smooth",block:"start"}); }; db.append(nx); li.append(db); }
   if(ASG){ const cb=el("input","selb"); cb.type="checkbox"; cb.checked=SEL.has(bkey(b)); cb.setAttribute("aria-label","בחירת "+b.name); cb.onchange=()=>{ cb.checked?SEL.add(bkey(b)):SEL.delete(bkey(b)); li.classList.toggle("sel",cb.checked); asgBar(); }; head.prepend(cb); if(cb.checked) li.classList.add("sel"); }
   li.append(head);
+  if(b.isNew){ const I0=info(b),top=(I0.m||[]).slice().sort((x,y)=>(y.first||"")>(x.first||"")?1:-1).slice(0,3),box=el("div","nbx");
+    box.append(el("b",null,"🆕 קונה חדש · נכנס "+String(b.isNew).split("-").reverse().slice(0,2).join("/")));
+    const l=el("div","nbl"); if(top.length){ l.append(top.length+" דירות שמתאימות לו:"); top.forEach(a=>{ l.append(el("br")); const x=el("a",null,"#"+a.id+" "+String((a.street||"")+" "+(a.hn||"")).trim()+(a.rooms?" · "+a.rooms+" חד׳":"")+(a.price?" · "+(a.price>=1e6?(a.price/1e6).toFixed(2).replace(/\.?0+$/,"")+"M":a.price.toLocaleString("he-IL")):"")); x.href=SITE+"d/"+a.id+".html"; x.target="_blank"; x.rel="noopener"; l.append("· ",x); }); }
+    else l.append(I0.p&&I0.p.deal?"אין כרגע דירות שמתאימות בדיוק.":"עוד לא הוגדר מה הוא מחפש. ההודעה תשלח קישור לכל הדירות."); box.append(l);
+    const rr=el("div","nbr"),ok=el("button",null,"✓ טופל"); ok.type="button"; ok.onclick=()=>{ nbDone(b); toast("הקונה ירד מהקונים החדשים"); }; rr.append(ok); box.append(rr); li.append(box); }
   const tel=el("div","foot"); tel.append(el("span","tel",(b.phone||"").replace(/^(\d{3})(\d+)$/,"$1-$2")));
   if(b.id) tel.append(el("span",null,"· קונה "+b.id)); li.append(tel);
   if(canAssign()){ const a=el("label","asg"+(agentOf(b)!="moshe"?" on":"")); a.append("👤 סוכן:"); const s=agentSelect(agentOf(b)); s.setAttribute("aria-label","הסוכן של "+b.name); s.onchange=()=>assign([b],s.value); a.append(s); li.append(a); }
@@ -524,7 +533,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
   const r=el("div","row"); const code=I.p&&I.p.code; const link=code?SITE+"k/"+code+".html?d="+ddmm():(I.p&&I.p.deal&&I.p.rmin&&isPersonal(b.profile)?searchLink(I.p):"");
   const send=el("a","btn wa","שליחת דירות"); send.target="_blank"; send.rel="noopener";
   if(link&&b.phone){ const msg=(I.nw&&I.l?"היי "+b.name+", כאן "+ID_SHORT+" מצוות סרגייב. עלו "+I.nw+" דירות חדשות שמתאימות לחיפוש שלך ("+c+") 👇":"היי "+b.name+", כאן "+ID_SHORT+" מצוות סרגייב. ריכזתי עבורך את הדירות שמתאימות לחיפוש שלך ("+c+") 👇")+"\n"+link;
-    send.href="https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(msg); send.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); toast("עודכן קשר אחרון: היום"); },300); }
+    send.href="https://wa.me/972"+b.phone.replace(/\D/g,"").replace(/^0/,"")+"?text="+encodeURIComponent(msg); send.onclick=()=>setTimeout(()=>{ change(b,{last:today()}); nbDone(b); toast("עודכן קשר אחרון: היום"); },300); }
   else { send.removeAttribute("href"); send.setAttribute("aria-disabled","true"); send.style.opacity=.5; send.textContent=link?"אין טלפון":"אין קישור לפרופיל"; }
   r.append(send);
   const chat=el("a","btn","וואטסאפ"); chat.href="https://wa.me/972"+(b.phone||"").replace(/\D/g,"").replace(/^0/,""); chat.target="_blank"; chat.rel="noopener"; r.append(chat); if(window.SIGNBTN) r.append(window.SIGNBTN(b)); r.append(tourBtn(b,I,li));
@@ -661,6 +670,7 @@ function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   if(st.view=="late") r=r.filter(b=>{const d=info(b).d; return d===null||d>7||DONE.has(bkey(b));});
   if(HIDE_DONE) r=r.filter(b=>!DONE.has(bkey(b)));
   if(st.view=="new") r=r.filter(b=>info(b).nw>0);
+  if(st.view=="nb") r=S.buyers.filter(b=>b.isNew);
   if(st.view=="unset") r=r.filter(b=>{const p=prof(b.profile); return !(p&&p.deal&&p.rmin)||DONE.has(bkey(b));});
   if(st.q){ const q=st.q.replace(/[-\s]/g,"").toLowerCase(); r=r.filter(b=>(b.name+b.phone+b.profile).replace(/[-\s]/g,"").toLowerCase().includes(q)); }
   const dv=b=>{const d=info(b).d; return d===null?99999:d;};

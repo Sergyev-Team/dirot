@@ -175,7 +175,7 @@ var SHEET_API = 'https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec
 var SITE = 'https://sergeyev-team.com/';
 var RT_KEY = 'sg_app_rt', SIGN_KEY = 'sergyev_agent_code';
 var PAGE = 60, TZ = 'Asia/Jerusalem';
-var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at';
+var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at,new_at';
 var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at';
 var INTERVAL = { 'A++': 3, 'A+': 7, 'A': 14 };
 
@@ -448,6 +448,11 @@ function taskRow(t) {
 function openTasks() { return D.tasks.filter(function (t) { return !t.done; }).sort(function (a, b) { return (a.due || '9') < (b.due || '9') ? -1 : 1; }); }
 
 // ===== היום שלי =====
+function newRow(b) {
+  var m = matchProps(b), d = String(b.new_at || '').split('-').reverse().slice(0, 2).join('/');
+  return '<div class="row" style="display:block"><a class="main" href="#b/' + b.id + '" style="display:block;text-decoration:none;color:inherit"><b>' + esc(b.name) + '</b><small>נכנס ' + esc(d) + ' · ' + (profileOf(b) ? (m.length ? m.length + ' דירות מתאימות' : 'אין כרגע דירות מתאימות') : 'עוד לא הוגדר מה מחפש') + '</small></a>' +
+    '<div class="acts" style="margin-top:8px">' + (m.length && b.phone ? '<button class="btn pri" type="button" data-act="nbSend" data-id="' + b.id + '">שלח לו ' + Math.min(5, m.length) + ' דירות</button>' : '') + '<button class="btn" type="button" data-act="nbDone" data-id="' + b.id + '">טופל</button></div></div>';
+}
 function vToday() {
   var t = today(), who = F.d.agent, mine = function (x) { return !who || x.agent_id === who; };
   var due = D.buyers.filter(function (b) { return mine(b) && b.status === 'פעיל' && b.next_contact && b.next_contact <= t; }).sort(function (a, b) { return a.next_contact < b.next_contact ? -1 : 1; });
@@ -457,7 +462,9 @@ function vToday() {
   var date = new Intl.DateTimeFormat('he-IL', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   var stuck = D.outbox && D.outbox.stuck ? '<div class="alert" role="alert">' + D.outbox.stuck + ' שינויים לא הגיעו לגיליון. צריך לבדוק את הסנכרון.</div>' : '';
   var team = isAdmin() && D.requests.length ? '<a class="btn sm" href="#team">בקשות הצטרפות' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a>' : '';
-  var show = F.d.show, buyersBlock = '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
+  var fresh = D.buyers.filter(function (b) { return mine(b) && b.new_at; }).sort(function (a, b) { return a.new_at < b.new_at ? 1 : -1; });
+  var newBlock = fresh.length ? '<h2>קונים חדשים <span class="count">' + fresh.length + '</span></h2><div class="list">' + fresh.map(newRow).join('') + '</div>' : '';
+  var show = F.d.show, buyersBlock = newBlock + '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
   var tasksBlock = '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>');
   return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<a class="btn sm" href="#import">ייבוא קונים</a><button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
     '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" data-act="filterOpen"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive"><b>' + active + '</b><span>קונים פעילים</span></a></div>' +
@@ -805,6 +812,19 @@ var ACT = {
       .then(function () { UI.imp = null; toast(done + ' קונים יובאו'); kick(); location.hash = '#buyers'; })
       .catch(function () { toast(done ? 'יובאו ' + done + ' קונים, השאר לא נשמרו. נסה שוב.' : 'הייבוא נכשל. נסה שוב.'); })
       .finally(function () { UI.impBusy = false; render(); });
+  },
+  nbSend: function (el) {
+    var b = D.buyers.filter(function (x) { return String(x.id) === el.dataset.id; })[0]; if (!b) return;
+    var list = matchProps(b).slice(0, 5); if (!list.length) return;
+    window.open('https://wa.me/' + waNum(b.phone) + '?text=' + encodeURIComponent(aptText(b, list)), '_blank', 'noopener');
+    var t = today(), iv = INTERVAL[b.rating || ''] || 30;
+    patchBuyer(b.id, { last_contact: t, next_contact: addDays(t, iv), notes: withNote(b, 'שלחתי דירות: ' + list.map(function (p) { return '#' + p.id; }).join(', ')) }, 'נרשם שנשלחו דירות');
+    ACT.nbDone(el, true);
+  },
+  nbDone: function (el, quiet) {
+    var b = D.buyers.filter(function (x) { return String(x.id) === el.dataset.id; })[0]; if (!b) return;
+    b.new_at = null; render();
+    api('nbdone', { buyer_id: b.id }).then(function () { if (quiet !== true) toast('הקונה ירד מהקונים החדשים'); }).catch(function () { b.new_at = today(); render(); toast('לא נשמר. נסה שוב.'); });
   },
   sendApts: function () {
     var b = cur(), ids = Object.keys(UI.pick[b.id] || {}), list = D.props.filter(function (p) { return ids.indexOf(String(p.id)) >= 0; }); if (!list.length) return;

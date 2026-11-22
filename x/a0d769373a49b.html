@@ -134,7 +134,8 @@ function drawDash(){
  const open=tk&&tk.filter(x=>!x.done),late=open&&open.filter(x=>x.due&&x.due<t),tdy=open&&open.filter(x=>x.due===t);
  const wait=cl&&cl.filter(x=>!x.signed&&x.status!=="נחתם"),oldW=wait&&wait.filter(x=>{const m=String(x.created).match(/^(\d{2})\/(\d{2})\/(\d{4})/);return m&&(Date.now()-new Date(+m[3],m[2]-1,+m[1]))/864e5>2}).length;
  const msgs=ol&&ol.reduce((n,o)=>n+(o.msgs||[]).filter(m=>m.from==="בעלים"&&!m.read).length,0),reqs=ol&&ol.reduce((n,o)=>n+(o.log||[]).filter(l=>(l.type==="tourplan"||l.type==="pricereq")&&(!l.st||l.st==="pending")).length,0);
- $("act").innerHTML=tile("a1",due?due.length:null,"קונים לחזור אליהם היום",active?active.length+" קונים פעילים":"","buy",1)
+ const nbN=by&&by.filter(b=>b.isNew).length;
+ $("act").innerHTML=tile("a0",nbN,"קונים חדשים","עוד לא נשלחו להם דירות","buy",0,B.buy+"#nb")+tile("a1",due?due.length:null,"קונים לחזור אליהם היום",active?active.length+" קונים פעילים":"","buy",1)
   +tile("a2",late?late.length:null,"משימות באיחור",tdy?tdy.length+" משימות להיום":"","tsk",1)
   +tile("a3",wait?wait.length:null,"טפסים ממתינים לחתימה",oldW?oldW+" מחכים יותר מיומיים":"נשלחו ועוד לא נחתמו","sgn",0,B.sgn+"#list",oldW)
   +tile("a4",msgs!=null?msgs+reqs:null,"הודעות ובקשות מבעלי נכסים",msgs!=null?msgs+" הודעות · "+reqs+" בקשות לאישור":"","own",1);
