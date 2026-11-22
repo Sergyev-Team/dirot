@@ -19,8 +19,8 @@ const nf = (n) => Math.round(n).toLocaleString("en-US");
 const m2 = (n) => (n / 1e6).toFixed(2).replace(/0$/, "");
 const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
-const pdate = (d) => { const m = String(d).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if (m) return new Date(+m[3], +m[2] - 1, +m[1]); const n = new Date(d); return isNaN(n) ? null : n; };
-const fdate = (d) => { const x = pdate(d); return x ? `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}.${x.getFullYear()}` : String(d); };
+const pdate = (d) => { const m = String(d).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if (m) return new Date(+m[3], +m[2] - 1, +m[1]); const mm = String(d).match(/^(\d{1,2})\.(\d{4})$/); if (mm) return new Date(+mm[2], +mm[1] - 1, 1); const n = new Date(d); return isNaN(n) ? null : n; };
+const fdate = (d) => { if (/^\d{1,2}\.\d{4}$/.test(String(d))) return String(d); const x = pdate(d); return x ? `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}.${x.getFullYear()}` : String(d); };
 
 async function icon(Comp) {
   const svg = ReactDOMServer.renderToStaticMarkup(React.createElement(Comp, { color: "#FFFFFF", size: 256 }));
@@ -218,7 +218,7 @@ async function icon(Comp) {
     s.addImage({ path: LOGO, x: 2.9, y: 0.4, w: 4.2, h: 2.343 });
     s.addText(S.contact, T({ x: 1.0, y: 2.95, w: 8.0, h: 0.5, fontSize: 24, bold: true, color: LT, align: "center", valign: "middle" }));
     s.addText(S.license ? `מתווך מקרקעין · רישיון תיווך מס׳ ${S.license}` : "Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 3.45, w: 8.0, h: 0.4, fontSize: 16, color: "D4B26A", align: "center", valign: "middle" }));
-    s.addText("Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 3.85, w: 8.0, h: 0.35, fontSize: 13, color: "A9A69E", align: "center", valign: "middle" }));
+    if (S.license) s.addText("Team Sergeyev · צוות סרגייב", T({ x: 1.0, y: 3.85, w: 8.0, h: 0.35, fontSize: 13, color: "A9A69E", align: "center", valign: "middle" }));
     s.addText(`תאריך: ${S.dateLong}`, T({ x: 5.3, y: 4.55, w: 3.4, h: 0.35, fontSize: 13, color: "D9D6CE" }));
     s.addText("חתימה: ____________________", T({ x: 1.3, y: 4.55, w: 3.6, h: 0.35, fontSize: 13, color: "D9D6CE" }));
   }

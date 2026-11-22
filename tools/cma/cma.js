@@ -19,8 +19,8 @@ const nf = (n) => Math.round(n).toLocaleString("en-US");
 const m2 = (n) => (n / 1e6).toFixed(2).replace(/0$/, "");
 const avg = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
-const pdate = (d) => { const m = String(d).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if (m) return new Date(+m[3], +m[2] - 1, +m[1]); const n = new Date(d); return isNaN(n) ? null : n; };
-const fdate = (d) => { const x = pdate(d); return x ? `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}.${x.getFullYear()}` : String(d); };
+const pdate = (d) => { const m = String(d).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if (m) return new Date(+m[3], +m[2] - 1, +m[1]); const mm = String(d).match(/^(\d{1,2})\.(\d{4})$/); if (mm) return new Date(+mm[2], +mm[1] - 1, 1); const n = new Date(d); return isNaN(n) ? null : n; };
+const fdate = (d) => { if (/^\d{1,2}\.\d{4}$/.test(String(d))) return String(d); const x = pdate(d); return x ? `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}.${x.getFullYear()}` : String(d); };
 
 async function icon(Comp) {
   const svg = ReactDOMServer.renderToStaticMarkup(React.createElement(Comp, { color: "#FFFFFF", size: 256 }));
