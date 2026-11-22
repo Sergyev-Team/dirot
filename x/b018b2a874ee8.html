@@ -508,7 +508,7 @@ function card(b){ const I=info(b); const li=el("li","card"+((b.status||"פעיל
     box.append(el("b",null,"🆕 קונה חדש · נכנס "+String(b.isNew).split("-").reverse().slice(0,2).join("/")));
     const l=el("div","nbl"); if(top.length){ l.append(top.length+" דירות שמתאימות לו:"); top.forEach(a=>{ l.append(el("br")); const x=el("a",null,"#"+a.id+" "+String((a.street||"")+" "+(a.hn||"")).trim()+(a.rooms?" · "+a.rooms+" חד׳":"")+(a.price?" · "+(a.price>=1e6?(a.price/1e6).toFixed(2).replace(/\.?0+$/,"")+"M":a.price.toLocaleString("he-IL")):"")); x.href=SITE+"d/"+a.id+".html"; x.target="_blank"; x.rel="noopener"; l.append("· ",x); }); }
     else l.append(I0.p&&I0.p.deal?"אין כרגע דירות שמתאימות בדיוק.":"עוד לא הוגדר מה הוא מחפש. ההודעה תשלח קישור לכל הדירות."); box.append(l);
-    const rr=el("div","nbr"),ok=el("button",null,"✓ טופל"); ok.type="button"; ok.onclick=()=>{ nbDone(b); toast("הקונה ירד מהקונים החדשים"); }; rr.append(ok); box.append(rr); li.append(box); }
+    const rr=el("div","nbr"),ok=el("button",null,"✓ הורד מקונים חדשים"); ok.type="button"; ok.onclick=()=>{ nbDone(b); toast("הקונה ירד מהקונים החדשים"); }; rr.append(ok); box.append(rr); li.append(box); }
   const tel=el("div","foot"); tel.append(el("span","tel",(b.phone||"").replace(/^(\d{3})(\d+)$/,"$1-$2")));
   if(b.id) tel.append(el("span",null,"· קונה "+b.id)); li.append(tel);
   if(canAssign()){ const a=el("label","asg"+(agentOf(b)!="moshe"?" on":"")); a.append("👤 סוכן:"); const s=agentSelect(agentOf(b)); s.setAttribute("aria-label","הסוכן של "+b.name); s.onchange=()=>assign([b],s.value); a.append(s); li.append(a); }

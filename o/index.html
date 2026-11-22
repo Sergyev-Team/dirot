@@ -79,6 +79,7 @@ body.lgb{background:radial-gradient(120% 80% at 50% 0%,#2A2E36 0,#16191F 60%) fi
 const API="https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec";const FAST="https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/owner";
 let K=new URLSearchParams(location.search).get("k")||location.hash.slice(1);const OK="sg_owner_k";
 try{if(K)localStorage.setItem(OK,K);else K=localStorage.getItem(OK)||""}catch(e){}
+let STAFF="";try{if(["sergyev_console_pw","sg_app_rt","sergyev_agent_code"].some(x=>localStorage.getItem(x)))localStorage.setItem("sg_staff","1");if(localStorage.getItem("sg_staff"))STAFF="&s=1"}catch(e){}
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const fm=n=>n?"₪"+Number(n).toLocaleString("en-US"):"";
 const OTYPES={doc:["📄","מסמך חדש באזור המסמכים"],start:["🚀","תחילת שיווק"],fbgroup:["👥","פרסום בקבוצת פייסבוק"],fb:["📘","פרסום בדף הפייסבוק העסקי"],ig:["📸","פרסום באינסטגרם"],story:["📱","סטורי / רילס"],y2:["🏷️","פרסום / רענון ביד2"],md:["🗺️","פרסום / רענון במדלן"],letters:["✉️","מכתבי שכנים"],sign:["🪧","שלט על הבניין"],open:["🏠","בית פתוח"],tour:["👀","סיור בנכס"],offer:["💰","הצעת מחיר"],buyers:["📤","נשלח לקונים מתאימים מהמאגר"],call:["📞","שיחה עם מתעניין"],price:["🔻","עדכון מחיר"],photo:["📷","צילום / תמונות חדשות"],lead:["📞","פנייה מקונה מתעניין"],media:["🎬","חומר שיווק חדש"],other:["📌","פעולה"]};
@@ -110,7 +111,7 @@ async function load(){
  else $("#app").innerHTML='<div class="lgw"><p class="hint">טוען את הדוח של הנכס…</p></div>';
  const fetchL=id=>fetch("L/"+encodeURIComponent(id)+".json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>fetch("../index.html").then(r=>r.text()).then(t=>{const i=t.indexOf("const D = (");return i<0?null:(JSON.parse(t.slice(i+11,t.indexOf(").filter(",i))).find(x=>String(x.id)===String(id))||null)}).catch(()=>null));
  const pid=cached&&cached.P&&cached.P.p&&cached.P.p.id,lst=pid?fetchL(pid):null;
- let fresh;try{fresh=await (await fetch(FAST+"?k="+encodeURIComponent(K)).then(r=>{if(!r.ok)throw 0;return r}).catch(()=>fetch(API+"?op=oget&k="+encodeURIComponent(K)))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
+ let fresh;try{fresh=await (await fetch(FAST+"?k="+encodeURIComponent(K)+STAFF).then(r=>{if(!r.ok)throw 0;return r}).catch(()=>fetch(API+"?op=oget&k="+encodeURIComponent(K)+STAFF))).json()}catch(e){const u=$("#upd");if(u)u.textContent="אין חיבור – מוצג המידע האחרון";else $("#app").innerHTML='<div class="card">אין חיבור. נסו שוב בעוד רגע.</div>';return}
  if(!fresh.ok){try{localStorage.removeItem(OK);localStorage.removeItem(CK)}catch(e){}loginView("הפורטל לא נמצא או שאינו פעיל.");return}
  P=fresh;const LL=(pid&&String(pid)===String(P.p.id))?await lst:await fetchL(P.p.id);if(LL)L=LL;
  try{localStorage.setItem(CK,JSON.stringify({P,L}))}catch(e){}

@@ -144,7 +144,7 @@ function drawDash(){
  if(C){const act=C.filter(x=>x.stage!=="off"&&x.stage!=="closed");
   act.filter(x=>x.exDays!=null&&x.exDays<=30).sort((a,b)=>a.exDays-b.exDays).forEach(x=>AL.push({c:x.exDays<=7?"var(--bad)":"#c58a12",t:"הבלעדיות ב"+x.addr+(x.exDays<0?" נגמרה לפני "+(-x.exDays)+" ימים":x.exDays===0?" נגמרת היום":" נגמרת בעוד "+x.exDays+" ימים"),s:x.owner||"",id:x.id}));
   act.filter(x=>x.days>45&&x.stage!=="nego").sort((a,b)=>b.days-a.days).forEach(x=>AL.push({c:"var(--bad)",t:x.addr+" בשיווק "+x.days+" ימים בלי עסקה",s:x.tours+" סיורים · "+x.leads+" פניות"+(x.maxOffer?" · הצעה גבוהה "+fmK(x.maxOffer):""),id:x.id}))}
- if(ol)ol.forEach(o=>{const s=seenD(o.seen),d=s?Math.floor((Date.now()-s)/864e5):null;if(d===null||d>=14){const a=(C||[]).find(x=>String(x.id)===String(o.id));AL.push({c:"#5E6470",t:(o.name||"בעל הנכס")+" לא נכנס לפורטל "+(d===null?"אף פעם":d+" ימים"),s:a?a.addr:"נכס #"+o.id,id:o.id})}});
+ if(ol)ol.forEach(o=>{const s=seenD((o.visits&&o.visits.last)||o.seen),d=s?Math.floor((Date.now()-s)/864e5):null;if(d===null||d>=14){const a=(C||[]).find(x=>String(x.id)===String(o.id));AL.push({c:"#5E6470",t:(o.name||"בעל הנכס")+" לא נכנס לפורטל "+(d===null?"אף פעם":d+" ימים"),s:a?a.addr:"נכס #"+o.id,id:o.id})}});
  $("alH").hidden=!AL.length;$("al").innerHTML=AL.slice(0,8).map(a=>`<button class="al" type="button" style="--c:${a.c}" data-m="${esc(a.id)}"><span><b>${esc(a.t)}</b><span>${esc(a.s)}</span></span><em>לנכס ›</em></button>`).join("")+(AL.length>8?`<p class="note">ועוד ${AL.length-8} התראות בדשבורד מנכ״ל</p>`:"");
  // הכסף: עסקאות שדווחו כמו שהן; "בדרך" רק לנכסים עם הצעה או במו״מ שעוד לא דווחה בהם עסקה
  const DL=D.deals&&D.deals.items;let m={c:0,n:0,open:0,paidM:0,way:0};

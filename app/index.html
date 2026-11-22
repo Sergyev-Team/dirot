@@ -451,7 +451,7 @@ function openTasks() { return D.tasks.filter(function (t) { return !t.done; }).s
 function newRow(b) {
   var m = matchProps(b), d = String(b.new_at || '').split('-').reverse().slice(0, 2).join('/');
   return '<div class="row" style="display:block"><a class="main" href="#b/' + b.id + '" style="display:block;text-decoration:none;color:inherit"><b>' + esc(b.name) + '</b><small>נכנס ' + esc(d) + ' · ' + (profileOf(b) ? (m.length ? m.length + ' דירות מתאימות' : 'אין כרגע דירות מתאימות') : 'עוד לא הוגדר מה מחפש') + '</small></a>' +
-    '<div class="acts" style="margin-top:8px">' + (m.length && b.phone ? '<button class="btn pri" type="button" data-act="nbSend" data-id="' + b.id + '">שלח לו ' + Math.min(5, m.length) + ' דירות</button>' : '') + '<button class="btn" type="button" data-act="nbDone" data-id="' + b.id + '">טופל</button></div></div>';
+    '<div class="acts" style="margin-top:8px">' + (m.length && b.phone ? '<button class="btn pri" type="button" data-act="nbSend" data-id="' + b.id + '">שלח לו ' + Math.min(5, m.length) + ' דירות</button>' : '') + '<button class="btn" type="button" data-act="nbDone" data-id="' + b.id + '">הורד מהחדשים</button></div></div>';
 }
 function vToday() {
   var t = today(), who = F.d.agent, mine = function (x) { return !who || x.agent_id === who; };
