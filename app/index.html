@@ -174,6 +174,8 @@ var KEY = 'sb_publishable_pHWmO4yjoVO3CvkNUE8u3g_spxQJHib';
 var SHEET_API = 'https://script.google.com/macros/s/AKfycbxSon5hLywrAVGN2OGTQFec5uNZpkzgI243GnyBu230r1Sj5ErPJXXX414v9Tsl6UnC/exec';
 var SITE = 'https://sergeyev-team.com/';
 var RT_KEY = 'sg_app_rt', SIGN_KEY = 'sergyev_agent_code';
+// הקובץ שכל סוכן מעתיק לחשבון הגוגל שלו (חיבור אנשי הקשר)
+var CONTACTS_COPY = '';
 var PAGE = 60, TZ = 'Asia/Jerusalem';
 var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at,new_at';
 var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at';
@@ -466,7 +468,7 @@ function vToday() {
   var newBlock = fresh.length ? '<h2>קונים חדשים <span class="count">' + fresh.length + '</span></h2><div class="list">' + fresh.map(newRow).join('') + '</div>' : '';
   var show = F.d.show, buyersBlock = newBlock + '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
   var tasksBlock = '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>');
-  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<a class="btn sm" href="#import">ייבוא קונים</a><button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
+  return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<a class="btn sm" href="#contacts">חיבור אנשי קשר</a><a class="btn sm" href="#import">ייבוא קונים</a><button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
     '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" data-act="filterOpen"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive"><b>' + active + '</b><span>קונים פעילים</span></a></div>' +
     chips('d.show', [['all', 'הכול'], ['buyers', 'קונים'], ['tasks', 'משימות']], show, 'מה להציג') +
     (isAdmin() ? '<div class="flts" style="grid-template-columns:1fr">' + sel('d.agent', 'סוכן', agentOpts('כל הצוות'), who) + '</div>' : '') +
@@ -582,6 +584,16 @@ function readFile(f) {
   var name = (f.name || '').toLowerCase();
   if (/\.(xlsx|xls)$/.test(name)) return Promise.all([loadXlsx(), f.arrayBuffer()]).then(function (r) { var wb = r[0].read(r[1], { type: 'array' }); return rowsToPeople(r[0].utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false })); });
   return f.text().then(function (txt) { return /\.vcf$/.test(name) || /BEGIN:VCARD/i.test(txt) ? parseVcf(txt) : rowsToPeople(parseCsv(txt)); });
+}
+function vContacts() {
+  var code = D.signCode || '', step = function (n, h) { return '<div class="card" style="margin-bottom:10px"><b>' + n + '.</b> ' + h + '</div>'; };
+  return '<main class="page"><div class="head"><div><h1>חיבור אנשי קשר</h1><p class="sub">פעם אחת, כ-5 דקות. אחר כך כל קונה שתשמרו בטלפון עם המילה "קונה" בשם יעלה לכאן לבד.</p></div></div>' +
+    step(1, 'לחצו כאן כדי ליצור עותק של הקובץ בחשבון הגוגל שלכם:<div style="margin-top:10px">' + (CONTACTS_COPY ? '<a class="btn pri wide" href="' + esc(CONTACTS_COPY) + '" target="_blank" rel="noopener">פתיחת הקובץ ויצירת עותק</a>' : '<div class="empty">הקישור עוד לא מוכן. משה יעדכן אותו בקרוב.</div>') + '</div>') +
+    step(2, 'בקובץ שנפתח, למעלה בתפריט: <b>סרגייב ← חיבור אנשי הקשר</b>. אם התפריט לא מופיע, חכו כמה שניות ורעננו.') +
+    step(3, 'גוגל יבקש אישור. בחרו את החשבון שלכם. אם מופיע "Google hasn\'t verified this app", לחצו <b>Advanced</b> ואז <b>Go to ... (unsafe)</b>, ואז <b>Allow</b>. זה הקובץ הפרטי של המשרד וזה תקין.') +
+    step(4, 'הדביקו את הקוד האישי שלכם ולחצו OK:<div style="display:flex;gap:8px;align-items:center;margin-top:10px"><code style="font-size:18px;direction:ltr;padding:6px 10px;border:1px solid var(--line);border-radius:8px">' + esc(code || 'אין קוד – פנו למשה') + '</code>' + (code ? '<button class="btn" type="button" data-act="copyCode" data-v="' + esc(code) + '">העתקה</button>' : '') + '</div>') +
+    step(5, 'זהו. מעכשיו כל קונה שתשמרו בטלפון כך: <b>"דני כהן קונה"</b> – יופיע אצלכם ב"קונים חדשים" תוך רבע שעה, עם הדירות שמתאימות לו.') +
+    '<p class="sub">חשוב: אנשי הקשר בטלפון צריכים להישמר בחשבון הגוגל (באנדרואיד זה כך כברירת מחדל; באייפון: הגדרות ← אנשי קשר ← חשבון ברירת מחדל ← Gmail).</p></main>' + nav('today');
 }
 function vImport() {
   var rows = UI.imp || [], n = rows.filter(function (r) { return r.on; }).length;
@@ -774,6 +786,7 @@ function render() {
   else if (r === 'sign') app.innerHTML = vSign();
   else if (r === 'new') { app.innerHTML = vNew(); UI.prefill = null; }
   else if (r === 'import') app.innerHTML = vImport();
+  else if (r === 'contacts') app.innerHTML = vContacts();
   else if (r === 'share') { app.innerHTML = '<div class="load">טוען…</div>'; takeShare(); }
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
@@ -855,6 +868,7 @@ var ACT = {
     var b = cur(), el = document.getElementById('note'), v = el.value.trim(); if (!v) { el.focus(); return; }
     delete UI.draft[b.id]; patchBuyer(b.id, { notes: withNote(b, v.replace(/\s*\n\s*/g, ' ')) }, 'ההערה נשמרה');
   },
+  copyCode: function (el) { var v = el.dataset.v; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { toast('הקוד הועתק'); }).catch(function () { toast('הקוד: ' + v); }); },
   copy: function (el) { var v = el.dataset.v; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { toast('המספר הועתק'); }).catch(function () { toast(v); }); },
   toggleTask: function (el) {
     var t = taskById(el.dataset.id); if (!t) return;

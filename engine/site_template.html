@@ -148,6 +148,8 @@ body.broker{padding-bottom:140px}
 .spec dd{margin:2px 0 0;font-weight:700;font-size:16px}
 .share{position:absolute;top:10px;left:10px;z-index:3;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--navy);border:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.18);text-decoration:none}
 .share:hover,.share:focus-visible{color:var(--brass);outline:2px solid var(--brass)}
+.shm{position:absolute;top:54px;left:10px;z-index:6;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.16);padding:6px;min-width:180px;display:grid;gap:2px}
+.shm button{font:inherit;font-size:15px;font-weight:600;text-align:start;background:none;border:0;border-radius:8px;padding:10px 12px;color:inherit;cursor:pointer}.shm button:hover,.shm button:focus-visible{background:var(--line)}
 .btn{flex:1 1 160px;display:inline-flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:17px;text-decoration:none;border-radius:8px;padding:11px 14px;min-height:48px;border:2px solid transparent}
 .btn.wa{background:var(--wa);color:var(--on-wa)}
 .btn.call{background:#e9c25c !important;color:#111 !important;border:0 !important;font-weight:800 !important}
@@ -709,7 +711,16 @@ function row(x, full){
       toast("פרטי הנכס הועתקו: "+ref+" · הדביקו אותם בטופס הקביעה בשדה \"איזה נכס?\""); }; vb.addEventListener("click",()=>vb._copy()); }
   { const t=(x.type||"נכס")+(x.rooms?" "+x.rooms+" חדרים":"")+(x.street?" ברחוב "+ST(x):(x.nb?" ב"+x.nb:""))+(x.city?", "+x.city:"")+(x.price?" – "+nf(x.price)+" ₪":"");
     const a=el("a","share"); a.href="https://wa.me/?text="+encodeURIComponent((LANG=="he"?"היי, מצאתי לך דירה שיכולה להתאים:\n"+t:M.found1+"\n"+TY(x.type||"נכס")+(x.rooms?" · "+x.rooms+" "+M.roomsL:"")+(x.street?" · "+ST(x):(x.nb?" · "+x.nb:""))+(x.city?", "+x.city:"")+(x.price?" – "+nf(x.price)+" ₪":""))+"\n"+BASE+"d/"+x.id+".html");
-    a.target="_blank"; a.rel="noopener"; a.title="שיתוף"; a.setAttribute("aria-label","שיתוף נכס מס' "+x.id+" בוואטסאפ (נפתח בחלון חדש)");
+    a.target="_blank"; a.rel="noopener"; a.title="שיתוף"; a.setAttribute("aria-label","שיתוף נכס מס' "+x.id); a.setAttribute("aria-haspopup","menu");
+    a.addEventListener("click",e=>{ e.preventDefault(); const old=li.querySelector(".shm"); if(old){ old.remove(); return; } document.querySelectorAll(".shm").forEach(m=>m.remove());
+      const he=LANG=="he", url=BASE+"d/"+x.id+".html", m=el("div","shm"); m.setAttribute("role","menu");
+      const item=(txt,fn)=>{ const b=el("button"); b.type="button"; b.setAttribute("role","menuitem"); b.textContent=txt; b.addEventListener("click",ev=>{ ev.stopPropagation(); m.remove(); fn(); }); m.appendChild(b); };
+      item(he?"שליחה בוואטסאפ":"WhatsApp",()=>window.open(a.href,"_blank","noopener"));
+      item(he?"העתקת קישור":"Copy link",async()=>{ let ok=false; try{ await navigator.clipboard.writeText(url); ok=true; }catch(_){ const i=document.createElement("input"); i.value=url; document.body.appendChild(i); i.select(); try{ ok=document.execCommand("copy"); }catch(__){} i.remove(); }
+        toast(ok?(he?"הקישור הועתק – אפשר להדביק ולשלוח ללקוח":"Link copied"):url); });
+      if(navigator.share) item(he?"שיתוף באפליקציה אחרת…":"More…",()=>navigator.share({url}).catch(()=>{}));
+      li.appendChild(m); m.querySelector("button").focus();
+      setTimeout(()=>document.addEventListener("click",function off(ev){ if(!m.contains(ev.target)){ m.remove(); document.removeEventListener("click",off); } }),0); });
     a.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
     li.appendChild(a); }
   const place = [ST(x) || x.nb, x.city].filter(Boolean).join(", ");
