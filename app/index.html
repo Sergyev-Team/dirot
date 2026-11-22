@@ -587,7 +587,7 @@ function readFile(f) {
   return f.text().then(function (txt) { return /\.vcf$/.test(name) || /BEGIN:VCARD/i.test(txt) ? parseVcf(txt) : rowsToPeople(parseCsv(txt)); });
 }
 // ניתוח שוק: הקובץ נטען רק כשנכנסים למסך
-function loadMarket() { if (loadMarket.p) return; loadMarket.p = 1; window.SGAPP = { esc: esc, toast: toast, db: db, api: api, render: render, isAdmin: isAdmin, nav: nav, D: D }; var s = document.createElement('script'); s.src = 'market.js?v=1'; s.onload = function () { render(); }; s.onerror = function () { loadMarket.p = 0; toast('לא נטען. בדקו חיבור ונסו שוב.'); }; document.head.appendChild(s); }
+function loadMarket() { if (loadMarket.p) return; loadMarket.p = 1; window.SGAPP = { esc: esc, toast: toast, db: db, api: api, render: render, isAdmin: isAdmin, nav: nav, D: D }; var s = document.createElement('script'); s.src = 'market.js?v=2'; s.onload = function () { render(); }; s.onerror = function () { loadMarket.p = 0; toast('לא נטען. בדקו חיבור ונסו שוב.'); }; document.head.appendChild(s); }
 function vContacts() {
   var code = D.signCode || '', step = function (n, h) { return '<div class="card" style="margin-bottom:10px"><b>' + n + '.</b> ' + h + '</div>'; };
   return '<main class="page"><div class="head"><div><h1>חיבור אנשי קשר</h1><p class="sub">פעם אחת, כ-5 דקות. אחר כך כל קונה שתשמרו בטלפון עם המילה "קונה" בשם יעלה לכאן לבד.</p></div></div>' +
