@@ -25,7 +25,7 @@ def build_D(S,today=None):
                price=price if price!='' else None,prev=prev if prev!='' else None,isnew=new,el=o['el'],pk=o['pk'],mm=o['mm'],bal=o['bal'],
                bsz=next((BZ[str(i)] for i in [c]+ids if str(i) in BZ),0),ext=next((EX[str(i)] for i in [c]+ids if str(i) in EX),[]),
                cond=o['cond'],ren=o['ren'],imgs=next((IM[str(i)] for i in [c]+ids if str(i) in IM),[]))
-        status='removed' if any(i in rem for i in ids) else ('hidden' if c in hide or not (o['street'] or o['nb']) or price=='' else ('expired' if o['last']<cutoff else 'active'))
+        status='removed' if any(i in rem for i in ids) else ('hidden' if c in hide or not (o['street'] or o['nb']) or price=='' else 'active')  # החלטת משה 22/11/2026: דירה יורדת מהאתר רק כשמסומנת שנמכרה/הוסרה – בלי ירידה אוטומטית אחרי חודשיים
         ALL[c]=(d,o,ids,status)
         if status=='active': D.append(d)
     return D,ALL,cutoff
