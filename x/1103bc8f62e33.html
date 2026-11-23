@@ -484,8 +484,12 @@ let CEO=null,CEOAG="",CEOSORT="days";
 const fmK=n=>"₪"+Math.round(n).toLocaleString("en-US");
 function ceoCalc(x){const fee=x.fee||2,est=!x.fee,base=x.stage==="closed"?(x.dealPrice||x.maxOffer||x.price):x.stage==="nego"?(x.maxOffer||x.price):x.stage==="offer"?x.maxOffer:0;return {fee,est,base,amt:base*fee/100}}
 let DEALS=null;
-async function ceoView(fresh){oPost("dlist",{}).then(j=>{DEALS=j.items||[];if(CEO)ceoDraw()}).catch(()=>{DEALS=DEALS||[]});const w=$("#m-ceo");if(!CEO)w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים… (בפעם הראשונה זה לוקח עד חצי דקה)</p>';
- try{CEO=await oPost("ceo",{fresh:fresh?1:0})}catch(e){w.innerHTML=`<div class="box bad">לא נטען: ${E(e.message)}</div>`;return}ceoDraw()}
+// הדשבורד נפתח מיד מהנתונים האחרונים שנשמרו בדפדפן, ומתעדכן ברקע
+function ceoCache(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+async function ceoView(fresh){const w=$("#m-ceo");
+ if(!CEO){CEO=ceoCache("ceo_v1");if(!DEALS)DEALS=ceoCache("ceo_deals_v1");if(CEO)ceoDraw();else w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים… (בפעם הראשונה זה לוקח עד חצי דקה)</p>'}
+ oPost("dlist",{}).then(j=>{DEALS=j.items||[];ceoCache("ceo_deals_v1",DEALS);if(CEO)ceoDraw()}).catch(()=>{DEALS=DEALS||[]});
+ try{const c=await oPost("ceo",{fresh:fresh?1:0});if(c&&!c.error){CEO=c;ceoCache("ceo_v1",c)}}catch(e){if(!CEO){w.innerHTML=`<div class="box bad">לא נטען: ${E(e.message)}</div>`;return}}ceoDraw()}
 function ceoDraw(){const w=$("#m-ceo"),D=CEO,now=new Date(),ym=now.toISOString().slice(0,7);
  const ags=[...new Set(D.items.map(x=>x.agent))];const I=D.items.filter(x=>!CEOAG||x.agent===CEOAG);
  const act=I.filter(x=>x.stage!=="off"&&!(x.stage==="closed"&&String(x.stAt).slice(0,7)!==ym));
