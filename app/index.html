@@ -754,7 +754,7 @@ function vAssign() {
   var c = assignCounts(), ag = activeAgents();
   var team = ag.map(function (a) { return '<div class="kv"><span>' + esc(a.name) + '</span><b>' + c[a.id].b + ' קונים · ' + c[a.id].p + ' נכסים</b></div>'; }).join('');
   var portals = D.portals.map(function (p) { var pr = propById(p.property_id); return '<label class="field" style="margin-bottom:10px"><span>' + esc(pr ? propAddr(pr) : 'נכס #' + p.property_id) + (p.owner_name ? ' · ' + esc(p.owner_name) : '') + '</span><select class="in" data-passign="' + p.property_id + '">' + ag.map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === p.agent_id ? ' selected' : '') + '>' + esc(a.name) + '</option>'; }).join('') + '</select></label>'; }).join('');
-  return '<main class="page"><div class="head"><h1>שיוך לסוכנים</h1><a class="btn sm" href="#team">צוות' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a></div>' +
+  return '<main class="page"><div class="head"><h1>שיוך לסוכנים</h1><a class="btn sm" href="#team">אישור סוכנים' + (D.requests.length ? ' <span class="count">' + D.requests.length + '</span>' : '') + '</a></div>' +
     '<div class="card"><h2>הצוות</h2>' + (team || '<p class="sub">אין סוכנים פעילים.</p>') + '</div>' +
     '<div class="card"><h2>שיוך קונים</h2><div class="flts">' + sel('as.who', 'הקונים של', [['', 'כל הסוכנים']].concat(ag.map(function (a) { return [a.id, a.name]; })), AS.who) +
     '<label class="flt"><span>להעביר אל</span><select class="in" id="asTo"><option value="">בחר סוכן</option>' + ag.map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === AS.to ? ' selected' : '') + '>' + esc(a.name) + '</option>'; }).join('') + '</select></label></div>' +
@@ -771,7 +771,7 @@ function vTeam() {
     return '<div class="person"><b>' + esc(a.name) + (a.active ? '' : ' (מושבת)') + '</b><small>' + esc(roles[a.role] || a.role) + '</small><small dir="ltr" style="text-align:right">' + esc(a.email || '') + '</small>' +
       (a.id !== D.me.id ? '<div class="quick"><button class="btn sm' + (a.active ? ' bad' : '') + '" type="button" data-act="toggleAgent" data-id="' + esc(a.id) + '">' + (a.active ? 'השבתת חשבון' : 'הפעלת חשבון') + '</button></div>' : '') + '</div>';
   }).join('');
-  return '<main class="page"><a class="back" href="#today">חזרה</a><h1 style="margin-bottom:14px">צוות</h1><div class="card"><h2>בקשות ממתינות</h2>' + (reqs || '<p class="sub">אין בקשות חדשות.</p>') + '</div><div class="card"><h2>חשבונות</h2>' + team + '</div></main>' + nav('today');
+  return '<main class="page"><div class="head"><h1>סוכנים</h1><a class="btn sm" href="#assign">שיוך קונים ונכסים</a></div><div class="card"><h2>בקשות ממתינות</h2>' + (reqs || '<p class="sub">אין בקשות חדשות.</p>') + '</div><div class="card"><h2>חשבונות</h2>' + team + '</div></main>' + nav('today');
 }
 
 function route() { return (location.hash || '#today').slice(1); }
