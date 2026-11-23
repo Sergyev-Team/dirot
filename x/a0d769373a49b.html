@@ -103,8 +103,14 @@ const NAMES={home:"לוח בקרה",tsk:"משימות",buy:"קונים",own:"פ�
 const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),$=id=>document.getElementById(id);
-async function dec(pw,salt,iv,ct,it){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
- const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64(salt),iterations:it,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+async function sgKey(pw,salt,it){const u=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),e=a=>btoa(String.fromCharCode.apply(null,a));
+ const h=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pw+"|"+salt+"|"+it))),ck="kdf_"+e(h.slice(0,12));let raw=null;
+ try{const v=localStorage.getItem(ck);if(v)raw=u(v)}catch(x){}
+ if(!raw){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveBits"]);
+  raw=new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",salt:u(salt),iterations:it,hash:"SHA-256"},base,256));
+  try{const ks=Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0);if(ks.length>24)ks.slice(0,ks.length-24).forEach(k=>localStorage.removeItem(k));localStorage.setItem(ck,e(raw))}catch(x){}}
+ return crypto.subtle.importKey("raw",raw,{name:"AES-GCM"},false,["decrypt"])}
+async function dec(pw,salt,iv,ct,it){const key=await sgKey(pw,salt,it);
  const u8=new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(iv)},key,b64(ct)));
  if(u8[0]===0x1f&&u8[1]===0x8b)return JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).text());return JSON.parse(new TextDecoder().decode(u8))}
 async function check(pw){try{await dec(pw,SALT,IV,CT,IT);return true}catch(e){return false}}
@@ -236,7 +242,7 @@ async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
  const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
-$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");location.reload()}};
+$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s){$("lock").hidden=true;if(await check(s))return start();ls.del(KEY);$("lock").hidden=false}$("pw").focus()})();
 </script></body></html>
