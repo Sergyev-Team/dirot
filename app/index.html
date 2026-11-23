@@ -779,7 +779,13 @@ function render() {
   if (!D.me) return;
   var r = route(), y = window.scrollY, same = render.last === r;
   if (r === 'sign') r = 'sgn';
-  if (!isAdmin() && (r === 'ceo' || r === 'upl' || r === 'team' || r === 'assign')) r = 'today';
+  if (!isAdmin() && (r === 'ceo' || r === 'upl')) r = 'today';
+  // מסך מנהל שנפתח מחשבון סוכן (למשל מתפריט המשרד): אומרים בבירור במי מחוברים, במקום לקפוץ למסך אחר
+  if (!isAdmin() && (r === 'team' || r === 'assign')) {
+    drawBar('today'); document.body.classList.remove('boards');
+    app.innerHTML = '<main class="page"><div class="card"><h2>המסך הזה למנהל בלבד</h2><p class="sub">אישור סוכנים ושיוך קונים ונכסים פתוחים רק לחשבון המנהל.</p><p>מחובר כעת: <b>' + esc(D.me.name || '') + '</b> <span dir="ltr">' + esc(D.me.email || '') + '</span></p><button class="btn pri wide" type="button" data-act="logout">יציאה וכניסה עם חשבון המנהל</button></div></main>' + nav('today');
+    render.last = r; return;
+  }
   drawBar(r);
   if (isBoard(r)) { showBoard(r); render.last = r; return; }
   document.body.classList.remove('boards');
