@@ -487,7 +487,9 @@ let DEALS=null;
 // הדשבורד נפתח מיד מהנתונים האחרונים שנשמרו בדפדפן, ומתעדכן ברקע
 function ceoCache(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
 async function ceoView(fresh){const w=$("#m-ceo");
- if(!CEO){CEO=ceoCache("ceo_v1");if(!DEALS)DEALS=ceoCache("ceo_deals_v1");if(CEO)ceoDraw();else w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים… (בפעם הראשונה זה לוקח עד חצי דקה)</p>'}
+ if(!CEO){CEO=ceoCache("ceo_v1");if(!DEALS)DEALS=ceoCache("ceo_deals_v1");if(CEO)ceoDraw();else{w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים…</p>';
+  // מכשיר חדש: תמונת מצב מבסיס הנתונים מוצגת מיד, עד שהנתונים מהגיליון מגיעים
+  fetch("https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/dash-snap",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:U.sync.token,op:"get"})}).then(r=>r.json()).then(s=>{const v=s&&s.ok&&s.v;if(!v||CEO||!v.ceo||v.ceo.error)return;CEO=v.ceo;if(!DEALS&&v.deals&&v.deals.items)DEALS=v.deals.items;ceoDraw()}).catch(()=>{})}}
  oPost("dlist",{}).then(j=>{DEALS=j.items||[];ceoCache("ceo_deals_v1",DEALS);if(CEO)ceoDraw()}).catch(()=>{DEALS=DEALS||[]});
  try{const c=await oPost("ceo",{fresh:fresh?1:0});if(c&&!c.error){CEO=c;ceoCache("ceo_v1",c)}}catch(e){if(!CEO){w.innerHTML=`<div class="box bad">לא נטען: ${E(e.message)}</div>`;return}}ceoDraw()}
 function ceoDraw(){const w=$("#m-ceo"),D=CEO,now=new Date(),ym=now.toISOString().slice(0,7);

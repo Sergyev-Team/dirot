@@ -138,10 +138,10 @@ function sizeBar(){document.documentElement.style.setProperty("--bh",$("bar").of
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const today=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem"}).format(new Date());
 function tile(id,n,l,s,t,bad,u,sb){return `<button class="tile" type="button" data-go="${t}"${u?` data-u="${esc(u)}"`:""} id="${id}"><span class="n${bad&&n&&n!=="₪0"?" bad":""}">${n==null?"…":esc(n)}</span><span class="l">${esc(l)}</span>${s?`<span class="s${sb?" bad":""}">${esc(s)}</span>`:""}</button>`}
-let DASH=null,dashAt=0;
+let DASH=null,dashAt=0,SNAP_AT=0,SNAP_PUT=0;const SNAP="https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/dash-snap";
 // הנתונים האחרונים נשמרים בדפדפן: לוח הבקרה נפתח מיד, ומתעדכן ברקע
 function dashSave(){try{localStorage.setItem("office_dash_v1",JSON.stringify({at:Date.now(),d:DASH}))}catch(e){}}
-function dashLoad(){try{const x=JSON.parse(localStorage.getItem("office_dash_v1")||"null");if(x&&x.d)DASH=x.d}catch(e){}}
+function dashLoad(){try{const x=JSON.parse(localStorage.getItem("office_dash_v1")||"null");if(x&&x.d){DASH=x.d;SNAP_AT=x.at||0}}catch(e){}}
 // ===== שיוך סוכנים =====
 let AGK=null,AGD=null,AGBUSY=false;
 async function agPost(b){if(!AGK){const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
@@ -192,12 +192,18 @@ async function dashData(){
  const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{},U=S.url,T=S.token;
  const post=b=>fetch(U,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:T},b))}).then(r=>r.json());
  const get=q=>fetch(U+"?t="+encodeURIComponent(T)+q).then(r=>r.json());
+ // תמונת מצב מבסיס הנתונים: מוצגת מיד במכשיר שעוד לא פתח את הדשבורד, עד שהנתונים מהגיליון מגיעים
+ const snap=b=>fetch(SNAP,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:T},b))}).then(r=>r.json());
+ if(!DASH)snap({op:"get"}).then(s=>{if(s&&s.ok&&s.v&&!DASH&&!dashAt){DASH=s.v;SNAP_AT=Date.parse(s.at)||0;drawDash()}}).catch(()=>{});
  const ceoP=post({op:"ceo"}).catch(()=>null),dlP=post({op:"dlist"}).catch(()=>null),tmP=post({op:"team"}).catch(()=>null);
  const [buy,tasks,cl,ol]=await Promise.all([d.bscript?fetch(d.bscript+"?t="+encodeURIComponent(d.btoken)).then(r=>r.json()).catch(()=>null):null,post({op:"tlist"}).catch(()=>null),get("&op=clist").catch(()=>null),get("&op=olist").catch(()=>null)]);
  // כל חלק נכנס לאותו אובייקט שמוחזר, גם אם הגיע לפני השאר; חלק שנכשל שומר את הערך הקודם
  const P=DASH||{},ok=x=>x&&!x.error,o={apts:(d.apts||[]).length,buy:ok(buy)?buy:P.buy,tasks:ok(tasks)?tasks:P.tasks,cl:ok(cl)?cl:P.cl,ol:ok(ol)?ol:P.ol,ceo:P.ceo,deals:P.deals,team:P.team};
- const put=(k,x)=>{if(!ok(x))return;o[k]=x;if(DASH===o){drawDash();dashSave()}};
+ const fresh=new Set(["buy","tasks","cl","ol"].filter((k,i)=>ok([buy,tasks,cl,ol][i])));
+ const put=(k,x)=>{if(!ok(x))return;o[k]=x;fresh.add(k);if(DASH===o){drawDash();dashSave()}};
  ceoP.then(x=>put("ceo",x));dlP.then(x=>put("deals",x));tmP.then(x=>put("team",x));
+ // רק כשכל החלקים הגיעו טריים מהגיליון – שומרים תמונת מצב חדשה (לכל היותר פעם ב-5 דקות)
+ Promise.all([ceoP,dlP,tmP]).then(()=>{if(fresh.size===7&&Date.now()-SNAP_PUT>300000){SNAP_PUT=Date.now();snap({op:"put",v:o}).catch(()=>{})}});
  return o;
 }
 function drawDash(){
@@ -233,7 +239,7 @@ function drawDash(){
  $("team").innerHTML=TM?`<table><thead><tr><th>סוכן</th><th>קונים פעילים</th><th>לחזור היום</th><th>משימות פתוחות</th><th>באיחור</th><th>נכסים בבלעדיות</th></tr></thead><tbody>${TM.slice().sort((a,b)=>b.buyers-a.buyers).map(r=>`<tr><td><b>${esc(r.name)}</b></td><td class="n">${r.buyers}</td><td class="n${r.due?" bad":""}">${r.due}</td><td class="n">${r.tasks}</td><td class="n${r.late?" bad":""}">${r.late}</td><td class="n">${r.portals}</td></tr>`).join("")}</tbody></table>`:'<p class="note" style="padding:0 14px">טוען…</p>';
  document.querySelectorAll("#home [data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go,b.dataset.u||undefined));
  document.querySelectorAll("#home [data-m]").forEach(b=>b.onclick=()=>show("sgn",B.sgn+"#m="+b.dataset.m));
- $("upd").textContent=dashAt?"עודכן ב-"+new Date(dashAt).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"}):"טוען נתונים…";
+ const hm=x=>new Date(x).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});$("upd").textContent=dashAt?"עודכן ב-"+hm(dashAt):DASH&&SNAP_AT?"נתונים מ-"+hm(SNAP_AT)+" · מתעדכן…":"טוען נתונים…";
  $("rf").onclick=()=>{dashAt=0;DASH=null;drawDash();dash()};
 }
 async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12?"בוקר טוב":h<17?"צהריים טובים":"ערב טוב")+", משה";$("today").textContent=new Intl.DateTimeFormat("he-IL",{timeZone:"Asia/Jerusalem",weekday:"long",day:"numeric",month:"long"}).format(new Date());
