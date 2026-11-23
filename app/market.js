@@ -21,14 +21,15 @@
   function calc(A) {
     var c = A.client, rooms = n(c.rooms), sqm = n(c.sqm), price = n(c.price);
     var near = function (x) { return !rooms || !n(x.rooms) || Math.abs(n(x.rooms) - rooms) <= 0.5; };
-    var dAll = A.deals.filter(function (x) { return pps(x); }), lAll = A.lists.filter(function (x) { return pps(x); });
-    var dCmp = dAll.filter(near); if (dCmp.length < 2) dCmp = dAll;
-    var lCmp = lAll.filter(near); if (lCmp.length < 2) lCmp = lAll;
+    var inn = function (x) { return pps(x) && !x.out; };
+    var dAll = A.deals.filter(inn), lAll = A.lists.filter(inn), dCmp, lCmp;
+    if (A.ai) { dCmp = dAll; lCmp = lAll; } // הניתוח החכם כבר בחר מה דומה – הסוכן יכול להחזיר או להוציא שורות
+    else { dCmp = dAll.filter(near); if (dCmp.length < 2) dCmp = dAll; lCmp = lAll.filter(near); if (lCmp.length < 2) lCmp = lAll; }
     var dP = dCmp.map(pps), lP = lCmp.map(pps), cP = price && sqm ? price / sqm : 0;
     var bld = norm(c.addr), same = function (x) { return bld && norm(x.addr) === bld; };
-    var sb = dAll.concat(lAll).filter(same);
-    var twin = sb.filter(function (x) { return !rooms || n(x.rooms) === rooms; }).sort(function (a, b) { return Math.abs(n(a.floor) - n(c.floor)) - Math.abs(n(b.floor) - n(c.floor)); })[0] || null;
-    var bigger = sb.filter(function (x) { return sqm && n(x.sqm) > sqm; }).sort(function (a, b) { return n(a.price) - n(b.price); })[0] || null;
+    var sb = dAll.concat(lAll).filter(same), flag = function (k) { return A.deals.concat(A.lists).filter(pps).filter(function (x) { return x[k]; })[0] || null; };
+    var twin = A.ai ? flag('twin') : sb.filter(function (x) { return !rooms || n(x.rooms) === rooms; }).sort(function (a, b) { return Math.abs(n(a.floor) - n(c.floor)) - Math.abs(n(b.floor) - n(c.floor)); })[0] || null;
+    var bigger = A.ai ? flag('bigger') : sb.filter(function (x) { return sqm && n(x.sqm) > sqm; }).sort(function (a, b) { return n(a.price) - n(b.price); })[0] || null;
     var basePps = med(dP) || (avg(lP) * 0.96), base = basePps * sqm;
     var rec = { quick: base ? r10(base * 0.97) : 0, list: base ? r10(base * 1.02) : 0, lo: base ? r10(base * 0.98) : 0, hi: base ? r10(base) : 0 };
     ['quick', 'list', 'lo', 'hi'].forEach(function (k) { if (n(A.rec[k])) rec[k] = n(A.rec[k]); });
@@ -58,15 +59,28 @@
   var F = function (k, label, v, ph, w) { return '<label class="field" style="margin:0"><span>' + label + '</span><input class="in" data-mkf="' + k + '" value="' + e(v) + '"' + (ph ? ' placeholder="' + e(ph) + '"' : '') + ' inputmode="' + (w || 'text') + '"></label>'; };
   function rowsTable(kind, rows) {
     var cols = kind === 'deals' ? [['addr', 'כתובת'], ['date', 'תאריך'], ['rooms', 'חד׳'], ['floor', 'קומה'], ['sqm', 'מ״ר'], ['price', 'מחיר']] : [['addr', 'כתובת'], ['rooms', 'חד׳'], ['floor', 'קומה'], ['sqm', 'מ״ר'], ['price', 'מחיר מבוקש'], ['broker', 'מתווך']];
-    return '<div style="overflow:auto"><table class="mkt"><thead><tr>' + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('') + '<th>₪/מ״ר</th><th></th></tr></thead><tbody>' +
-      rows.map(function (x, i) { return '<tr>' + cols.map(function (c) { return '<td><input data-mkr="' + kind + '.' + i + '.' + c[0] + '" value="' + e(c[0] === 'price' && x.price ? Number(x.price).toLocaleString('he-IL') : x[c[0]]) + '"' + (c[0] === 'date' ? ' placeholder="2026-08-12" dir="ltr"' : '') + (['rooms', 'floor', 'sqm', 'price'].indexOf(c[0]) >= 0 ? ' inputmode="decimal"' : '') + '></td>'; }).join('') + '<td class="pp">' + (pps(x) ? Math.round(pps(x)).toLocaleString('he-IL') : '') + '</td><td><button class="btn link" type="button" data-mk="del" data-k="' + kind + '" data-i="' + i + '" aria-label="מחיקת שורה">✕</button></td></tr>'; }).join('') +
+    var ai = !!M.cur.data.ai;
+    return '<div style="overflow:auto"><table class="mkt"><thead><tr>' + (ai ? '<th>בהשוואה</th>' : '') + cols.map(function (c) { return '<th>' + c[1] + '</th>'; }).join('') + '<th>₪/מ״ר</th><th></th></tr></thead><tbody>' +
+      rows.map(function (x, i) { return '<tr' + (x.out ? ' class="mkout"' : '') + '>' + (ai ? '<td class="mkuse"><label><input type="checkbox" data-mkuse="' + kind + '.' + i + '"' + (x.out ? '' : ' checked') + '>' + (x.out ? '<small>' + e(x.why || 'הוצא') + '</small>' : x.twin ? '<small class="g">דירה זהה</small>' : x.bigger ? '<small class="g">גדולה יותר בבניין</small>' : '') + '</label></td>' : '') + cols.map(function (c) { return '<td><input data-mkr="' + kind + '.' + i + '.' + c[0] + '" value="' + e(c[0] === 'price' && x.price ? Number(x.price).toLocaleString('he-IL') : x[c[0]]) + '"' + (c[0] === 'date' ? ' placeholder="2026-08-12" dir="ltr"' : '') + (['rooms', 'floor', 'sqm', 'price'].indexOf(c[0]) >= 0 ? ' inputmode="decimal"' : '') + '></td>'; }).join('') + '<td class="pp">' + (pps(x) ? Math.round(pps(x)).toLocaleString('he-IL') : '') + '</td><td><button class="btn link" type="button" data-mk="del" data-k="' + kind + '" data-i="' + i + '" aria-label="מחיקת שורה">✕</button></td></tr>'; }).join('') +
       '</tbody></table></div>' + (rows.length ? '' : '<p class="sub" style="margin:6px 0">עוד אין שורות.</p>');
+  }
+  // הטקסטים שהניתוח כתב למצגת – אפשר לערוך כל אחד
+  function texts(ai) {
+    var I = function (k, label, v) { return '<label class="field" style="margin:0"><span>' + label + '</span><input class="in" data-mkt="' + k + '" value="' + e(v) + '"></label>'; };
+    var X = function (k, label, v) { return '<label class="field" style="margin:0"><span>' + label + '</span><textarea class="in" data-mkt="' + k + '">' + e(v) + '</textarea></label>'; };
+    var t = ai.titles || {}, r = ai.risks || [], g = ai.tiers || {};
+    return '<details style="margin:0 0 12px"><summary style="cursor:pointer;font-weight:600;padding:6px 0">הטקסטים במצגת (אפשר לערוך)</summary><div class="mktx" style="margin-top:8px">' +
+      I('titles.deals', 'כותרת – עסקאות', t.deals) + I('titles.lists', 'כותרת – מודעות', t.lists) + I('titles.stmt', 'כותרת – המחיר מול השוק', t.stmt) + X('insight', 'המשפט המרכזי', ai.insight) +
+      I('titles.pps', 'כותרת – מחיר למ״ר', t.pps) + X('pps_note', 'הסבר מחיר למ״ר', ai.pps_note) +
+      r.map(function (x, i) { return I('risks.' + i + '.t', 'סיכון ' + (i + 1), x.t) + X('risks.' + i + '.s', 'הסבר', x.s); }).join('') +
+      I('titles.rec', 'כותרת – ההמלצה', t.rec) + I('tiers.quick', 'מתחת ל"מכירה מהירה"', g.quick) + I('tiers.list', 'מתחת ל"מחיר מומלץ"', g.list) + I('tiers.range', 'מתחת ל"טווח סגירה"', g.range) + X('check', 'נקודת בדיקה אחרי 30 יום', ai.check) +
+      '</div></details>';
   }
   function vEdit() {
     var A = M.cur.data, c = A.client, R = calc(A), busy = M.busy;
     var upl = function (kind, label) { return '<label class="btn"' + (busy ? ' aria-disabled="true"' : '') + '>' + (busy === kind ? 'קורא… (כ-10 שניות)' : label) + '<input type="file" accept="image/*" multiple hidden data-mku="' + kind + '"' + (busy ? ' disabled' : '') + '></label>'; };
     var recF = function (k, label) { return '<label class="field" style="margin:0"><span>' + label + '</span><input class="in" inputmode="numeric" data-mkrec="' + k + '" value="' + e(R.rec[k] ? R.rec[k].toLocaleString('he-IL') : '') + '"></label>'; };
-    return '<main class="page"><style>.mkt{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}.mkt th{font-size:13px;color:var(--muted);text-align:right;font-weight:600;padding:4px}.mkt td{padding:2px}.mkt input{width:100%;font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:56px}.mkt td.pp{white-space:nowrap;color:var(--muted);padding:0 6px}.mksec{margin:14px 0}.mkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.mkres{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0}.mkres div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}.mkres b{display:block;font-size:20px}.mkres span{font-size:13px;color:var(--muted)}.mkwrap{border-radius:12px;overflow:hidden;border:1px solid var(--line);margin:10px 0;background:#fff}</style>' +
+    return '<main class="page"><style>.mkt{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}.mkt th{font-size:13px;color:var(--muted);text-align:right;font-weight:600;padding:4px}.mkt td{padding:2px}.mkt input{width:100%;font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:56px}.mkt td.pp{white-space:nowrap;color:var(--muted);padding:0 6px}.mksec{margin:14px 0}.mkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.mkres{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0}.mkres div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}.mkres b{display:block;font-size:20px}.mkres span{font-size:13px;color:var(--muted)}.mkwrap{border-radius:12px;overflow:hidden;border:1px solid var(--line);margin:10px 0;background:#fff}.mkout td{opacity:.45}.mkout td.mkuse{opacity:1}.mkuse label{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:74px;font-size:12px;color:var(--muted);text-align:center;line-height:1.2}.mkuse input{width:20px;height:20px;min-width:0}.mkuse .g{color:#8C6A22;font-weight:600}.mkai{background:#F4ECDA;border-radius:12px;padding:12px 14px;margin:10px 0;line-height:1.55}.mktx{display:grid;gap:10px}.mktx textarea{min-height:64px;resize:vertical}.mkstale{color:#C2552B;font-size:13px}</style>' +
       '<div class="head"><div><h1>' + e(M.cur.title || c.addr || 'ניתוח חדש') + '</h1><p class="sub"><a href="#market">← כל הניתוחים</a></p></div><div class="head-acts"><button class="btn pri" type="button" data-mk="save">שמירה</button></div></div>' +
       '<div class="card mksec"><h2 style="margin-top:0">1. הנכס של הלקוח</h2><div class="mkg">' +
       F('addr', 'כתובת (רחוב ומספר)', c.addr, 'ז׳בוטינסקי 8') + F('city', 'עיר', c.city) + F('rooms', 'חדרים', c.rooms, '', 'decimal') + F('floor', 'קומה', c.floor, '', 'numeric') + F('sqm', 'שטח במ״ר', c.sqm, '', 'numeric') + F('price', 'המחיר שבעל הבית מבקש', c.price ? Number(c.price).toLocaleString('he-IL') : '', '', 'numeric') + F('owner', 'שם בעל הבית (לשער)', A.owner || '') +
@@ -74,10 +88,13 @@
       '<div style="display:flex;gap:8px;align-items:end;margin-top:10px"><label class="field" style="margin:0;flex:1"><span>או מילוי לפי מספר נכס במערכת</span><input class="in" id="mkPid" inputmode="numeric" placeholder="למשל 399"></label><button class="btn" type="button" data-mk="fill">מילוי</button></div></div>' +
       '<div class="card mksec"><h2 style="margin-top:0">2. עסקאות שנמכרו (רשות המסים)</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' + upl('deals', '📷 העלאת צילום עסקאות') + '<button class="btn" type="button" data-mk="add" data-k="deals">+ שורה</button></div>' + rowsTable('deals', A.deals) + '</div>' +
       '<div class="card mksec"><h2 style="margin-top:0">3. דירות בשיווק עכשיו (יד2)</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' + upl('lists', '📷 העלאת צילום מודעות') + '<button class="btn" type="button" data-mk="pool">דירות דומות מהמאגר</button><button class="btn" type="button" data-mk="add" data-k="lists">+ שורה</button></div>' + rowsTable('lists', A.lists) + '</div>' +
-      '<div class="card mksec"><h2 style="margin-top:0">4. התוצאה</h2><div class="mkres">' +
+      '<div class="card mksec"><h2 style="margin-top:0">4. התוצאה</h2>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn pri" type="button" data-mk="ai"' + (busy ? ' disabled' : '') + '>' + (busy === 'ai' ? 'מנתח… (עד דקה)' : A.ai ? 'לנתח שוב' : 'הכנת ניתוח מקצועי') + '</button><span class="sub" style="margin:0">' + (A.ai ? '' : 'בוחר את העסקאות והמודעות הדומות באמת, ממליץ על מחיר וכותב את הטקסטים למצגת.') + '</span></div>' +
+      (A.ai && A.ai.summary ? '<div class="mkai"><b>מה נעשה בניתוח:</b> ' + e(A.ai.summary) + (A.ai.stale ? '<div class="mkstale">שיניתם נתונים אחרי הניתוח – כדאי ללחוץ "לנתח שוב" כדי לעדכן את הטקסטים.</div>' : '') + '</div>' : '') +
+      '<div class="mkres">' +
       '<div><span>המחיר המבוקש למ״ר</span><b>' + (R.cP ? fmt(R.cP) : '—') + '</b></div><div><span>חציון עסקאות דומות למ״ר</span><b>' + (R.dMed ? fmt(R.dMed) : '—') + '</b><span>' + R.dCmp.length + ' עסקאות</span></div><div><span>ממוצע מודעות דומות למ״ר</span><b>' + (R.lAvg ? fmt(R.lAvg) : '—') + '</b><span>' + R.lCmp.length + ' מודעות</span></div><div><span>שווי לפי העסקאות</span><b>' + (R.base ? fmt(r10(R.base)) : '—') + '</b>' + (R.gap ? '<span>' + (R.gap > 0 ? 'המבוקש גבוה ב-' : 'המבוקש נמוך ב-') + fmt(Math.abs(R.gap)) + '</span>' : '') + '</div></div>' +
       '<p class="sub" style="margin:10px 0 6px">ההמלצה (אפשר לשנות):</p><div class="mkg">' + recF('quick', 'מכירה מהירה') + recF('list', 'מחיר מומלץ לפרסום') + recF('lo', 'טווח סגירה – מ') + recF('hi', 'טווח סגירה – עד') + '</div></div>' +
-      '<div class="card mksec"><h2 style="margin-top:0">5. המצגת</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-mk="preview">תצוגה מקדימה</button><button class="btn pri" type="button" data-mk="pdf"' + (busy ? ' disabled' : '') + '>' + (busy === 'pdf' ? 'מכין PDF…' : 'הורדת PDF') + '</button><button class="btn" type="button" data-mk="pptx"' + (busy ? ' disabled' : '') + '>' + (busy === 'pptx' ? 'מכין מצגת…' : 'הורדת מצגת') + '</button>' + (M.cur.id && !isAdmin() ? '' : '') + '</div><div id="mkPrev"></div></div>' +
+      '<div class="card mksec"><h2 style="margin-top:0">5. המצגת</h2>' + (A.ai ? texts(A.ai) : '') + '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-mk="preview">תצוגה מקדימה</button><button class="btn pri" type="button" data-mk="pdf"' + (busy ? ' disabled' : '') + '>' + (busy === 'pdf' ? 'מכין PDF…' : 'הורדת PDF') + '</button><button class="btn" type="button" data-mk="pptx"' + (busy ? ' disabled' : '') + '>' + (busy === 'pptx' ? 'מכין מצגת…' : 'הורדת מצגת') + '</button>' + (M.cur.id && !isAdmin() ? '' : '') + '</div><div id="mkPrev"></div></div>' +
       (M.cur.id ? '<p style="text-align:center"><button class="btn link" type="button" data-mk="remove">מחיקת הניתוח</button></p>' : '') + '</main>' + nav('today');
   }
 
@@ -103,6 +120,7 @@
     var H = function (title, sub, dark) { return (L && !dark ? '<img src="' + L + '" style="position:absolute;top:40px;left:60px;width:200px">' : '') + '<div style="position:absolute;top:48px;right:70px;left:300px;text-align:right"><div style="font-size:42px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + e(title) + '</div>' + (sub ? '<div style="font-size:23px;color:' + (dark ? '#B4B2A9' : C.gray) + ';margin-top:6px">' + e(sub) + '</div>' : '') + '</div>'; };
     var card = 'background:#fff;border:1.5px solid ' + C.line + ';border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.05);';
     var spec = [c.city, n(c.rooms) ? c.rooms + ' חדרים' : '', c.floor !== '' && c.floor != null ? 'קומה ' + c.floor : ''].filter(Boolean).join(' · ');
+    var AI = A.ai || {}, TT = AI.titles || {}, inn = function (x) { return pps(x) && !x.out; };
     var out = [];
     // 1 שער
     out.push(S('<div style="position:absolute;inset:0 800px 0 0;background:#fff;display:flex;align-items:center;justify-content:center">' + (L ? '<img src="' + L + '" style="width:440px">' : '<div style="font-size:60px;font-weight:700;color:' + C.gold + '">צוות סרגייב</div>') + '</div>' +
@@ -117,40 +135,43 @@
       return '<table style="width:100%;border-collapse:collapse;font-size:24px"><thead><tr>' + head.map(function (h) { return '<th style="text-align:right;padding:12px 14px;border-bottom:2px solid ' + C.dark + ';font-weight:700">' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
         rows.map(function (r, i) { return '<tr style="' + (i === tintIdx ? 'background:' + C.tint : '') + '">' + r.map(function (v, j) { return '<td style="padding:12px 14px;border-bottom:1px solid ' + C.line + ';' + (j === 0 ? 'font-weight:700' : '') + '">' + v + '</td>'; }).join('') + '</tr>'; }).join('') + (foot ? '<tr style="background:' + C.tint + ';font-weight:700">' + foot.map(function (v) { return '<td style="padding:12px 14px">' + v + '</td>'; }).join('') + '</tr>' : '') + '</tbody></table>';
     };
-    var ds = A.deals.filter(function (x) { return pps(x); }).slice().sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 9);
+    var ds = A.deals.filter(inn).slice().sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); }).slice(0, 9);
     var dTitle = ds.length ? 'עסקאות ' + (n(c.rooms) ? c.rooms + ' חדרים ' : '') + 'באזור: עד ' + fmtM(R.maxDeal || Math.max.apply(null, ds.map(function (x) { return n(x.price); }))) : 'עסקאות שנמכרו באזור';
-    out.push(S(H(dTitle, 'עסקאות שנסגרו בפועל, לפי נתוני רשות המסים') + '<div style="position:absolute;top:200px;right:70px;left:70px">' +
+    out.push(S(H(TT.deals || dTitle, 'עסקאות שנסגרו בפועל, לפי נתוני רשות המסים') + '<div style="position:absolute;top:200px;right:70px;left:70px">' +
       tbl(['כתובת', 'תאריך', 'חדרים', 'קומה', 'מ״ר', 'מחיר', '₪ למ״ר'], ds.map(function (x) { return [e(x.addr), e(String(x.date || '').split('-').reverse().join('/')), e(x.rooms), e(x.floor), e(x.sqm), fmt(n(x.price)), fmt(pps(x))]; }), -1, ds.length ? ['ממוצע עסקאות דומות', '', '', '', '', '', fmt(R.dAvg)] : null) + '</div>', 3));
     // 4 מודעות
-    var ls = A.lists.filter(function (x) { return pps(x); }).slice().sort(function (a, b) { return pps(a) - pps(b); }).slice(0, 9);
-    var tw = -1; ls.forEach(function (x, i) { if (tw < 0 && n(x.rooms) === n(c.rooms) && (!n(c.sqm) || Math.abs(n(x.sqm) - n(c.sqm)) <= 10)) tw = i; });
+    var ls = A.lists.filter(inn).slice().sort(function (a, b) { return pps(a) - pps(b); }).slice(0, 9);
+    var tw = -1; ls.forEach(function (x, i) { if (tw < 0 && x.twin) tw = i; }); if (A.ai && tw < 0) tw = -2; if (tw === -1) ls.forEach(function (x, i) { if (tw < 0 && n(x.rooms) === n(c.rooms) && (!n(c.sqm) || Math.abs(n(x.sqm) - n(c.sqm)) <= 10)) tw = i; });
     var lMin = Math.min.apply(null, [Infinity].concat(ls.map(function (x) { return n(x.price); }))), lMax = Math.max.apply(null, [0].concat(ls.map(function (x) { return n(x.price); })));
-    out.push(S(H(ls.length ? ls.length + ' דירות דומות בשיווק: בין ' + fmtM(lMin).replace(' מיליון ₪', '') + ' ל-' + fmtM(lMax) : 'דירות בשיווק עכשיו', 'מודעות פעילות – מחירים מבוקשים, שנסגרים בדרך כלל נמוך יותר') + '<div style="position:absolute;top:200px;right:70px;left:70px">' +
+    out.push(S(H(TT.lists || (ls.length ? ls.length + ' דירות דומות בשיווק: בין ' + fmtM(lMin).replace(' מיליון ₪', '') + ' ל-' + fmtM(lMax) : 'דירות בשיווק עכשיו'), 'מודעות פעילות – מחירים מבוקשים, שנסגרים בדרך כלל נמוך יותר') + '<div style="position:absolute;top:200px;right:70px;left:70px">' +
       tbl(['כתובת', 'חדרים', 'קומה', 'מ״ר', 'מחיר מבוקש', '₪ למ״ר', 'משווק'], ls.map(function (x) { return [e(x.addr || x.nb || ''), e(x.rooms), e(x.floor), e(x.sqm), fmt(n(x.price)), fmt(pps(x)), e(x.broker || '')]; }), tw, ls.length ? ['ממוצע מודעות דומות', '', '', '', '', fmt(R.lAvg), ''] : null) + '</div>', 4));
     // 5 הצהרה
     var stat = function (l, v, s, hot) { return '<div style="flex:1;background:' + C.dark2 + ';border-radius:18px;padding:40px 30px;text-align:center;' + 'border:3px solid ' + (hot ? C.orangeO : 'transparent') + ';' + '"><div style="font-size:26px;color:#B4B2A9">' + l + '</div><div style="font-size:56px;font-weight:700;margin:14px 0;color:#fff">' + v + '</div><div style="font-size:24px;color:' + C.goldD + '">' + s + '</div></div>'; };
     var s2 = R.twin ? stat('דירה זהה בבניין', fmt(n(R.twin.price)), (R.twin.date ? 'נמכרה ' : 'מבוקש ') + fmt(pps(R.twin)) + ' למ״ר') : stat('עסקאות דומות – חציון', R.dMed ? fmt(r10(R.dMed * n(c.sqm))) : '—', R.dMed ? fmt(R.dMed) + ' למ״ר' : '');
     var s3 = R.bigger ? stat('דירה גדולה יותר בבניין', fmt(n(R.bigger.price)), n(R.bigger.sqm) + ' מ״ר · ' + fmt(pps(R.bigger)) + ' למ״ר') : stat('מודעות דומות – ממוצע', R.lAvg ? fmt(r10(R.lAvg * n(c.sqm))) : '—', R.lAvg ? fmt(R.lAvg) + ' למ״ר' : '');
     var sent = R.gap > 20000 ? 'המחיר המבוקש גבוה ב-' + fmt(r10(R.gap)) + ' ממה שהעסקאות בפועל תומכות בו.' : R.gap < -20000 ? 'המחיר המבוקש נמוך ב-' + fmt(r10(-R.gap)) + ' מהעסקאות בפועל – יש מקום להעלות.' : 'המחיר המבוקש בתוך הטווח של העסקאות בפועל.';
-    out.push(S(H('המחיר המבוקש מול השוק', '', 1) + '<div style="position:absolute;top:220px;right:70px;left:70px;display:flex;gap:30px">' + stat('המחיר המבוקש', fmt(n(c.price)), R.cP ? fmt(R.cP) + ' למ״ר' : '', 1) + s2 + s3 + '</div><div style="position:absolute;top:640px;right:70px;left:70px;text-align:center;font-size:36px;font-weight:700">' + e(sent) + '</div>', 5, 1));
+    if (AI.insight) sent = AI.insight;
+    out.push(S(H(TT.stmt || 'המחיר המבוקש מול השוק', '', 1) + '<div style="position:absolute;top:220px;right:70px;left:70px;display:flex;gap:30px">' + stat('המחיר המבוקש', fmt(n(c.price)), R.cP ? fmt(R.cP) + ' למ״ר' : '', 1) + s2 + s3 + '</div><div style="position:absolute;top:640px;right:70px;left:70px;text-align:center;font-size:36px;font-weight:700">' + e(sent) + '</div>', 5, 1));
     // 6 מחיר למ״ר
     var bars = [['המחיר המבוקש', R.cP, C.orange], ['ממוצע עסקאות דומות', R.dAvg, C.gold], ['ממוצע מודעות דומות', R.lAvg, '#9A9A9A']].filter(function (b) { return b[1]; }), mx = Math.max.apply(null, [1].concat(bars.map(function (b) { return b[1]; })));
-    out.push(S(H('מחיר למ״ר: ' + (R.cP && R.dAvg ? (R.cP > R.dAvg ? 'המבוקש גבוה ב-' + Math.round((R.cP / R.dAvg - 1) * 100) + '% מהעסקאות' : 'המבוקש בטווח העסקאות') : 'השוואה'), 'מחיר למ״ר – הדרך שבה קונים ושמאים משווים') + '<div style="position:absolute;top:230px;right:70px;left:70px">' +
+    out.push(S(H(TT.pps || 'מחיר למ״ר: ' + (R.cP && R.dAvg ? (R.cP > R.dAvg ? 'המבוקש גבוה ב-' + Math.round((R.cP / R.dAvg - 1) * 100) + '% מהעסקאות' : 'המבוקש בטווח העסקאות') : 'השוואה'), 'מחיר למ״ר – הדרך שבה קונים ושמאים משווים') + '<div style="position:absolute;top:230px;right:70px;left:70px">' +
       bars.map(function (b) { return '<div style="display:flex;align-items:center;gap:24px;margin-bottom:46px"><div style="width:330px;font-size:28px;font-weight:700;text-align:right">' + b[0] + '</div><div style="flex:1;display:flex;align-items:center;gap:18px"><div style="height:56px;border-radius:8px;background:' + b[2] + ';width:' + Math.round(b[1] / mx * 100) + '%"></div><b style="font-size:30px;white-space:nowrap">' + fmt(b[1]) + '</b></div></div>'; }).join('') +
-      '<div style="background:' + C.tint + ';border-radius:14px;padding:22px 28px;font-size:24px;margin-top:20px">דירות גדולות נמכרות בדרך כלל במחיר נמוך יותר למ״ר, וקומות גבוהות במחיר גבוה יותר. ההשוואה הנכונה היא לדירות בגודל ובקומה דומים.</div></div>', 6));
+      '<div style="background:' + C.tint + ';border-radius:14px;padding:22px 28px;font-size:24px;margin-top:20px;line-height:1.5">' + e(AI.pps_note || 'דירות גדולות נמכרות בדרך כלל במחיר נמוך יותר למ״ר, וקומות גבוהות במחיר גבוה יותר. ההשוואה הנכונה היא לדירות בגודל ובקומה דומים.') + '</div></div>', 6));
     // 7 סיכונים
     var IC2 = { scale: '<path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0L7 7zm10 0-3 7a3 3 0 0 0 6 0l-3-7z"/>', bank: '<path d="M3 10h18L12 4 3 10zM5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>', ruler: '<path d="M3 17 17 3l4 4L7 21l-4-4zM7 13l2 2M10 10l2 2M13 7l2 2"/>', glass: '<path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9"/>' };
     var risk = function (ic, t, s) { return '<div style="' + card + 'padding:34px;display:flex;gap:24px;align-items:flex-start"><div style="width:76px;height:76px;border-radius:50%;background:' + C.gold + ';flex:none;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC2[ic] + '</svg></div><div><div style="font-size:30px;font-weight:700;margin-bottom:8px">' + t + '</div><div style="font-size:23px;color:' + C.gray + ';line-height:1.45">' + s + '</div></div></div>'; };
     out.push(S(H('מה קורה כשהמחיר גבוה מהשוק', 'ארבעה דברים שעובדים נגד נכס במחיר לא נכון') + '<div style="position:absolute;top:210px;right:70px;left:70px;display:grid;grid-template-columns:1fr 1fr;gap:28px">' +
+      ((AI.risks && AI.risks.length === 4) ? AI.risks.map(function (x, i) { return risk(['scale', 'bank', 'ruler', 'glass'][i], e(x.t), e(x.s)); }).join('') : (
       risk('scale', 'הקונים משווים', 'קונים רואים את כל המודעות באזור ומשווים מחיר למ״ר. נכס יקר מהשאר פשוט מדולג.') +
       risk('bank', 'שמאי הבנק לא יתמוך', 'השמאי של הבנק מסתמך על עסקאות בפועל. מחיר גבוה מהן מקשה על הקונה לקבל משכנתא.') +
       risk('ruler', 'יקר מדירות גדולות יותר', 'כשדירה גדולה יותר נמכרת בסכום דומה, הקונים בוחרים בה.') +
-      risk('glass', 'הנכס נשחק', 'נכס שמתפרסם הרבה זמן בלי עסקה מאבד עניין וכוח מיקוח, והמחיר הסופי יורד.') + '</div>', 7));
+      risk('glass', 'הנכס נשחק', 'נכס שמתפרסם הרבה זמן בלי עסקה מאבד עניין וכוח מיקוח, והמחיר הסופי יורד.')))
+      + '</div>', 7));
     // 8 המלצה
     var tier = function (l, v, s, main) { return '<div style="flex:1;' + (main ? 'background:' + C.dark + ';color:#fff;transform:scale(1.06);' : card) + 'border-radius:18px;padding:44px 30px;text-align:center"><div style="font-size:27px;color:' + (main ? C.goldD : C.gray) + '">' + l + '</div><div style="font-size:58px;font-weight:700;margin:16px 0">' + v + '</div><div style="font-size:22px;color:' + (main ? '#D3D1C7' : C.gray) + '">' + s + '</div></div>'; };
-    out.push(S(H('ההמלצה: לצאת ב-' + fmt(R.rec.list), 'שלושה מחירים – ונקודת בדיקה משותפת אחרי 30 יום') + '<div style="position:absolute;top:240px;right:110px;left:110px;display:flex;gap:40px;align-items:center">' +
-      tier('מכירה מהירה', fmt(R.rec.quick), 'למכירה תוך שבועות') + tier('מחיר מומלץ לפרסום', fmt(R.rec.list), 'משאיר מקום למשא ומתן', 1) + tier('טווח סגירה צפוי', R.rec.lo && R.rec.hi ? (R.rec.lo / 1e6).toFixed(2).replace(/\.?0+$/, '') + ' עד ' + (R.rec.hi / 1e6).toFixed(2).replace(/\.?0+$/, '') : '—', 'מיליון ₪ · לפי העסקאות באזור') + '</div>' +
-      '<div style="position:absolute;top:650px;right:110px;left:110px;background:' + C.tint + ';border-radius:14px;padding:24px 30px;font-size:26px"><b>נקודת בדיקה אחרי 30 יום:</b> אם היו פחות מ-3 ביקורים רציניים – יושבים יחד ובוחנים את המחיר מחדש.</div>', 8));
+    out.push(S(H(TT.rec || 'ההמלצה: לצאת ב-' + fmt(R.rec.list), 'שלושה מחירים – ונקודת בדיקה משותפת אחרי 30 יום') + '<div style="position:absolute;top:240px;right:110px;left:110px;display:flex;gap:40px;align-items:center">' +
+      tier('מכירה מהירה', fmt(R.rec.quick), e((AI.tiers || {}).quick || 'למכירה תוך שבועות')) + tier('מחיר מומלץ לפרסום', fmt(R.rec.list), e((AI.tiers || {}).list || 'משאיר מקום למשא ומתן'), 1) + tier('טווח סגירה צפוי', R.rec.lo && R.rec.hi ? (R.rec.lo / 1e6).toFixed(2).replace(/\.?0+$/, '') + ' עד ' + (R.rec.hi / 1e6).toFixed(2).replace(/\.?0+$/, '') : '—', 'מיליון ₪ · ' + e((AI.tiers || {}).range || 'לפי העסקאות באזור')) + '</div>' +
+      '<div style="position:absolute;top:650px;right:110px;left:110px;background:' + C.tint + ';border-radius:14px;padding:24px 30px;font-size:26px"><b>נקודת בדיקה אחרי 30 יום:</b> ' + e(AI.check || 'אם היו פחות מ-3 ביקורים רציניים – יושבים יחד ובוחנים את המחיר מחדש.') + '</div>', 8));
     // 9 סיום
     out.push(S('<div style="position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">' + (L ? '<img src="' + L + '" style="width:520px">' : '') + '<div style="font-size:40px;font-weight:700;margin-top:50px">' + e(aName) + (ph ? ' · <span dir="ltr">' + e(ph) + '</span>' : '') + '</div><div style="font-size:28px;color:' + C.gray + ';margin-top:12px">הצוות של אלכס סרגייב</div></div>', 0));
     return out;
@@ -200,8 +221,24 @@
     Promise.all(list.map(function (f) { return new Promise(function (ok) { var im = new Image(); im.onload = function () { var s = Math.min(1, 1400 / im.width, 2600 / im.height), cv = document.createElement('canvas'); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(im.src); ok(cv.toDataURL('image/jpeg', 0.85).split(',')[1]); }; im.onerror = function () { ok(''); }; im.src = URL.createObjectURL(f); }); }))
       // כל צילום נשלח לבד ובמקביל – מהיר יותר, ותקלה בצילום אחד לא מפילה את השאר
       .then(function (imgs) { return Promise.all(imgs.filter(Boolean).map(function (im) { return api('mocr', { kind: kind === 'deals' ? 'deals' : 'listings', images: [im] }).catch(function (e) { return { error: e.message }; }); })); })
-      .then(function (rs) { var ok = rs.filter(function (j) { return j && j.ok; }); if (!ok.length) throw new Error((rs[0] && rs[0].error) || 'שגיאה'); var j = { ok: 1, items: [].concat.apply([], ok.map(function (x) { return x.items || []; })) }; var rows = (j.items || []); M.cur.data[kind] = M.cur.data[kind].concat(rows); toast(rows.length ? 'נקראו ' + rows.length + ' שורות. בדקו שהמספרים נכונים.' : 'לא נמצאו שורות בצילום'); })
+      .then(function (rs) { var ok = rs.filter(function (j) { return j && j.ok; }); if (!ok.length) throw new Error((rs[0] && rs[0].error) || 'שגיאה'); var j = { ok: 1, items: [].concat.apply([], ok.map(function (x) { return x.items || []; })) }; var rows = (j.items || []); M.cur.data[kind] = M.cur.data[kind].concat(rows); if (rows.length && M.cur.data.ai) M.cur.data.ai.stale = 1; toast(rows.length ? 'נקראו ' + rows.length + ' שורות. בדקו שהמספרים נכונים.' : 'לא נמצאו שורות בצילום'); })
       .catch(function (er) { toast('הקריאה נכשלה: ' + er.message); }).then(function () { M.busy = ''; render(); });
+  }
+  // ניתוח מקצועי: השרת בוחר השוואות, ממליץ ומנסח. המספרים מחושבים בקוד, והסוכן יכול לשנות הכל.
+  function runAi() {
+    var A = M.cur.data;
+    if (!A.deals.concat(A.lists).some(function (x) { return pps(x); })) { toast('קודם מוסיפים עסקאות או מודעות עם מחיר ושטח'); return; }
+    if (!n(A.client.sqm)) { toast('חסר שטח במ״ר לנכס של הלקוח'); return; }
+    var clean = function (a) { return a.map(function (x) { return { addr: x.addr, city: x.city, nb: x.nb, date: x.date, rooms: x.rooms, floor: x.floor, sqm: x.sqm, price: x.price, broker: x.broker }; }); };
+    M.busy = 'ai'; render();
+    api('mai', { data: { client: A.client, deals: clean(A.deals), lists: clean(A.lists) } }).then(function (j) {
+      var put = function (rows, sel, k) { rows.forEach(function (x, i) { var s = (sel || [])[i] || {}; x.out = s.use === false; x.why = x.out ? s.why : ''; x.twin = !!(j.twin && j.twin.kind === k && j.twin.i === i); x.bigger = !!(j.bigger && j.bigger.kind === k && j.bigger.i === i); }); };
+      put(A.deals, j.deals, 'deals'); put(A.lists, j.lists, 'lists');
+      A.rec = { quick: j.rec.quick || '', list: j.rec.list || '', lo: j.rec.lo || '', hi: j.rec.hi || '' };
+      A.ai = { at: new Date().toISOString(), titles: j.titles || {}, insight: j.insight || '', pps_note: j.pps_note || '', risks: j.risks || [], tiers: j.tiers || {}, check: j.check || '', summary: j.summary || '' };
+      var out = A.deals.concat(A.lists).filter(function (x) { return x.out; }).length;
+      toast('הניתוח מוכן' + (out ? ' · ' + (out === 1 ? 'שורה אחת הוצאה' : out + ' שורות הוצאו') + ' מההשוואה' : '') + '. כדאי לעבור ולשמור.');
+    }).catch(function (er) { toast(er.message || 'הניתוח נכשל. נסו שוב.'); }).then(function () { M.busy = ''; render(); });
   }
   function save() {
     var A = M.cur.data, title = (A.client.addr || 'ניתוח שוק') + (A.client.city ? ', ' + A.client.city : '');
@@ -227,8 +264,9 @@
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-mk]'); if (!b || !M.cur) return; var a = b.dataset.mk, A = M.cur.data;
     if (a === 'save') save();
-    else if (a === 'add') { A[b.dataset.k].push({}); render(); }
-    else if (a === 'del') { A[b.dataset.k].splice(+b.dataset.i, 1); render(); }
+    else if (a === 'ai') runAi();
+    else if (a === 'add') { A[b.dataset.k].push({}); if (A.ai) A.ai.stale = 1; render(); }
+    else if (a === 'del') { A[b.dataset.k].splice(+b.dataset.i, 1); if (A.ai) A.ai.stale = 1; render(); }
     else if (a === 'fill') fill();
     else if (a === 'pool') pool();
     else if (a === 'preview') preview();
@@ -239,9 +277,11 @@
   document.addEventListener('change', function (ev) {
     var t = ev.target; if (!M.cur) return; var A = M.cur.data;
     if (t.dataset.mku) { read(t.files, t.dataset.mku); t.value = ''; return; }
+    if (t.dataset.mkuse) { var q = t.dataset.mkuse.split('.'), rw = A[q[0]][+q[1]]; if (rw) { rw.out = !t.checked; if (!rw.out) rw.why = ''; else if (!rw.why) rw.why = 'הוצא ידנית'; if (A.ai) A.ai.stale = 1; } render(); return; }
+    if (t.dataset.mkt) { var o = A.ai, ks = t.dataset.mkt.split('.'); for (var z = 0; z < ks.length - 1; z++) { o[ks[z]] = o[ks[z]] || {}; o = o[ks[z]]; } o[ks[ks.length - 1]] = t.value.trim(); return; }
     if (t.dataset.mkchk) { A.client[t.dataset.mkchk] = t.checked; return; }
-    if (t.dataset.mkf) { var k = t.dataset.mkf, v = t.value.trim(); if (k === 'owner') A.owner = v; else A.client[k] = k === 'price' ? n(v) || '' : v; render(); return; }
-    if (t.dataset.mkr) { var p = t.dataset.mkr.split('.'), row = A[p[0]][+p[1]]; if (!row) return; var val = t.value.trim(); row[p[2]] = ['rooms', 'sqm', 'price'].indexOf(p[2]) >= 0 ? (n(val) || '') : p[2] === 'floor' ? (val === '' ? '' : +val.replace(/[^\d\-]/g, '') || 0) : val; render(); return; }
+    if (t.dataset.mkf) { var k = t.dataset.mkf, v = t.value.trim(); if (A.ai) A.ai.stale = 1; if (k === 'owner') A.owner = v; else A.client[k] = k === 'price' ? n(v) || '' : v; render(); return; }
+    if (t.dataset.mkr) { var p = t.dataset.mkr.split('.'), row = A[p[0]][+p[1]]; if (!row) return; if (A.ai) A.ai.stale = 1; var val = t.value.trim(); row[p[2]] = ['rooms', 'sqm', 'price'].indexOf(p[2]) >= 0 ? (n(val) || '') : p[2] === 'floor' ? (val === '' ? '' : +val.replace(/[^\d\-]/g, '') || 0) : val; render(); return; }
     if (t.dataset.mkrec) { A.rec[t.dataset.mkrec] = n(t.value) || ''; render(); }
   });
   window.MKT = { view: view };
