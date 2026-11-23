@@ -283,7 +283,9 @@ async function create(){keep();const s=U.sync,o=$("#nOut");const err=t=>{o.inner
 let LIST=null;
 const cGet=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},cSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const upd=(id,on)=>{const e=$(id);if(e)e.hidden=!on};
-async function loadList(){const s=U.sync,h=$("#ls"),ck="sg_list_"+(U.agent?"a":"m");if(!LIST)LIST=cGet(ck);if(LIST){drawList();upd("#lUp",1)}else h.innerHTML='<p class="hint">טוען…</p>';
+// תמונת מצב מבסיס הנתונים (רק למפתח של משה; מפתח של סוכן נדחה) – למכשיר שעוד אין בו נתונים שמורים
+const snapGet=tok=>fetch("https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/dash-snap",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:tok,op:"get"})}).then(r=>r.json()).then(x=>x&&x.ok&&x.v||null).catch(()=>null);
+async function loadList(){const s=U.sync,h=$("#ls"),ck="sg_list_"+(U.agent?"a":"m");if(!LIST)LIST=cGet(ck);if(LIST){drawList();upd("#lUp",1)}else{h.innerHTML='<p class="hint">טוען…</p>';if(!U.agent)snapGet(s.token).then(v=>{const c=v&&v.cl;if(!c||!Array.isArray(c.items)||LIST)return;LIST=c.items;drawList();upd("#lUp",1)})}
  try{const r=await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=clist");const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");LIST=j.items;cSet(ck,LIST);upd("#lUp",0);drawList()}catch(e){upd("#lUp",0);if(!LIST)h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+'</p>';else toast("לא הצלחתי לרענן – מוצג המידע האחרון")}}
 let LFLT="all";
 function drawList(){const q=$("#lq").value.trim(),h=$("#ls");if(!LIST)return;const qd=q.replace(/\D/g,"");
@@ -316,7 +318,9 @@ let OWN=null,OOPEN={};
 const MANUAL=["letters","sign","open","tour","offer","buyers","call","lead","price","photo","fbgroup","fb","ig","story","y2","md","other"],PRIV=["tour","offer","call"];
 async function oPost(op,extra){const s=U.sync;const r=await fetch(s.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:s.token,op},extra))});const j=await r.json();if(!j.ok)throw new Error(j.error||"שגיאה");return j}
 let MNG_ID=null,DIRTY=false,OWN_AG=[];
-async function loadOwn(){const s=U.sync,h=$("#oLs");if(!OWN)OWN=cGet("sg_own");if(OWN){drawOwn();upd("#oUp",1)}else h.innerHTML='<p class="hint">טוען…</p>';
+async function loadOwn(){const s=U.sync,h=$("#oLs");if(!OWN)OWN=cGet("sg_own");if(OWN){drawOwn();upd("#oUp",1)}else{h.innerHTML='<p class="hint">טוען…</p>';
+  // מכשיר חדש: הרשימה מתמונת המצב בבסיס הנתונים מוצגת מיד (רק למשה – מפתח של סוכן נדחה), עד שהגיליון עונה
+  if(!U.agent)snapGet(s.token).then(v=>{const o=v&&v.ol;if(!o||!Array.isArray(o.items)||OWN)return;OWN=o.items;if(o.agents)OWN_AG=o.agents;drawOwn();upd("#oUp",1)})}
  try{const j=await (await fetch(s.url+"?t="+encodeURIComponent(s.token)+"&op=olist")).json();if(!j.ok)throw new Error(j.error||"שגיאה");OWN=j.items;if(j.agents)OWN_AG=j.agents;cSet("sg_own",OWN);upd("#oUp",0);if(!(MNG_ID&&DIRTY))drawOwn()}catch(e){upd("#oUp",0);if(!OWN)h.innerHTML='<p class="hint">שגיאה: '+E(e.message)+' (אם זה "auth" – צריך לעדכן את קוד הגיליון)</p>';else toast("לא הצלחתי לרענן – מוצג המידע האחרון")}}
 function mngUrl(id){return location.href.split("#")[0]+"#m="+id}
 const oLink=k=>SITE+"o/?k="+k;
@@ -489,7 +493,7 @@ function ceoCache(k,v){try{if(v===undefined)return JSON.parse(localStorage.getIt
 async function ceoView(fresh){const w=$("#m-ceo");
  if(!CEO){CEO=ceoCache("ceo_v1");if(!DEALS)DEALS=ceoCache("ceo_deals_v1");if(CEO)ceoDraw();else{w.innerHTML='<p class="hint" style="margin-top:30px">טוען את הנתונים של כל הנכסים…</p>';
   // מכשיר חדש: תמונת מצב מבסיס הנתונים מוצגת מיד, עד שהנתונים מהגיליון מגיעים
-  fetch("https://zqpgzcgvvhaokaimedio.supabase.co/functions/v1/dash-snap",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:U.sync.token,op:"get"})}).then(r=>r.json()).then(s=>{const v=s&&s.ok&&s.v;if(!v||CEO||!v.ceo||v.ceo.error)return;CEO=v.ceo;if(!DEALS&&v.deals&&v.deals.items)DEALS=v.deals.items;ceoDraw()}).catch(()=>{})}}
+  snapGet(U.sync.token).then(v=>{if(!v||CEO||!v.ceo||v.ceo.error)return;CEO=v.ceo;if(!DEALS&&v.deals&&v.deals.items)DEALS=v.deals.items;ceoDraw()})}}
  oPost("dlist",{}).then(j=>{DEALS=j.items||[];ceoCache("ceo_deals_v1",DEALS);if(CEO)ceoDraw()}).catch(()=>{DEALS=DEALS||[]});
  try{const c=await oPost("ceo",{fresh:fresh?1:0});if(c&&!c.error){CEO=c;ceoCache("ceo_v1",c)}}catch(e){if(!CEO){w.innerHTML=`<div class="box bad">לא נטען: ${E(e.message)}</div>`;return}}ceoDraw()}
 function ceoDraw(){const w=$("#m-ceo"),D=CEO,now=new Date(),ym=now.toISOString().slice(0,7);
