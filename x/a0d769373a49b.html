@@ -42,6 +42,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .agb:disabled{opacity:.5;cursor:default}.agb.pri{background:var(--gold);border-color:var(--gold);color:#fff}.agb.bad{color:var(--bad);border-color:#ecc9c9}
 .agch{display:flex;flex-wrap:wrap;gap:6px}.agch .agb[aria-pressed="true"]{background:var(--fg);color:#fff;border-color:var(--fg)}
 .agm0{margin:0 0 6px;color:var(--muted);font-size:14px}
+.atf{display:grid;gap:8px}.atin{font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box}
+textarea.atin{resize:vertical;min-height:64px}.atd{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}.atd .atin{flex:1}
+.atf .agb.pri{min-height:46px;font-size:16px}.agc .agch+.agch{margin-top:6px}.agc .agch{margin-bottom:4px}
+.atr .agt b{font-weight:700;white-space:pre-wrap}.atl{color:var(--bad);font-weight:700}.atn{color:var(--fg)!important;background:var(--gold-soft);border-radius:8px;padding:4px 8px;margin-top:4px;align-self:flex-start}
+.atr .aga{justify-content:flex-start}
 .agdd{border:1.5px solid var(--line);border-radius:10px;background:var(--bg)}
 .agdd summary{list-style:none;cursor:pointer;padding:8px 12px;min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:15px}
 .agdd summary::-webkit-details-marker{display:none}.agdd summary::after{content:"▾";color:var(--muted);flex:none}.agdd[open] summary::after{content:"▴"}
@@ -101,13 +106,17 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
   <h1>שיוך סוכנים</h1><p class="sub">אישור סוכנים חדשים, חשבונות ושיוך דירות בבלעדיות. שיוך קונים נמצא בלוח הקונים.</p>
   <div id="agb"><p class="sub">טוען…</p></div>
  </div></div>
+ <div class="home" id="atp" hidden><div class="wrap">
+  <h1>משימות לסוכנים</h1><p class="sub">המשימה מופיעה אצל הסוכן באפליקציה. הסוכן יכול רק לסמן שבוצעה ולהוסיף הערה, ואתה רואה כאן מה נעשה.</p>
+  <div id="atb"><p class="sub">טוען…</p></div>
+ </div></div>
  <div class="frames" id="frames" hidden></div>
 </div>
 <script>
 const KEY="sergyev_console_pw",SALT="aRpH11nKNeJigDpaXDbaXA==",IV="EO0mafgFUlbkq1XQ",CT="qzsiC/9r9gGG9ibl5Q7LwQD/dtA=",IT=250000;
 const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",own:"de7f766b5893b.html#own",ceo:"de7f766b5893b.html#ceo",tsk:"../app/#tasks",ana:"../app/#market"};
-const NAMES={home:"לוח בקרה",tsk:"משימות",buy:"קונים",own:"פורטל בעלי נכסים",sgn:"החתמות",con:"מתווך",mkt:"שיווק",upl:"העלאה",ana:"ניתוח שוק",team:"שיוך סוכנים",ceo:"דשבורד מנכ״ל"};
-const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
+const NAMES={home:"לוח בקרה",tsk:"משימות",buy:"קונים",own:"פורטל בעלי נכסים",sgn:"החתמות",con:"מתווך",mkt:"שיווק",upl:"העלאה",ana:"ניתוח שוק",team:"שיוך סוכנים",atk:"משימות לסוכנים",ceo:"דשבורד מנכ״ל"};
+const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["atk","📋","לכתוב משימה לסוכן ולראות שבוצעה"],["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),$=id=>document.getElementById(id);
 async function sgKey(pw,salt,it){const u=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),e=a=>btoa(String.fromCharCode.apply(null,a));
@@ -124,8 +133,9 @@ async function check(pw){try{await dec(pw,SALT,IV,CT,IT);return true}catch(e){re
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
 function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||((t==="tsk"||t==="ana")?B[t]:B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1"));f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=(t==="tsk"||t==="ana")?url:url.replace(/(\?[^#]*)?(#.*)?$/,"?r="+Date.now()+"$2")}return f}
-function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);$("agp").hidden=t!=="team";
+function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);$("agp").hidden=t!=="team";$("atp").hidden=t!=="atk";
  if(t==="team"){$("frames").hidden=true;$("home").hidden=true;agDraw(1);return}
+ if(t==="atk"){$("frames").hidden=true;$("home").hidden=true;atLoad();return}
  if(t==="home"){$("frames").hidden=true;$("home").hidden=false;dash();return}
  $("home").hidden=true;$("frames").hidden=false;frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
 function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked=1;
@@ -169,6 +179,47 @@ async function agLoad(act,id,active){const bg=!act||act==="list";if(!bg){AGBUSY=
  AGBUSY=false;
  // רענון ברקע לא סוגר רשימה שפתוחה כרגע לבחירת סוכנים
  if(!(bg&&document.querySelector("#agb details[open]")))agDraw();return ok}
+// ===== משימות לסוכנים =====
+let ATD=null;const ATF={a:"",v:"open",last:""},AT_CK="office_atk_v1";
+async function atCall(b){const k=await agKey(),j=await fetch(SNAP,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:k.T},b))}).then(r=>r.json());
+ if(!j.ok)throw new Error(j.error||"שגיאה");ATD=j;try{localStorage.setItem(AT_CK,JSON.stringify(j))}catch(e){}return j}
+function atLoad(){if(!ATD)try{ATD=JSON.parse(localStorage.getItem(AT_CK)||"null")}catch(e){}atDraw();
+ atCall({op:"tasks"}).then(()=>{const a=document.activeElement;if(!(a&&a.closest&&a.closest("#atb form")))atDraw()}).catch(e=>{if(!ATD)$("atb").innerHTML='<p class="sub">לא נטען. נסו לרענן.</p>';else agToast("לא התעדכן: "+e.message)})}
+const atDm=d=>{const m=String(d||"").match(/^(\d{4})-(\d{2})-(\d{2})/);return m?+m[3]+"/"+ +m[2]:""};
+function atDraw(){const box=$("atb");if(!box||$("atp").hidden)return;if(!ATD){box.innerHTML='<p class="sub">טוען…</p>';return}
+ box.innerHTML="";const t=today(),AG=ATD.agents||[],NM=ATD.names||{},T=ATD.tasks||[];
+ // משימה חדשה
+ const c1=agCard("משימה חדשה"),f=agE("form","atf");
+ if(!AG.length)c1.append(agE("p","agm0","אין סוכנים פעילים."));
+ else{const s=agE("select","atin");s.setAttribute("aria-label","סוכן");AG.forEach(a=>{const o=agE("option",null,a.name);o.value=a.slug;if(a.slug===(ATF.last||ATF.a))o.selected=true;s.append(o)});
+  const x=agE("textarea","atin");x.rows=2;x.maxLength=300;x.required=true;x.placeholder="מה צריך לעשות?";x.setAttribute("aria-label","המשימה");
+  const dl=agE("label","atd"),d=agE("input","atin");d.type="date";d.value=t;dl.append(agE("span",null,"עד תאריך"),d);
+  const go=agBtn("שליחה לסוכן","pri",null);go.type="submit";
+  f.append(s,x,dl,go);f.onsubmit=async e=>{e.preventDefault();const text=x.value.trim();if(!text)return;go.disabled=true;go.textContent="שולח…";
+   try{await atCall({op:"tadd",agent:s.value,text,due:d.value});ATF.last=s.value;agToast("המשימה נשלחה ל"+(NM[s.value]||s.value))}catch(er){agToast("לא נשלח: "+er.message)}atDraw()};
+  c1.append(f)}
+ // הרשימה
+ const late=x=>!x.done&&x.due&&x.due<t,open=T.filter(x=>!x.done);
+ const c2=agCard("משימות שנתתי",open.length?open.length+" פתוחות":"");
+ const ch=agE("div","agch");const chip=(lbl,on,fn)=>{const b=agBtn(lbl,"",fn);b.setAttribute("aria-pressed",on);return b};
+ ch.append(chip("כל הסוכנים",!ATF.a,()=>{ATF.a="";atDraw()}));AG.forEach(a=>{const n=open.filter(x=>x.agent===a.slug).length;ch.append(chip(a.name+(n?" · "+n:""),ATF.a===a.slug,()=>{ATF.a=a.slug;atDraw()}))});
+ const ch2=agE("div","agch");[["open","פתוחות"],["late","באיחור"],["done","בוצעו"]].forEach(([k,l])=>ch2.append(chip(l,ATF.v===k,()=>{ATF.v=k;atDraw()})));
+ c2.append(ch,ch2);
+ let L=T.filter(x=>!ATF.a||x.agent===ATF.a);L=ATF.v==="done"?L.filter(x=>x.done).sort((a,b)=>String(b.done_at).localeCompare(String(a.done_at))):L.filter(x=>!x.done&&(ATF.v!=="late"||late(x))).sort((a,b)=>(a.due||"9").localeCompare(b.due||"9"));
+ if(!L.length)c2.append(agE("p","agm0",{open:"אין משימות פתוחות.",late:"אין משימות באיחור.",done:"עוד לא סומנו משימות שבוצעו (30 ימים אחרונים)."}[ATF.v]));
+ L.forEach(x=>{const r=agE("div","agr col atr"+(x.done?" off":"")),tx=agE("div","agt");tx.append(agE("b",null,x.text));
+  const meta=agE("small");meta.append(NM[x.agent]||x.agent||"");if(x.due){meta.append(" · ");meta.append(agE("span",late(x)?"atl":null,(late(x)?"באיחור · ":"")+"עד "+atDm(x.due)))}
+  if(x.done&&x.done_at)meta.append(" · ✓ בוצע "+atDm(new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem"}).format(new Date(x.done_at))));tx.append(meta);
+  if(x.note)tx.append(agE("small","atn","הערת הסוכן: "+x.note));r.append(tx);
+  const a=agE("div","aga");
+  const act=(lbl,c,b,msg,ask)=>agBtn(lbl,c,async()=>{if(ask&&!confirm(ask))return;try{await atCall(Object.assign({id:x.id},b));agToast(msg)}catch(er){agToast("לא נשמר: "+er.message)}atDraw()});
+  if(!x.done)a.append(agBtn("עריכה","",()=>{r.innerHTML="";const ef=agE("form","atf"),et=agE("textarea","atin");et.rows=2;et.maxLength=300;et.value=x.text;const ed=agE("input","atin");ed.type="date";ed.value=x.due||"";
+    const sv=agBtn("שמור","pri",null);sv.type="submit";const bb=agE("div","aga");bb.append(agBtn("ביטול","",()=>atDraw()),sv);ef.append(et,ed,bb);
+    ef.onsubmit=async e=>{e.preventDefault();sv.disabled=true;try{await atCall({op:"tedit",id:x.id,text:et.value,due:ed.value});agToast("המשימה עודכנה")}catch(er){agToast("לא נשמר: "+er.message)}atDraw()};r.append(ef);et.focus()}));
+  else a.append(act("החזרה לפתוחות","",{op:"tedit",done:false},"המשימה חזרה לפתוחות"));
+  a.append(act("מחיקה","bad",{op:"tdel"},"המשימה נמחקה","למחוק את המשימה? היא תיעלם גם אצל הסוכן."));
+  r.append(a);c2.append(r)});
+ box.append(c1,c2)}
 const agE=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const agPh=p=>p?"\u2066"+String(p).replace(/-/g,"\u2011")+"\u2069":"";
 function agBtn(x,c,fn){const b=agE("button","agb"+(c?" "+c:""),x);b.type="button";b.onclick=fn;if(AGBUSY)b.disabled=true;return b}
@@ -273,9 +324,9 @@ async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12
  if(!DASH)dashLoad();drawDash();if(Date.now()-dashAt<120000)return;try{const o=await dashData();DASH=o;dashAt=Date.now();dashSave()}catch(e){$("upd").textContent="הנתונים לא נטענו. רענן את הדף."}drawDash()}
 
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
- const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team)/);show(h?h[1]:"home")}
+ const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team|atk)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
-$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0||k.indexOf("office_ag")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
+$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0||k.indexOf("office_ag")===0||k.indexOf("office_atk")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s){$("lock").hidden=true;if(await check(s))return start();ls.del(KEY);$("lock").hidden=false}$("pw").focus()})();
 </script></body></html>

@@ -83,6 +83,7 @@ video.rv{width:100%;max-width:300px;border-radius:12px;background:#000;display:b
   <details class="set"><summary>⚙️ הגדרות: קבוצות בפייסבוק וקישורי העלאה</summary>
     <p class="hint">קבוצות פייסבוק <b>למכירה</b> – שורה לכל קבוצה: שם | קישור</p>
     <textarea id="groups" placeholder="דירות למכירה בפתח תקווה | https://www.facebook.com/groups/..."></textarea><p class="hint">קבוצות פייסבוק <b>להשכרה</b> – שורה לכל קבוצה: שם | קישור</p><textarea id="rgroups" placeholder="דירות להשכרה בפתח תקווה | https://www.facebook.com/groups/..."></textarea>
+    <p class="hint">קבוצות <b>לפי עיר</b> (למכירה) – לנכס בעיר הזו מוצגות רק הקבוצות שלה, במקום הרשימה הרגילה. שורה עם שם העיר, ומתחתיה הקבוצות: שם | קישור</p><textarea id="cgroups" rows="8" placeholder="תל אביב&#10;תל אביב צפון | https://www.facebook.com/groups/..."></textarea>
     <p class="hint">קישור לדף העסקי בפייסבוק</p><input id="lfb" placeholder="https://www.facebook.com/...">
     <p class="hint">שם המשתמש באינסטגרם (בלי @)</p><input id="lig" placeholder="sergeyev.team">
     <p class="hint">קישור העלאה ליד2</p><input id="ly2">
@@ -702,7 +703,13 @@ function openGroup(u){const m=u.match(/groups\/(\d+)/);
   if(!MOB||!m){window.open(u,"_blank");return}
   if(AND){top.location.href="intent://group/"+m[1]+"#Intent;scheme=fb;package=com.facebook.katana;S.browser_fallback_url="+encodeURIComponent(u)+";end";return}
   const t=setTimeout(()=>{if(!document.hidden)top.location.href=u},1500);document.addEventListener("visibilitychange",()=>{if(document.hidden)clearTimeout(t)},{once:true});top.location.href="fb://group?id="+m[1]}
-function getGroupsFor(p){if(p&&isRent(p)){const t=LS.get("rgroups",null);const src=t!=null?t:(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");return src.split("\n").map(l=>l.split("|").map(s=>s.trim())).filter(a=>a.length>1&&/^https?:/.test(a[1]))}return getGroups()}
+// קבוצות לפי עיר: לנכס למכירה בעיר שיש לה רשימה – רק הקבוצות שלה
+const CGROUPS_DEF=["תל אביב","רמת החייל צהלה | https://www.facebook.com/groups/TzfonTelAvivFree5/","צהלה ואפקה | https://www.facebook.com/groups/207188189628927/","תל אביב צפון | https://www.facebook.com/groups/3984321718504089/","רמות וגני צהלה | https://www.facebook.com/groups/801366727524385/","נווה שרת רמת החייל צהלה | https://www.facebook.com/groups/981830599641040/","משתלה דירות למכירה | https://www.facebook.com/groups/realestateinhamachtelaneighborhood/","שכונת משתלה תל אביב | https://www.facebook.com/groups/1239252734787906/","דירות למכירה בתל אביב (1) | https://www.facebook.com/groups/1309207572446473/","דירות למכירה בתל אביב (2) | https://www.facebook.com/groups/183513481739993/"].join("\n");
+const cityKey=s=>String(s||"").replace(/["'״׳]/g,"").replace(/\s*[-–]\s*יפו$/,"").replace(/\s+/g," ").trim();
+function cityGroups(city){const src=LS.get("cgroups",null)??CGROUPS_DEF,out={};let cur="";
+ src.split("\n").forEach(l=>{l=l.trim();if(!l)return;const a=l.split("|").map(s=>s.trim());if(a.length>1&&/^https?:/.test(a[1])){if(cur)(out[cur]=out[cur]||[]).push([a[0],a[1]])}else cur=cityKey(l)});
+ return out[cityKey(city)]||[]}
+function getGroupsFor(p){if(p&&!isRent(p)){const cg=cityGroups(p.city);if(cg.length)return cg}if(p&&isRent(p)){const t=LS.get("rgroups",null);const src=t!=null?t:(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");return src.split("\n").map(l=>l.split("|").map(s=>s.trim())).filter(a=>a.length>1&&/^https?:/.test(a[1]))}return getGroups()}
 function getGroups(){const t=LS.get("groups2",null);const src=t!=null?t:D.groups.map(g=>g[0]+" | "+g[1]).join("\n");return src.split("\n").map(l=>l.split("|").map(s=>s.trim())).filter(a=>a.length>1&&/^https?:/.test(a[1]))}
 const UA=navigator.userAgent,IOS=/iPhone|iPad|iPod/.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),AND=/Android/.test(UA),MOB=IOS||AND;
 function openApp(k,url){
@@ -727,9 +734,9 @@ async function boot(data){
   // מכשיר שכבר עבד עם הלוח: מציגים מיד מהנתונים השמורים, והסנכרון עם הגיליון רץ ברקע
   let had=false;try{had=localStorage.getItem("mk_ids")!=null}catch(e){}
   if(SYNC&&!had){syncDot("");await cloudPull()}data.rows.forEach(r=>ROWS[r.id]=r);NOTES=data.notes||{};
-  const fillSet=()=>{$("#groups").value=LS.get("groups2",null)??D.groups.map(g=>g[0]+" | "+g[1]).join("\n");$("#rgroups").value=LS.get("rgroups",null)??(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");
+  const fillSet=()=>{$("#groups").value=LS.get("groups2",null)??D.groups.map(g=>g[0]+" | "+g[1]).join("\n");$("#rgroups").value=LS.get("rgroups",null)??(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");$("#cgroups").value=LS.get("cgroups",null)??CGROUPS_DEF;
   $("#ly2").value=LS.get("ly2",D.links.yad2);$("#lmd").value=LS.get("lmd",D.links.madlan);$("#lfb").value=LS.get("lfb",D.links.fbpage||"");$("#lig").value=LS.get("lig",D.links.ig||"");$("#lsync").value=(syncCfg()||{}).url||""};fillSet();
-  $("#saveset").onclick=()=>{LS.set("groups2",$("#groups").value);LS.set("rgroups",$("#rgroups").value);LS.set("ly2",$("#ly2").value.trim());LS.set("lmd",$("#lmd").value.trim());LS.set("lfb",$("#lfb").value.trim());LS.set("lig",$("#lig").value.trim().replace(/^@/,""));const su=$("#lsync").value.trim();try{localStorage.setItem("mk_sync",JSON.stringify(su?{url:su.split("#")[0],token:(su.split("#")[1]||"")}:null))}catch(e){}SYNC=syncCfg();if(SYNC)cloudPull().then(render);render();toast("ההגדרות נשמרו ✓")};
+  $("#saveset").onclick=()=>{LS.set("groups2",$("#groups").value);LS.set("rgroups",$("#rgroups").value);LS.set("cgroups",$("#cgroups").value);LS.set("ly2",$("#ly2").value.trim());LS.set("lmd",$("#lmd").value.trim());LS.set("lfb",$("#lfb").value.trim());LS.set("lig",$("#lig").value.trim().replace(/^@/,""));const su=$("#lsync").value.trim();try{localStorage.setItem("mk_sync",JSON.stringify(su?{url:su.split("#")[0],token:(su.split("#")[1]||"")}:null))}catch(e){}SYNC=syncCfg();if(SYNC)cloudPull().then(render);render();toast("ההגדרות נשמרו ✓")};
   $("#addf").onsubmit=e=>{e.preventDefault();const v=parseInt($("#addn").value,10),m=$("#addmsg");m.hidden=true;
     const id=D.alias[v]||v;
     if(!ROWS[id]){m.textContent="לא מצאתי נכס מספר "+v;m.hidden=false;return}

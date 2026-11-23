@@ -85,7 +85,7 @@ textarea.in{min-height:84px;resize:vertical;display:block}
 .task .main{flex:1;min-width:0}
 .task .txt{overflow-wrap:anywhere}
 .task.done .txt{text-decoration:line-through;color:var(--muted)}
-.task small{color:var(--muted);font-size:14px}
+.task small{color:var(--muted);font-size:14px;display:block}
 .x{flex:none;width:40px;height:40px;background:none;border:0;color:var(--muted);display:grid;place-items:center;border-radius:8px}
 .add{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .add .t{grid-column:1/-1}
@@ -178,7 +178,7 @@ var RT_KEY = 'sg_app_rt', SIGN_KEY = 'sergyev_agent_code';
 var CONTACTS_COPY = '';
 var PAGE = 60, TZ = 'Asia/Jerusalem';
 var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at,new_at';
-var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at';
+var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at,assigned_by,note';
 var INTERVAL = { 'A++': 3, 'A+': 7, 'A': 14 };
 
 var app = document.getElementById('app');
@@ -445,8 +445,9 @@ function taskRow(t) {
   var meta = [t.due ? '<span class="' + (t.done ? '' : dueClass(t.due)) + '">' + esc(dueText(t.due)) + '</span>' : '', t.ref_label ? esc(t.ref_label) : '', who ? esc(who) : '', t.done && t.done_at ? 'בוצע ' + esc(dm(new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(t.done_at)))) : ''].filter(Boolean).join(' · ');
   return '<div class="task' + (t.done ? ' done' : '') + '"><button class="check" type="button" data-act="toggleTask" data-id="' + t.id + '" aria-pressed="' + !!t.done + '" aria-label="' + (t.done ? 'החזר לפתוחות' : 'סמן כבוצע') + '">' +
     (t.done ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;stroke-width:3"><path d="m5 12.5 4 4L19 7"/></svg>' : '') + '</button>' +
-    '<div class="main"><div class="txt">' + esc(t.text) + '</div>' + (meta ? '<small>' + meta + '</small>' : '') + '</div>' +
-    '<button class="x" type="button" data-act="delTask" data-id="' + t.id + '" aria-label="מחק משימה"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:19px;height:19px"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>';
+    '<div class="main"><div class="txt">' + (t.assigned_by ? '<span class="tag" style="direction:rtl;margin-inline-end:6px">מהמשרד</span>' : '') + esc(t.text) + '</div>' + (meta ? '<small>' + meta + '</small>' : '') + (t.note ? '<small>הערה: ' + esc(t.note) + '</small>' : '') + '</div>' +
+    // משימה שמשה נתן: הסוכן לא מוחק אותה, רק מסמן בוצע
+    (t.assigned_by && !isAdmin() ? '' : '<button class="x" type="button" data-act="delTask" data-id="' + t.id + '" aria-label="מחק משימה"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width:19px;height:19px"><path d="M6 6l12 12M18 6 6 18"/></svg></button>') + '</div>';
 }
 function openTasks() { return D.tasks.filter(function (t) { return !t.done; }).sort(function (a, b) { return (a.due || '9') < (b.due || '9') ? -1 : 1; }); }
 
@@ -882,7 +883,10 @@ var ACT = {
   copy: function (el) { var v = el.dataset.v; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { toast('המספר הועתק'); }).catch(function () { toast(v); }); },
   toggleTask: function (el) {
     var t = taskById(el.dataset.id); if (!t) return;
-    var old = { done: t.done, done_at: t.done_at }, f = { done: !t.done, done_at: t.done ? null : new Date().toISOString() }; Object.assign(t, f); render();
+    var old = { done: t.done, done_at: t.done_at, note: t.note }, f = { done: !t.done, done_at: t.done ? null : new Date().toISOString() };
+    // משימה מהמשרד שמסומנת כבוצעה: הערה קצרה למשה (לא חובה)
+    if (t.assigned_by && !t.done && !isAdmin()) { var n = prompt('בוצע. הערה למשה (לא חובה):', t.note || ''); if (n === null) return; f.note = n.trim().slice(0, 300) || null; }
+    Object.assign(t, f); render();
     db('tasks?id=eq.' + t.id, { method: 'PATCH', body: f, prefer: 'return=minimal' }).then(kick).catch(function () { Object.assign(t, old); render(); toast('לא נשמר. נסה שוב.'); });
   },
   delTask: function (el) {
