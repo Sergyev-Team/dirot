@@ -31,6 +31,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 .out{border:0;background:none;color:var(--muted);font-weight:600;min-height:42px;padding:6px 8px}
 .frames{position:fixed;left:0;right:0;bottom:0;top:var(--bh,60px)}
 .frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
+.agc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.agc h2{margin:0 0 6px;color:var(--fg);font-size:18px;display:flex;align-items:center;gap:8px}
+.agc h2 .n{font-size:13px;font-weight:800;background:var(--gold-soft);border-radius:999px;padding:1px 9px}
+.agr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.agr.col{flex-direction:column;align-items:stretch}.agr.off .agt{opacity:.55}
+.agt{display:flex;flex-direction:column;gap:2px;min-width:0}.agt small{color:var(--muted);font-size:14px}
+.aga{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:none}
+.agb{font-size:15px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 12px;min-height:40px}
+.agb:disabled{opacity:.5;cursor:default}.agb.pri{background:var(--gold);border-color:var(--gold);color:#fff}.agb.bad{color:var(--bad);border-color:#ecc9c9}
+.agch{display:flex;flex-wrap:wrap;gap:6px}.agch .agb[aria-pressed="true"]{background:var(--fg);color:#fff;border-color:var(--fg)}
+.agm0{margin:0 0 6px;color:var(--muted);font-size:14px}
+.agtoast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;z-index:9;max-width:92vw}
 .home{position:fixed;left:0;right:0;bottom:0;top:var(--bh,60px);overflow:auto}
 .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 40px}
 h1{font-size:26px;margin:0}.sub{color:var(--muted);margin:4px 0 18px}
@@ -78,13 +90,17 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
   <h2>הצוות</h2><div class="team" id="team"></div>
   <p class="note"><span id="upd"></span><button type="button" id="rf">רענון</button></p>
  </div></div>
+ <div class="home" id="agp" hidden><div class="wrap">
+  <h1>שיוך סוכנים</h1><p class="sub">אישור סוכנים חדשים, חשבונות ושיוך דירות בבלעדיות. שיוך קונים נמצא בלוח הקונים.</p>
+  <div id="agb"><p class="sub">טוען…</p></div>
+ </div></div>
  <div class="frames" id="frames" hidden></div>
 </div>
 <script>
 const KEY="sergyev_console_pw",SALT="aRpH11nKNeJigDpaXDbaXA==",IV="EO0mafgFUlbkq1XQ",CT="qzsiC/9r9gGG9ibl5Q7LwQD/dtA=",IT=250000;
-const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",own:"de7f766b5893b.html#own",ceo:"de7f766b5893b.html#ceo",tsk:"../app/#tasks",ana:"../app/#market",team:"b018b2a874ee8.html#ag"};
+const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",own:"de7f766b5893b.html#own",ceo:"de7f766b5893b.html#ceo",tsk:"../app/#tasks",ana:"../app/#market"};
 const NAMES={home:"לוח בקרה",tsk:"משימות",buy:"קונים",own:"פורטל בעלי נכסים",sgn:"החתמות",con:"מתווך",mkt:"שיווק",upl:"העלאה",ana:"ניתוח שוק",team:"שיוך סוכנים",ceo:"דשבורד מנכ״ל"};
-const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["team","👔","אישור סוכנים חדשים, חשבונות ושיוך קונים ונכסים"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
+const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),$=id=>document.getElementById(id);
 async function dec(pw,salt,iv,ct,it){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
@@ -95,7 +111,8 @@ async function check(pw){try{await dec(pw,SALT,IV,CT,IT);return true}catch(e){re
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
 function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||((t==="tsk"||t==="ana")?B[t]:B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1"));f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=(t==="tsk"||t==="ana")?url:url.replace(/(\?[^#]*)?(#.*)?$/,"?r="+Date.now()+"$2")}return f}
-function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);
+function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);$("agp").hidden=t!=="team";
+ if(t==="team"){$("frames").hidden=true;$("home").hidden=true;agDraw(1);return}
  if(t==="home"){$("frames").hidden=true;$("home").hidden=false;dash();return}
  $("home").hidden=true;$("frames").hidden=false;frame(t,url);Object.entries(F).forEach(([k,x])=>x.hidden=k!==t)}
 function hook(f){try{const d=f.contentDocument;if(!d||d._hooked)return;d._hooked=1;
@@ -116,6 +133,51 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const today=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem"}).format(new Date());
 function tile(id,n,l,s,t,bad,u,sb){return `<button class="tile" type="button" data-go="${t}"${u?` data-u="${esc(u)}"`:""} id="${id}"><span class="n${bad&&n&&n!=="₪0"?" bad":""}">${n==null?"…":esc(n)}</span><span class="l">${esc(l)}</span>${s?`<span class="s${sb?" bad":""}">${esc(s)}</span>`:""}</button>`}
 let DASH=null,dashAt=0;
+// ===== שיוך סוכנים =====
+let AGK=null,AGD=null,AGBUSY=false;
+async function agPost(b){if(!AGK){const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
+  const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{};AGK={U:S.url,T:S.token}}
+ return fetch(AGK.U,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:AGK.T},b))}).then(r=>r.json())}
+function agToast(m){let x=document.querySelector(".agtoast");if(!x){x=document.createElement("div");x.className="agtoast";x.setAttribute("role","status");document.body.append(x)}x.textContent=m;x.hidden=false;clearTimeout(agToast.t);agToast.t=setTimeout(()=>x.hidden=true,3500)}
+async function agLoad(act,id,active){AGBUSY=true;agDraw();let ok=false;
+ try{const j=await agPost({op:"agadm",agadm:{do:act||"list",id:id||"",active:!!active}});if(!j.ok)throw new Error(j.error||"");AGD=j;ok=true}
+ catch(e){agToast("לא הצליח"+(e.message?": "+e.message:"")+". נסו שוב.")}
+ AGBUSY=false;agDraw();return ok}
+const agE=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const agPh=p=>p?"\u2066"+String(p).replace(/-/g,"\u2011")+"\u2069":"";
+function agBtn(x,c,fn){const b=agE("button","agb"+(c?" "+c:""),x);b.type="button";b.onclick=fn;if(AGBUSY)b.disabled=true;return b}
+function agCard(t,n){const c=agE("div","agc"),h=agE("h2",null,t);if(n)h.append(agE("span","n",n));c.append(h);return c}
+function agRow(t,s,off){const r=agE("div","agr"+(off?" off":"")),x=agE("div","agt");x.append(agE("b",null,t));if(s)x.append(agE("small",null,s));r.append(x);return r}
+function agDraw(fresh){const box=$("agb");if(!box||$("agp").hidden)return;
+ if(fresh&&!AGBUSY){AGD=null;agLoad("list");return}
+ if(!AGD){box.innerHTML='<p class="sub">טוען…</p>';return}
+ box.innerHTML="";
+ const c1=agCard("בקשות הצטרפות",AGD.requests.length);
+ if(!AGD.requests.length)c1.append(agE("p","agm0","אין בקשות חדשות. סוכן חדש נרשם באפליקציה (sergeyev-team.com/app) והבקשה מופיעה כאן."));
+ AGD.requests.forEach(r=>{const row=agRow(r.name,[agPh(r.phone),r.email,r.license?"רישיון "+r.license:""].filter(Boolean).join(" · ")),a=agE("div","aga");
+  a.append(agBtn("אישור","pri",()=>agLoad("approve",r.id).then(k=>{if(k)agToast(r.name+" אושר/ה ויכול/ה להיכנס")})),
+   agBtn("דחייה","bad",()=>{if(confirm("לדחות את הבקשה של "+r.name+"?"))agLoad("reject",r.id).then(k=>{if(k)agToast("הבקשה נדחתה")})}));
+  row.append(a);c1.append(row)});
+ const ags=AGD.agents.filter(a=>a.role!=="admin"),on=ags.filter(a=>a.active);
+ const c2=agCard("סוכנים",on.length);
+ if(!ags.length)c2.append(agE("p","agm0","עוד אין סוכנים."));
+ ags.forEach(a=>{const np=AGD.portals.filter(p=>(p.slugs||[]).includes(a.slug)).length;
+  const row=agRow(a.name+(a.active?"":" · מושבת"),[np+" דירות",agPh(a.phone),a.email].filter(Boolean).join(" · "),!a.active),x=agE("div","aga");
+  x.append(agBtn(a.active?"השבתה":"הפעלה",a.active?"bad":"",()=>{if(a.active&&!confirm("להשבית את החשבון של "+a.name+"? לא תהיה לו/ה גישה למערכת עד שתפעילו שוב."))return;agLoad("active",a.id,!a.active).then(k=>{if(k)agToast(a.active?"החשבון הושבת":"החשבון הופעל")})}));
+  row.append(x);c2.append(row)});
+ const c3=agCard("שיוך דירות",AGD.portals.length);
+ c3.append(agE("p","agm0","נכסים בבלעדיות. לחיצה על שם מוסיפה או מורידה סוכן, ואפשר כמה סוכנים לדירה. הסוכן רואה את הדירה באפליקציה ומנהל סיורים ופרסומים, בלי קודי כניסה."));
+ if(!AGD.portals.length)c3.append(agE("p","agm0","אין נכסים בבלעדיות."));
+ AGD.portals.forEach(p=>{const row=agRow("#"+p.id+" · "+(p.addr||"נכס")+(p.city?", "+p.city:""),[p.rooms?p.rooms+" חד׳":"",p.owner].filter(Boolean).join(" · "));row.classList.add("col");
+  const ch=agE("div","agch");
+  on.forEach(a=>{const has=(p.slugs||[]).includes(a.slug);const b=agBtn(a.name,"",async()=>{const next=has?p.slugs.filter(s=>s!==a.slug):(p.slugs||[]).concat(a.slug);b.disabled=true;
+    try{const j=await agPost({op:"oassign",id:p.id,slugs:next});if(!j.ok)throw new Error(j.error=="unknown agent"?"הסוכן עוד לא עודכן בגיליון, נסו שוב בעוד דקה":(j.error||""));p.slugs=next;agToast(has?a.name+" הוסר/ה מהדירה":a.name+" שויך/ה לדירה")}
+    catch(e){agToast("השיוך לא נשמר"+(e.message?": "+e.message:""))}
+    agDraw()});b.setAttribute("aria-pressed",has);ch.append(b)});
+  if(!on.length)ch.append(agE("small",null,"אין סוכנים פעילים."));
+  row.append(ch);c3.append(row)});
+ const go=agE("p","agm0");const lb=agBtn("לשיוך קונים – לוח הקונים","",()=>show("buy"));go.append(lb);
+ box.append(c1,c2,c3,go)}
 async function dashData(){
  const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
  const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{},U=S.url,T=S.token;

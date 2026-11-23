@@ -124,22 +124,6 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 .mode button{font:inherit;font-size:16px;font-weight:800;border:0;background:transparent;color:var(--muted);padding:8px 14px;min-height:44px;cursor:pointer;flex:1}
 .mode button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
 .top.apt .buyersOnly{display:none}
-.top.agm .bar{display:none}
-@media(max-width:480px){.mode button{white-space:nowrap;padding:8px 6px;font-size:15px}}
-.agw{list-style:none;display:flex;flex-direction:column;gap:14px;margin:8px 0 40px;padding:0}
-.agc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-.agc h3{margin:0 0 6px;font-size:18px;display:flex;align-items:center;gap:8px}
-.agc h3 .n{font-size:14px;font-weight:800;background:var(--gold-soft);border-radius:999px;padding:1px 9px}
-.agr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
-.agr.col{flex-direction:column;align-items:stretch}
-.agr.off .agt{opacity:.55}
-.agt{display:flex;flex-direction:column;gap:2px;min-width:0}.agt small{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
-.aga{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:none}
-.agb{font:inherit;font-size:15px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:6px 12px;min-height:40px;cursor:pointer}
-.agb:disabled{opacity:.5;cursor:default}
-.agb.pri{background:var(--gold);border-color:var(--gold);color:#fff}.agb.bad{color:#B3261E;border-color:#E8C4C0}
-.agch{display:flex;flex-wrap:wrap;gap:6px}.agch .agb[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.agm0{margin:0 0 6px;color:var(--muted);font-size:14px}
 .sugg{display:flex;flex-direction:column;gap:6px;list-style:none;margin:8px 0 0;padding:0}
 .sugg button{font:inherit;font-size:16px;text-align:right;width:100%;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px;cursor:pointer}
 .sugg b{color:var(--gold)}
@@ -182,7 +166,7 @@ textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--bg);border
 <div class="wrap">
   <div class="top">
     <div class="brand"><h1>לוח <b>קונים</b></h1><span style="display:flex;gap:8px;align-items:center"><button type="button" id="sgnT" class="fltT">✍️ החתמות</button><span class="sync" id="sync">שמור בטלפון</span></span></div>
-    <div class="mode" role="group" aria-label="מצב"><button type="button" id="mB" aria-pressed="true">קונים</button><button type="button" id="mA" aria-pressed="false">🏠 לפי דירה</button><button type="button" id="mG" aria-pressed="false" hidden>👔 שיוך סוכנים</button></div>
+    <div class="mode" role="group" aria-label="מצב"><button type="button" id="mB" aria-pressed="true">קונים</button><button type="button" id="mA" aria-pressed="false">🏠 לפי דירה</button></div>
     <div class="bar">
       <input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="חיפוש לפי שם, טלפון או פרופיל" aria-label="חיפוש קונה">
       <button type="button" class="add buyersOnly" id="addBtn">+ קונה חדש</button>
@@ -453,7 +437,7 @@ function asgBar(){ let bar=$("abar"); if(!bar){ bar=el("div"); bar.id="abar"; do
   const go=el("button","go","העבר"); go.type="button"; go.onclick=()=>{ const to=$("abarAg").value; if(!to){ toast("בחר סוכן"); return; } if(!SEL.size){ toast("סמן קונים קודם"); return; }
     const list=S.buyers.filter(b=>SEL.has(bkey(b))); SEL.clear(); assign(list,to); }; bar.append(go);
   const x=el("button",null,"סיום"); x.type="button"; x.onclick=()=>{ ASG=false; SEL.clear(); $("asgT").setAttribute("aria-pressed","false"); render(); }; bar.append(x); }
-function asgSetup(){ const ok=canAssign(); $("asgT").hidden=!ok; $("mG").hidden=!ok; $("agfw").hidden=!ok; if(!ok) return;
+function asgSetup(){ const ok=canAssign(); $("asgT").hidden=!ok; $("agfw").hidden=!ok; if(!ok) return;
   const f=$("agentf"); if(f.options.length!=agents().length+1){ const cur=st.agent||""; f.innerHTML='<option value="">כל הסוכנים</option>'; agents().forEach(a=>{ const o=el("option",null,agentLabel(a.slug)); o.value=a.slug; f.append(o); }); f.value=cur; } }
 function nbDone(b){ if(!b.isNew) return; b.isNew=""; PEND.push({action:"nbdone",phone:b.phone}); save(); render(); flush(); }
 function change(b,fields){ Object.assign(b,fields); markDone(b); if(b.row){ PEND.push({action:"update",row:b.row,phone:b.phone,fields}); } save(); render(); flush(); }
@@ -673,54 +657,10 @@ function renderApt(){ if(!LNK_PULLED){LNK_PULLED=true;lnkPull();} const top=docu
     sect.append(q); }
   const back=el("button","btn","← נכס אחר"); back.type="button"; back.style.marginTop="14px"; back.onclick=()=>{ st.aid=null; QUEUE=null; $("q").value=""; st.q=""; try{history.replaceState(null,"","#a");}catch(_){} render(); }; sect.append(back); }
 function openApt(id){ st.aid=id; QUEUE=null; try{history.replaceState(null,"","#a="+id);}catch(_){} render(); scrollTo(0,0); }
-// ---- שיוך סוכנים (משרד בלבד): בקשות הצטרפות, חשבונות, שיוך קונים ודירות
-let AGD=null, AGBUSY=false;
-async function agPost(body){ const r=await fetch(DATA.script,{method:"POST",body:JSON.stringify(Object.assign({t:DATA.token},body))}); return r.json(); }
-async function agLoad(act,id,active){ AGBUSY=true; renderAg(); let ok=false;
-  try{ const j=await agPost({op:"agadm",agadm:{do:act||"list",id:id||"",active:!!active}}); if(!j.ok) throw new Error(j.error||"");
-    AGD=j; if(j.sheetAgents&&j.sheetAgents.length){ S.agents=j.sheetAgents; save(); } ok=true; }
-  catch(e){ toast("לא הצליח"+(e.message?": "+e.message:"")+". נסו שוב."); }
-  AGBUSY=false; renderAg(); return ok; }
-function agCard(title,n){ const c=el("div","agc"); const h=el("h3",null,title); if(n) h.append(el("span","n",n)); c.append(h); return c; }
-function agBtn(txt,cls,fn){ const b=el("button","agb"+(cls?" "+cls:""),txt); b.type="button"; b.onclick=fn; if(AGBUSY) b.disabled=true; return b; }
-function agRow(title,sub,off){ const row=el("div","agr"+(off?" off":"")), tx=el("div","agt"); tx.append(el("b",null,title)); if(sub) tx.append(el("small",null,sub)); row.append(tx); return row; }
-function renderAg(){ if(st.mode!="g") return; const top=document.querySelector(".top"); top.classList.add("apt","agm"); setSync(); $("mG").hidden=false;
-  const sect=$("sect"), list=$("list"); list.innerHTML=""; sect.textContent="שיוך סוכנים";
-  if(AGENT_MODE||!DATA.script){ list.append(el("li","empty","המסך הזה למשרד בלבד.")); return; }
-  if(!AGD){ list.append(el("li","empty","טוען…")); if(!AGBUSY) agLoad("list"); return; }
-  const box=el("li","agw");
-  const c1=agCard("בקשות הצטרפות",AGD.requests.length);
-  if(!AGD.requests.length) c1.append(el("p","agm0","אין בקשות חדשות. סוכן חדש נרשם באפליקציה (sergeyev-team.com/app) והבקשה מופיעה כאן."));
-  AGD.requests.forEach(r=>{ const row=agRow(r.name,[String(r.phone||"").replace(/-/g,"‑"),r.email,r.license?"רישיון "+r.license:""].filter(Boolean).join(" · ")), a=el("div","aga");
-    a.append(agBtn("אישור","pri",()=>agLoad("approve",r.id).then(x=>{ if(x) toast(r.name+" אושר/ה ויכול/ה להיכנס"); })),
-      agBtn("דחייה","bad",()=>{ if(confirm("לדחות את הבקשה של "+r.name+"?")) agLoad("reject",r.id).then(x=>{ if(x) toast("הבקשה נדחתה"); }); }));
-    row.append(a); c1.append(row); });
-  const ags=AGD.agents.filter(a=>a.role!=="admin"), on=ags.filter(a=>a.active);
-  const c2=agCard("סוכנים",on.length);
-  if(!ags.length) c2.append(el("p","agm0","עוד אין סוכנים."));
-  ags.forEach(a=>{ const nb=(S.buyers||[]).filter(b=>agentOf(b)==a.slug&&(b.status||"פעיל")=="פעיל").length, np=AGD.portals.filter(p=>(p.slugs||[]).includes(a.slug)).length;
-    const row=agRow(a.name+(a.active?"":" · מושבת"),nb+" קונים · "+np+" דירות"+(a.phone?" · "+String(a.phone).replace(/-/g,"‑"):""),!a.active), x=el("div","aga");
-    if(a.active) x.append(agBtn("שיוך קונים","",()=>{ setMode("b"); if(!ASG) $("asgT").click(); toast("סמנו קונים ובחרו את "+a.name+" בשורה שלמטה"); }));
-    x.append(agBtn(a.active?"השבתה":"הפעלה",a.active?"bad":"",()=>{ if(a.active&&!confirm("להשבית את החשבון של "+a.name+"? לא תהיה לו/ה גישה למערכת עד שתפעילו שוב.")) return; agLoad("active",a.id,!a.active).then(k=>{ if(k) toast(a.active?"החשבון הושבת":"החשבון הופעל"); }); }));
-    row.append(x); c2.append(row); });
-  const c3=agCard("שיוך דירות",AGD.portals.length);
-  c3.append(el("p","agm0","נכסים בבלעדיות. לחיצה על שם מוסיפה או מורידה סוכן. הסוכן רואה את הדירה באפליקציה ומנהל סיורים ופרסומים, בלי קודי כניסה."));
-  if(!AGD.portals.length) c3.append(el("p","agm0","אין נכסים בבלעדיות."));
-  AGD.portals.forEach(p=>{ const row=agRow("#"+p.id+" · "+(p.addr||"נכס")+(p.city?", "+p.city:""),[p.rooms?p.rooms+" חד׳":"",p.owner].filter(Boolean).join(" · ")); row.classList.add("col");
-    const ch=el("div","agch");
-    on.forEach(a=>{ const has=(p.slugs||[]).includes(a.slug); const b=agBtn(a.name,"",async()=>{ const next=has?p.slugs.filter(s=>s!==a.slug):(p.slugs||[]).concat(a.slug); b.disabled=true;
-        try{ const j=await agPost({op:"oassign",id:p.id,slugs:next}); if(!j.ok) throw new Error(j.error=="unknown agent"?"הסוכן עוד לא עודכן בגיליון, נסו שוב בעוד דקה":(j.error||""));
-          p.slugs=next; toast(has?a.name+" הוסר/ה מהדירה":a.name+" שויך/ה לדירה"); }
-        catch(e){ toast("השיוך לא נשמר"+(e.message?": "+e.message:"")); }
-        renderAg(); });
-      b.setAttribute("aria-pressed",has); ch.append(b); });
-    if(!on.length) ch.append(el("small",null,"אין סוכנים פעילים."));
-    row.append(ch); c3.append(row); });
-  box.append(c1,c2,c3); list.append(box); }
-function setMode(m){ st.mode=m; $("mB").setAttribute("aria-pressed",m=="b"); $("mA").setAttribute("aria-pressed",m=="a"); $("mG").setAttribute("aria-pressed",m=="g"); if(m!="g") document.querySelector(".top").classList.remove("agm"); else { try{history.replaceState(null,"","#ag");}catch(_){} }
+function setMode(m){ st.mode=m; $("mB").setAttribute("aria-pressed",m=="b"); $("mA").setAttribute("aria-pressed",m=="a");
   $("q").value=""; st.q=""; $("q").placeholder=m=="a"?"מספר נכס או רחוב (למשל 354 או סלנט)":"חיפוש לפי שם, טלפון או פרופיל";
   if(m=="b"){ document.querySelector(".top").classList.remove("apt"); st.aid=null; QUEUE=null; try{history.replaceState(null,"",location.pathname+location.search);}catch(_){} } render(); }
-function render(){ if(st.mode=="g"){ renderAg(); return; } if(st.mode=="a"){ renderApt(); return; } views(); setSync();
+function render(){ if(st.mode=="a"){ renderApt(); return; } views(); setSync();
   let r=S.buyers.filter(b=>!st.status||(b.status||"פעיל")==st.status);
   if(st.rate) r=r.filter(b=>st.rate=="ללא"?!b.rating:b.rating==st.rate);
   if(st.rooms.size) r=r.filter(wantsRooms);  r=r.filter(advMatch); asgSetup(); if(st.agent&&canAssign()) r=r.filter(b=>agentOf(b)==st.agent);
@@ -756,8 +696,6 @@ $("q").oninput=e=>{st.q=e.target.value; if(st.mode=="a"){ st.aid=null; QUEUE=nul
 $("status").onchange=e=>{st.status=e.target.value; advSave(); render();};
 $("agentf").onchange=e=>{st.agent=e.target.value; render();};
 $("asgT").onclick=()=>{ ASG=!ASG; if(!ASG) SEL.clear(); $("asgT").setAttribute("aria-pressed",ASG); render(); };
-$("mG").onclick=()=>setMode("g");
-if(location.hash==="#ag"&&!AGENT_MODE) setTimeout(()=>setMode("g"),0);
   try{ const a=JSON.parse(localStorage.getItem("kb_adv")||"null"); if(a){ (a.must||[]).forEach(k=>st.must.add(k)); st.bmin=a.bmin||0; st.bmax=a.bmax||0; st.hood=a.hood||""; st.rate=a.rate||""; if(typeof a.status=="string") st.status=a.status; } }catch(_){}
   $("advT").onclick=()=>{ const a=$("adv"),o=a.hidden; a.hidden=!o; $("advT").setAttribute("aria-expanded",o); };
   $("advGo").onclick=()=>{ $("adv").hidden=true; $("advT").setAttribute("aria-expanded","false"); window.scrollTo({top:0}); };
