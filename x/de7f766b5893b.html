@@ -152,7 +152,7 @@ function keep(){const g=id=>{const x=document.getElementById(id);return x?x.valu
   if(owner()){const x=$("#nX");F.excl=x.checked;if(F.excl){F.from=g("nFr")||F.from;F.to=g("nTo")||F.to}}}}
 // ===== טפסים מוכנים מפגישות ביומן =====
 let CDR=null,CURDR=null;
-async function loadDrafts(){if(!U||U.agent||!U.sync)return;try{const j=await oPost("cdrafts",{});CDR=j.items||[];drawDrafts()}catch(e){}}
+async function loadDrafts(){if(!U||!U.sync)return;try{const j=await oPost("cdrafts",{});CDR=j.items||[];drawDrafts()}catch(e){}}
 function drawDrafts(){const w=$("#cdr");if(!w)return;if(!CDR||!CDR.length){w.innerHTML="";return}
  const TN={buy:"קונה",sell:"מוכר",rentin:"שוכר",rentout:"משכיר"};
  w.innerHTML=`<div class="card cdr"><p class="lbl" style="margin:0 0 4px">📅 מהיומן – טפסים מוכנים לשליחה · ${CDR.length}</p><p class="hint" style="margin:0 0 6px">פגישות שיש בהן טלפון של לקוח. לוחצים "הכן טופס", משלימים מה שחסר ושולחים.</p>${CDR.map(d=>{const t=dt(d.when),x=new Date(t);

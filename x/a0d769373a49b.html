@@ -42,6 +42,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .agb:disabled{opacity:.5;cursor:default}.agb.pri{background:var(--gold);border-color:var(--gold);color:#fff}.agb.bad{color:var(--bad);border-color:#ecc9c9}
 .agch{display:flex;flex-wrap:wrap;gap:6px}.agch .agb[aria-pressed="true"]{background:var(--fg);color:#fff;border-color:var(--fg)}
 .agm0{margin:0 0 6px;color:var(--muted);font-size:14px}
+.agdd{border:1.5px solid var(--line);border-radius:10px;background:var(--bg)}
+.agdd summary{list-style:none;cursor:pointer;padding:8px 12px;min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:15px}
+.agdd summary::-webkit-details-marker{display:none}.agdd summary::after{content:"▾";color:var(--muted);flex:none}.agdd[open] summary::after{content:"▴"}
+.agdd summary .agm{color:var(--muted);font-weight:600}
+.agdp{border-top:1px solid var(--line);padding:4px 12px 10px}
+.agck{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:16px;cursor:pointer;border-bottom:1px solid var(--line)}.agck input{width:20px;height:20px;margin:0;accent-color:var(--gold);flex:none}
+.agdp .aga{margin-top:10px}
 .agtoast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--fg);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;z-index:9;max-width:92vw}
 .home{position:fixed;left:0;right:0;bottom:0;top:var(--bh,60px);overflow:auto}
 .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 40px}
@@ -144,21 +151,31 @@ function dashSave(){try{localStorage.setItem("office_dash_v1",JSON.stringify({at
 function dashLoad(){try{const x=JSON.parse(localStorage.getItem("office_dash_v1")||"null");if(x&&x.d){DASH=x.d;SNAP_AT=x.at||0}}catch(e){}}
 // ===== שיוך סוכנים =====
 let AGK=null,AGD=null,AGBUSY=false;
-async function agPost(b){if(!AGK){const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
-  const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{};AGK={U:S.url,T:S.token}}
- return fetch(AGK.U,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:AGK.T},b))}).then(r=>r.json())}
+const AG_CK="office_ag_v1",AGK_CK="office_agk";
+// מפתח הגישה נשמר במכשיר (כמו סיסמת המשרד), כדי לא לפענח את לוח ההחתמות בכל כניסה
+async function agKey(){if(AGK)return AGK;try{const c=JSON.parse(localStorage.getItem(AGK_CK)||"null");if(c&&c.U&&c.T)return AGK=c}catch(e){}
+ const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
+ const it=+((html.match(/IT=(\d+)/)||[])[1]||250000),d=await dec(pw,g("SALT"),g("IV"),g("CT"),it),S=d.sync||{};AGK={U:S.url,T:S.token};try{localStorage.setItem(AGK_CK,JSON.stringify(AGK))}catch(e){}return AGK}
+async function agPost(b){const k=await agKey(),j=await fetch(k.U,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({t:k.T},b))}).then(r=>r.json());
+ if(j&&j.error==="auth"){AGK=null;try{localStorage.removeItem(AGK_CK)}catch(e){}}return j}
+// הרשימה נקראת ישירות מבסיס הנתונים (מהיר); אם לא זמין – דרך הגיליון כמו קודם
+async function agRead(){const k=await agKey();try{const j=await fetch(SNAP,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:k.T,op:"agadm"})}).then(r=>r.json());if(j&&j.ok)return j}catch(e){}
+ return agPost({op:"agadm",agadm:{do:"list"}})}
+function agSave(){try{if(AGD)localStorage.setItem(AG_CK,JSON.stringify({requests:AGD.requests,agents:AGD.agents,portals:AGD.portals}))}catch(e){}}
 function agToast(m){let x=document.querySelector(".agtoast");if(!x){x=document.createElement("div");x.className="agtoast";x.setAttribute("role","status");document.body.append(x)}x.textContent=m;x.hidden=false;clearTimeout(agToast.t);agToast.t=setTimeout(()=>x.hidden=true,3500)}
-async function agLoad(act,id,active){AGBUSY=true;agDraw();let ok=false;
- try{const j=await agPost({op:"agadm",agadm:{do:act||"list",id:id||"",active:!!active}});if(!j.ok)throw new Error(j.error||"");AGD=j;ok=true}
+async function agLoad(act,id,active){const bg=!act||act==="list";if(!bg){AGBUSY=true;agDraw()}let ok=false;
+ try{const j=bg?await agRead():await agPost({op:"agadm",agadm:{do:act,id:id||"",active:!!active}});if(!j.ok)throw new Error(j.error||"");AGD=j;agSave();ok=true}
  catch(e){agToast("לא הצליח"+(e.message?": "+e.message:"")+". נסו שוב.")}
- AGBUSY=false;agDraw();return ok}
+ AGBUSY=false;
+ // רענון ברקע לא סוגר רשימה שפתוחה כרגע לבחירת סוכנים
+ if(!(bg&&document.querySelector("#agb details[open]")))agDraw();return ok}
 const agE=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const agPh=p=>p?"\u2066"+String(p).replace(/-/g,"\u2011")+"\u2069":"";
 function agBtn(x,c,fn){const b=agE("button","agb"+(c?" "+c:""),x);b.type="button";b.onclick=fn;if(AGBUSY)b.disabled=true;return b}
 function agCard(t,n){const c=agE("div","agc"),h=agE("h2",null,t);if(n)h.append(agE("span","n",n));c.append(h);return c}
 function agRow(t,s,off){const r=agE("div","agr"+(off?" off":"")),x=agE("div","agt");x.append(agE("b",null,t));if(s)x.append(agE("small",null,s));r.append(x);return r}
 function agDraw(fresh){const box=$("agb");if(!box||$("agp").hidden)return;
- if(fresh&&!AGBUSY){AGD=null;agLoad("list");return}
+ if(fresh&&!AGBUSY){if(!AGD)try{AGD=JSON.parse(localStorage.getItem(AG_CK)||"null")}catch(e){}agLoad("list")}
  if(!AGD){box.innerHTML='<p class="sub">טוען…</p>';return}
  box.innerHTML="";
  const c1=agCard("בקשות הצטרפות",AGD.requests.length);
@@ -172,19 +189,29 @@ function agDraw(fresh){const box=$("agb");if(!box||$("agp").hidden)return;
  if(!ags.length)c2.append(agE("p","agm0","עוד אין סוכנים."));
  ags.forEach(a=>{const np=AGD.portals.filter(p=>(p.slugs||[]).includes(a.slug)).length;
   const row=agRow(a.name+(a.active?"":" · מושבת"),[np+" דירות",agPh(a.phone),a.email].filter(Boolean).join(" · "),!a.active),x=agE("div","aga");
-  x.append(agBtn(a.active?"השבתה":"הפעלה",a.active?"bad":"",()=>{if(a.active&&!confirm("להשבית את החשבון של "+a.name+"? לא תהיה לו/ה גישה למערכת עד שתפעילו שוב."))return;agLoad("active",a.id,!a.active).then(k=>{if(k)agToast(a.active?"החשבון הושבת":"החשבון הופעל")})}));
+  x.append(agBtn(a.active?"השבתה":"הפעלה","",()=>{if(a.active&&!confirm("להשבית את החשבון של "+a.name+"? לא תהיה לו/ה גישה למערכת עד שתפעילו שוב."))return;agLoad("active",a.id,!a.active).then(k=>{if(k)agToast(a.active?"החשבון הושבת":"החשבון הופעל")})}),
+   agBtn("מחיקה","bad",()=>{if(!confirm("למחוק את "+a.name+"?\n\nהחשבון נסגר והסוכן יוצא מכל הרשימות. הקונים, המשימות והדירות שלו חוזרים אליך. טפסים חתומים ועסקאות נשארים בהיסטוריה.\n\nאי אפשר לבטל."))return;agLoad("delete",a.id).then(k=>{if(k)agToast(a.name+" נמחק/ה")})}));
   row.append(x);c2.append(row)});
  const c3=agCard("שיוך דירות",AGD.portals.length);
- c3.append(agE("p","agm0","נכסים בבלעדיות. לחיצה על שם מוסיפה או מורידה סוכן, ואפשר כמה סוכנים לדירה. הסוכן רואה את הדירה באפליקציה ומנהל סיורים ופרסומים, בלי קודי כניסה."));
+ c3.append(agE("p","agm0","נכסים בבלעדיות. פותחים את הרשימה של הדירה, מסמנים סוכן אחד או כמה ולוחצים שמור. הסוכן רואה את הדירה באפליקציה ומנהל סיורים ופרסומים, בלי קודי כניסה."));
  if(!AGD.portals.length)c3.append(agE("p","agm0","אין נכסים בבלעדיות."));
+ const nm=s=>(ags.find(a=>a.slug===s)||{}).name||s;
  AGD.portals.forEach(p=>{const row=agRow("#"+p.id+" · "+(p.addr||"נכס")+(p.city?", "+p.city:""),[p.rooms?p.rooms+" חד׳":"",p.owner].filter(Boolean).join(" · "));row.classList.add("col");
-  const ch=agE("div","agch");
-  on.forEach(a=>{const has=(p.slugs||[]).includes(a.slug);const b=agBtn(a.name,"",async()=>{const next=has?p.slugs.filter(s=>s!==a.slug):(p.slugs||[]).concat(a.slug);b.disabled=true;
-    try{const j=await agPost({op:"oassign",id:p.id,slugs:next});if(!j.ok)throw new Error(j.error=="unknown agent"?"הסוכן עוד לא עודכן בגיליון, נסו שוב בעוד דקה":(j.error||""));p.slugs=next;agToast(has?a.name+" הוסר/ה מהדירה":a.name+" שויך/ה לדירה")}
+  const cur=p.slugs||[],dd=agE("details","agdd"),sm=agE("summary");sm.append(agE("span",cur.length?null:"agm",cur.length?cur.map(nm).join(", "):"בלי סוכן (משה)"));dd.append(sm);
+  dd.ontoggle=()=>{if(dd.open)document.querySelectorAll("#agb details[open]").forEach(o=>{if(o!==dd)o.open=false})};
+  const pn=agE("div","agdp");
+  if(!on.length)pn.append(agE("small",null,"אין סוכנים פעילים."));
+  on.forEach(a=>{const l=agE("label","agck"),c=document.createElement("input");c.type="checkbox";c.value=a.slug;c.checked=cur.includes(a.slug);l.append(c,agE("span",null,a.name));pn.append(l)});
+  const bar=agE("div","aga"),sv=agBtn("שמור","pri",async()=>{
+    // סוכנים מושבתים שכבר משויכים נשארים, רק הסימונים של הפעילים משתנים
+    const next=[...pn.querySelectorAll("input:checked")].map(x=>x.value).concat(cur.filter(s=>!on.some(a=>a.slug===s)));
+    if(next.length===cur.length&&next.every(s=>cur.includes(s))){dd.open=false;return}
+    sv.disabled=true;sv.textContent="שומר…";
+    try{const j=await agPost({op:"oassign",id:p.id,slugs:next});if(!j.ok)throw new Error(j.error=="unknown agent"?"הסוכן עוד לא עודכן בגיליון, נסו שוב בעוד דקה":(j.error||""));p.slugs=next;agSave();agToast("השיוך נשמר")}
     catch(e){agToast("השיוך לא נשמר"+(e.message?": "+e.message:""))}
-    agDraw()});b.setAttribute("aria-pressed",has);ch.append(b)});
-  if(!on.length)ch.append(agE("small",null,"אין סוכנים פעילים."));
-  row.append(ch);c3.append(row)});
+    agDraw()});
+  bar.append(agBtn("ביטול","",()=>{dd.open=false;agDraw()}),sv);pn.append(bar);dd.append(pn);
+  row.append(dd);c3.append(row)});
  const go=agE("p","agm0");const lb=agBtn("לשיוך קונים – לוח הקונים","",()=>show("buy"));go.append(lb);
  box.append(c1,c2,c3,go)}
 async function dashData(){
@@ -248,7 +275,7 @@ async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
  const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
-$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
+$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0||k.indexOf("office_ag")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s){$("lock").hidden=true;if(await check(s))return start();ls.del(KEY);$("lock").hidden=false}$("pw").focus()})();
 </script></body></html>

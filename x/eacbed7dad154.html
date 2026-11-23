@@ -105,7 +105,7 @@ function syncCfg(){const u=(()=>{try{return JSON.parse(localStorage.getItem("mk_
 function syncDot(s){const e=document.getElementById("sdot");if(e)e.textContent=s==="ok"?"· ☁️ מסונכרן":s==="err"?"· ⚠️ סנכרון נכשל":""}
 function cloudPut(k,v){if(!SYNC||k==="sync")return;_q[k]=JSON.stringify(v);clearTimeout(_qt);_qt=setTimeout(cloudFlush,700)}
 async function cloudFlush(){const q=_q;_q={};if(!Object.keys(q).length)return;try{await fetch(SYNC.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({t:SYNC.token||"",set:q})});syncDot("ok")}catch(e){Object.assign(_q,q);syncDot("err")}}
-async function cloudPull(){if(!SYNC)return;try{const r=await fetch(SYNC.url+"?t="+encodeURIComponent(SYNC.token||""));const j=await r.json();if(j&&j.data){for(const [k,v] of Object.entries(j.data)){if(k!=="sync")try{localStorage.setItem("mk_"+k,v)}catch(e){}}try{for(let i=0;i<localStorage.length;i++){const lk=localStorage.key(i);if(lk&&lk.startsWith("mk_")){const k=lk.slice(3);if(k!=="sync"&&!(k in j.data))_q[k]=localStorage.getItem(lk)}}}catch(e){}if(Object.keys(_q).length){clearTimeout(_qt);_qt=setTimeout(cloudFlush,300)}syncDot("ok")}else syncDot("err")}catch(e){syncDot("err")}}
+async function cloudPull(){if(!SYNC)return;try{const r=await fetch(SYNC.url+"?t="+encodeURIComponent(SYNC.token||""));const j=await r.json();if(j&&j.data){for(const [k,v] of Object.entries(j.data)){if(k!=="sync"&&!(k in _q))try{localStorage.setItem("mk_"+k,v)}catch(e){}}try{for(let i=0;i<localStorage.length;i++){const lk=localStorage.key(i);if(lk&&lk.startsWith("mk_")){const k=lk.slice(3);if(k!=="sync"&&!(k in j.data))_q[k]=localStorage.getItem(lk)}}}catch(e){}if(Object.keys(_q).length){clearTimeout(_qt);_qt=setTimeout(cloudFlush,300)}syncDot("ok")}else syncDot("err")}catch(e){syncDot("err")}}
 const fmt=n=>Number(n).toLocaleString("en-US");
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),1800)}
 async function copy(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}toast("הטקסט הועתק ✓")}
@@ -723,9 +723,12 @@ function openApp(k,url){
 }
 async function boot(data){
   if(data.agent&&data.agent.name){AGENT=data.agent.name;if(data.agent.phone){const d=String(data.agent.phone).replace(/\D/g,"").replace(/^0/,"");PHONE=data.agent.phone;WA_NUM="972"+d;WA_SHORT="wa.me/972"+d}}
-  D=data;SYNC=syncCfg();if(SYNC){syncDot("");await cloudPull()}data.rows.forEach(r=>ROWS[r.id]=r);NOTES=data.notes||{};
-  $("#groups").value=LS.get("groups2",null)??D.groups.map(g=>g[0]+" | "+g[1]).join("\n");$("#rgroups").value=LS.get("rgroups",null)??(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");
-  $("#ly2").value=LS.get("ly2",D.links.yad2);$("#lmd").value=LS.get("lmd",D.links.madlan);$("#lfb").value=LS.get("lfb",D.links.fbpage||"");$("#lig").value=LS.get("lig",D.links.ig||"");$("#lsync").value=(syncCfg()||{}).url||"";
+  D=data;SYNC=syncCfg();
+  // מכשיר שכבר עבד עם הלוח: מציגים מיד מהנתונים השמורים, והסנכרון עם הגיליון רץ ברקע
+  let had=false;try{had=localStorage.getItem("mk_ids")!=null}catch(e){}
+  if(SYNC&&!had){syncDot("");await cloudPull()}data.rows.forEach(r=>ROWS[r.id]=r);NOTES=data.notes||{};
+  const fillSet=()=>{$("#groups").value=LS.get("groups2",null)??D.groups.map(g=>g[0]+" | "+g[1]).join("\n");$("#rgroups").value=LS.get("rgroups",null)??(D.rgroups||[]).map(g=>g[0]+" | "+g[1]).join("\n");
+  $("#ly2").value=LS.get("ly2",D.links.yad2);$("#lmd").value=LS.get("lmd",D.links.madlan);$("#lfb").value=LS.get("lfb",D.links.fbpage||"");$("#lig").value=LS.get("lig",D.links.ig||"");$("#lsync").value=(syncCfg()||{}).url||""};fillSet();
   $("#saveset").onclick=()=>{LS.set("groups2",$("#groups").value);LS.set("rgroups",$("#rgroups").value);LS.set("ly2",$("#ly2").value.trim());LS.set("lmd",$("#lmd").value.trim());LS.set("lfb",$("#lfb").value.trim());LS.set("lig",$("#lig").value.trim().replace(/^@/,""));const su=$("#lsync").value.trim();try{localStorage.setItem("mk_sync",JSON.stringify(su?{url:su.split("#")[0],token:(su.split("#")[1]||"")}:null))}catch(e){}SYNC=syncCfg();if(SYNC)cloudPull().then(render);render();toast("ההגדרות נשמרו ✓")};
   $("#addf").onsubmit=e=>{e.preventDefault();const v=parseInt($("#addn").value,10),m=$("#addmsg");m.hidden=true;
     const id=D.alias[v]||v;
@@ -734,6 +737,11 @@ async function boot(data){
     a.unshift(id);setIds(a);LS.set("deal_"+id,TAB());$("#addn").value="";render();toast("נכס "+id+" נוסף "+(TAB()==="השכרה"?"להשכרה":"למכירה")+" ✓")};
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{LS.set("tab",b.dataset.tab);render()});
   render();
+  if(SYNC&&had){syncDot("");const snap=()=>{const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("mk_")===0&&k!=="mk_sync")o.push(k+"="+localStorage.getItem(k))}}catch(e){}return o.sort().join("|")},before=snap();
+    // מה שהגיע מהגיליון מוצג רק אם משהו השתנה, ובלי לסגור כרטיסים פתוחים או לקפוץ במסך
+    cloudPull().then(()=>{if(snap()===before)return;const act=document.activeElement;if(act&&/^(INPUT|TEXTAREA|SELECT)$/.test(act.tagName))return;
+      const open=[...document.querySelectorAll(".card")].filter(c=>!c.querySelector(".body").hidden).map(c=>+c.dataset.id),y=scrollY;fillSet();render();
+      open.forEach(o=>{const c=document.querySelector('.card[data-id="'+o+'"]');if(c)c.querySelector(".head").click()});scrollTo(0,y)})}
   const h=location.hash.match(/add=(\d+)/);
   if(h){const v=+h[1],id=D.alias[v]||v;history.replaceState(null,"",location.pathname);
     if(ROWS[id]){const a=ids();if(!a.includes(id)){a.unshift(id);setIds(a);toast("נכס "+id+" נוסף ללוח ✓")}LS.set("tab",isRent(P(id))?"השכרה":"מכירה");render();
