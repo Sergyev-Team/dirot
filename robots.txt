@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /x/
+Disallow: /app/
+Disallow: /o/
+Disallow: /s/
+Disallow: /engine/
+Disallow: /tools/
+
+Sitemap: https://sergeyev-team.com/sitemap.xml
