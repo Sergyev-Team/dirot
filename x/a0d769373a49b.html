@@ -133,6 +133,9 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const today=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem"}).format(new Date());
 function tile(id,n,l,s,t,bad,u,sb){return `<button class="tile" type="button" data-go="${t}"${u?` data-u="${esc(u)}"`:""} id="${id}"><span class="n${bad&&n&&n!=="₪0"?" bad":""}">${n==null?"…":esc(n)}</span><span class="l">${esc(l)}</span>${s?`<span class="s${sb?" bad":""}">${esc(s)}</span>`:""}</button>`}
 let DASH=null,dashAt=0;
+// הנתונים האחרונים נשמרים בדפדפן: לוח הבקרה נפתח מיד, ומתעדכן ברקע
+function dashSave(){try{localStorage.setItem("office_dash_v1",JSON.stringify({at:Date.now(),d:DASH}))}catch(e){}}
+function dashLoad(){try{const x=JSON.parse(localStorage.getItem("office_dash_v1")||"null");if(x&&x.d)DASH=x.d}catch(e){}}
 // ===== שיוך סוכנים =====
 let AGK=null,AGD=null,AGBUSY=false;
 async function agPost(b){if(!AGK){const pw=ls.get(KEY),html=await (await fetch(B.sgn.replace(/(#.*)?$/,"?v="+Date.now()))).text(),g=k=>(html.match(new RegExp(k+'="([^"]*)"'))||[])[1];
@@ -185,8 +188,11 @@ async function dashData(){
  const get=q=>fetch(U+"?t="+encodeURIComponent(T)+q).then(r=>r.json());
  const ceoP=post({op:"ceo"}).catch(()=>null),dlP=post({op:"dlist"}).catch(()=>null),tmP=post({op:"team"}).catch(()=>null);
  const [buy,tasks,cl,ol]=await Promise.all([d.bscript?fetch(d.bscript+"?t="+encodeURIComponent(d.btoken)).then(r=>r.json()).catch(()=>null):null,post({op:"tlist"}).catch(()=>null),get("&op=clist").catch(()=>null),get("&op=olist").catch(()=>null)]);
- ceoP.then(c=>{if(DASH){DASH.ceo=c;drawDash()}});dlP.then(x=>{if(DASH){DASH.deals=x;drawDash()}});tmP.then(x=>{if(DASH){DASH.team=x;drawDash()}});
- return {apts:(d.apts||[]).length,buy,tasks,cl,ol};
+ // כל חלק נכנס לאותו אובייקט שמוחזר, גם אם הגיע לפני השאר; חלק שנכשל שומר את הערך הקודם
+ const P=DASH||{},ok=x=>x&&!x.error,o={apts:(d.apts||[]).length,buy:ok(buy)?buy:P.buy,tasks:ok(tasks)?tasks:P.tasks,cl:ok(cl)?cl:P.cl,ol:ok(ol)?ol:P.ol,ceo:P.ceo,deals:P.deals,team:P.team};
+ const put=(k,x)=>{if(!ok(x))return;o[k]=x;if(DASH===o){drawDash();dashSave()}};
+ ceoP.then(x=>put("ceo",x));dlP.then(x=>put("deals",x));tmP.then(x=>put("team",x));
+ return o;
 }
 function drawDash(){
  const t=today(),ym=t.slice(0,7),D=DASH||{},by=(D.buy&&D.buy.buyers)||null,tk=(D.tasks&&D.tasks.items)||null,cl=(D.cl&&D.cl.items)||null,ol=(D.ol&&D.ol.items)||null;
@@ -225,12 +231,12 @@ function drawDash(){
  $("rf").onclick=()=>{dashAt=0;DASH=null;drawDash();dash()};
 }
 async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12?"בוקר טוב":h<17?"צהריים טובים":"ערב טוב")+", משה";$("today").textContent=new Intl.DateTimeFormat("he-IL",{timeZone:"Asia/Jerusalem",weekday:"long",day:"numeric",month:"long"}).format(new Date());
- drawDash();if(Date.now()-dashAt<120000)return;try{DASH=await dashData();dashAt=Date.now()}catch(e){$("upd").textContent="הנתונים לא נטענו. רענן את הדף."}drawDash()}
+ if(!DASH)dashLoad();drawDash();if(Date.now()-dashAt<120000)return;try{const o=await dashData();DASH=o;dashAt=Date.now();dashSave()}catch(e){$("upd").textContent="הנתונים לא נטענו. רענן את הדף."}drawDash()}
 
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
- const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn)/);show(h?h[1]:"home")}
+ const h=location.hash.match(/^#(home|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
-$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);location.reload()}};
+$("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
 (async()=>{const s=ls.get(KEY);if(s){$("lock").hidden=true;if(await check(s))return start();ls.del(KEY);$("lock").hidden=false}$("pw").focus()})();
 </script></body></html>
