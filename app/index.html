@@ -150,6 +150,8 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .deal{padding:12px 14px;border-bottom:1px solid var(--line)}.deal .dh{display:flex;justify-content:space-between;gap:8px;align-items:center}.deal small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
 .dst{flex:none;font-size:12px;font-weight:800;border-radius:6px;padding:1px 8px;background:var(--line);color:var(--muted)}.dst.s1,.dst.s2{background:var(--gold-soft);color:var(--gold-ink)}.dst.s3{background:#dcefe3;color:#1d6b3f}.dst.s0{background:#fbe3e0;color:#a5281b}
 .nx{margin:6px 0 0;font-size:15px;font-weight:700}.nx.late{color:#a5281b}.side.late{color:#a5281b;font-weight:700}
+.heat{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;vertical-align:2px}.h-hot{background:#fbe3e0;color:#a5281b}.h-warm{background:var(--gold-soft);color:var(--gold-ink)}.h-cold{background:#e3ecf6;color:#2c5a85}.h-off{background:var(--line);color:var(--muted)}
+.tl{display:flex;flex-direction:column}.te{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.te:last-child{border-bottom:0}.ti{flex:none;width:26px;text-align:center;font-size:17px}.te small{color:var(--muted);font-size:13px}.te p{margin:1px 0 0;font-size:15px;white-space:pre-wrap}
 .rank{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold-ink);font-weight:800;display:grid;place-items:center;font-size:14px}
 .pts{font-size:20px;font-weight:800;display:block;text-align:center}
 .kts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.kt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
@@ -200,7 +202,7 @@ var RT_KEY = 'sg_app_rt', SIGN_KEY = 'sergyev_agent_code';
 // הקובץ שכל סוכן מעתיק לחשבון הגוגל שלו (חיבור אנשי הקשר)
 var CONTACTS_COPY = '';
 var PAGE = 60, TZ = 'Asia/Jerusalem';
-var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at,new_at';
+var BUYER_COLS = 'id,agent_id,name,phone,phone9,profile_name,rating,notes,status,last_contact,next_contact,sheet_id,created_at,new_at,heat';
 var TASK_COLS = 'id,agent_id,due,text,ref,ref_label,done,done_at,created_at,assigned_by,note';
 var INTERVAL = { 'A++': 3, 'A+': 7, 'A': 14 };
 
@@ -208,7 +210,7 @@ var app = document.getElementById('app');
 var S = { at: null, exp: 0, rt: null, uid: null, email: '' };
 var D = { me: null, buyers: [], tasks: [], props: [], agents: [], requests: [], profiles: [], portals: [], outbox: null, signCode: null, loadedAt: 0 };
 var UI = { q: '', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, pick: {}, mkt: null, portal: null, login: { step: 'login', mode: 'login', email: '', err: '', busy: false } };
-function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' }, pf: { per: 'month' }, mn: { v: 'open' } }; }
+function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '', heat: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' }, pf: { per: 'month' }, mn: { v: 'open' } }; }
 var F = freshFilters();
 
 function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -284,8 +286,9 @@ function loadAll() {
     db('search_profiles?select=name,deal,rooms_min,rooms_max,budget,need_elevator,need_parking,need_mamad,neighborhoods,note'),
     db('portals?select=property_id,owner_name,excl_to,active,agent_id,stage&active=is.true'),
     db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason&order=sent_at.desc&limit=5000').catch(function () { return []; }),
-    db('notifications?select=id,key,level,title,body,link,due,agent_id,created_at,dismissed_at&resolved_at=is.null&order=created_at.desc&limit=500').catch(function () { return []; })
-  ]).then(function (r) { D.alerts = r[9] || []; D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
+    db('notifications?select=id,key,level,title,body,link,due,agent_id,created_at,dismissed_at&resolved_at=is.null&order=created_at.desc&limit=500').catch(function () { return []; }),
+    db('activities?select=type,buyer_id,phone9,property_id,at,agent_id,meta&type=in.(tour,lead)&order=at.desc&limit=3000').catch(function () { return []; })
+  ]).then(function (r) { D.alerts = r[9] || []; D.acts = r[10] || []; D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
 }
 function enter() {
   app.innerHTML = '<div class="load">טוען…</div>';
@@ -490,7 +493,7 @@ function agentField(id, value) { return '<label class="field"><span>שיוך ל�
 function resultBar(n, word, dirty, act) { return '<div class="bar"><p class="sub">' + n + ' ' + word + '</p>' + (dirty ? '<button class="btn link" type="button" data-act="' + act + '">ניקוי סינון</button>' : '') + '</div>'; }
 function buyerRow(b) {
   var d = b.next_contact, side = d ? '<span class="' + dueClass(d) + '">' + esc(dueText(d)) + '</span>' : '', who = isAdmin() && b.agent_id !== D.me.id ? agentName(b.agent_id) : '';
-  return '<a class="row" href="#b/' + b.id + '"><span class="main"><b>' + esc(b.name) + (b.rating ? ' <span class="tag">' + esc(b.rating) + '</span>' : '') + '</b><small>' + esc([b.profile_name || 'ללא פרופיל', who].filter(Boolean).join(' · ')) + '</small></span><span class="side">' + side + '</span></a>';
+  return '<a class="row" href="#b/' + b.id + '"><span class="main"><b>' + esc(b.name) + (b.rating ? ' <span class="tag">' + esc(b.rating) + '</span>' : '') + ' ' + heatTag(b) + '</b><small>' + esc([b.profile_name || 'ללא פרופיל', who].filter(Boolean).join(' · ')) + '</small></span><span class="side">' + side + '</span></a>';
 }
 function taskRow(t) {
   var who = isAdmin() && t.agent_id && t.agent_id !== D.me.id ? agentName(t.agent_id) : '';
@@ -537,6 +540,60 @@ function drawAutos() {
   e.innerHTML = '<div class="list">' + D.autos.map(function (a) {
     return '<label class="auto"><span class="main"><b>' + esc(a.name) + '</b><small>' + esc(a.description || '') + '</small><small class="lr">' + esc(tm(a.last_run) + (a.last_result ? ' · ' + a.last_result : '')) + '</small></span><input type="checkbox" class="sw" data-auto="' + esc(a.key) + '"' + (a.enabled ? ' checked' : '') + ' aria-label="' + esc(a.name) + '"></label>';
   }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
+}
+// ===== ציון חום לקונה: ידני (buyers.heat) או הצעה של המערכת לפי הפעילות =====
+var HEAT = { hot: 'חם', warm: 'בינוני', cold: 'קר', off: 'לא רלוונטי' };
+function noteLines(b) {
+  return String(b.notes || '').split('\n').map(function (l) {
+    var m = l.match(/^(\d{2})\/(\d{2})\/(\d{4})(?: (\d{2}):(\d{2}))?\s*[–-]\s*(.*)$/);
+    return m ? { at: m[3] + '-' + m[2] + '-' + m[1] + 'T' + (m[4] || '12') + ':' + (m[5] || '00'), text: m[6].trim() } : (l.trim() ? { at: '', text: l.trim() } : null);
+  }).filter(Boolean);
+}
+function heatAuto(b) {
+  var t = today(), k = phone9(b.phone), ago = function (iso) { return iso ? Math.floor((new Date(t + 'T12:00:00') - new Date(String(iso).slice(0, 10) + 'T12:00:00')) / 864e5) : 9999; };
+  if (b.status === 'קנה') return ['off', 'הקונה כבר קנה'];
+  if (b.status === 'בהקפאה') return ['cold', 'בהקפאה'];
+  var rx = sendsOf(b).filter(function (s) { return (s.reaction === 'like' || s.reaction === 'tour') && ago(s.reaction_at || s.sent_at) <= 14; })[0];
+  if (rx) return ['hot', 'הגיב "' + REACT[rx.reaction] + '" לדירה ששלחת'];
+  var tr = (D.acts || []).filter(function (a) { return a.type === 'tour' && (a.buyer_id === b.id || (k.length === 9 && a.phone9 === k)) && ago(a.at) <= 21; })[0];
+  if (tr) return ['hot', 'נקבע סיור ב-' + dm(tr.at)];
+  if (b.new_at && ago(b.new_at) <= 3) return ['hot', 'קונה חדש'];
+  var N = noteLines(b), last = N[0] ? N[0].text : '';
+  if (/^לא רלוונטי/.test(last) && ago(N[0].at) <= 60) return ['cold', 'סומן "לא רלוונטי כרגע"'];
+  if (N.length >= 3 && N.slice(0, 3).every(function (n) { return /^לא ענה/.test(n.text); })) return ['cold', '3 פעמים ברצף לא ענה'];
+  if (ago(b.last_contact) > 45) return ['cold', b.last_contact ? 'אין קשר ' + ago(b.last_contact) + ' ימים' : 'עוד לא היה קשר'];
+  if ((b.rating === 'A++' || b.rating === 'A+') && ago(b.last_contact) <= 7) return ['hot', 'דירוג ' + b.rating + ' וקשר בשבוע האחרון'];
+  return ['warm', 'קשר ב-' + ago(b.last_contact) + ' הימים האחרונים'];
+}
+function heatOf(b) { return b.heat || heatAuto(b)[0]; }
+function heatTag(b) { var h = heatOf(b); return '<span class="heat h-' + h + '">' + HEAT[h] + '</span>'; }
+function heatCard(b) {
+  var a = heatAuto(b), cur = b.heat || '';
+  return '<div class="card"><h2>כמה הוא חם?</h2><div class="seg heatseg">' + ['hot', 'warm', 'cold', 'off'].map(function (k) { return '<button type="button" data-act="setHeat" data-v="' + k + '" aria-pressed="' + (heatOf(b) === k) + '">' + HEAT[k] + '</button>'; }).join('') + '</div>' +
+    '<p class="sub" style="margin:8px 0 0">' + (cur ? 'נקבע ידנית · <button class="btn link sm" type="button" data-act="setHeat" data-v="">חזרה להצעה של המערכת</button>' : 'הצעת המערכת: ' + esc(a[1])) + '</p></div>';
+}
+// תאריך ושעה בשעון ישראל (זמנים מהשרת שמורים ב-UTC; בהערות – כבר בשעון ישראל)
+function tlWhen(at) {
+  var s = String(at || ''); if (!s) return '';
+  if (/[Zz]|[+-]\d{2}:?\d{2}$/.test(s)) { var p = {}; new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(s)).forEach(function (x) { p[x.type] = x.value; }); return p.day + '/' + p.month + ' ' + p.hour + ':' + p.minute; }
+  return dm(s) + (s.length > 10 && s.slice(11, 16) !== '12:00' ? ' ' + s.slice(11, 16) : '');
+}
+// ===== ציר זמן: הערות, דירות שנשלחו ותגובות, סיורים, הצטרפות – הכל לפי תאריך =====
+function timelineCard(b) {
+  var k = phone9(b.phone), E = noteLines(b).map(function (n) { return { at: n.at, ic: '📝', text: n.text }; });
+  sendsOf(b).forEach(function (s) { var p = propById(s.property_id); E.push({ at: s.sent_at, ic: '🏠', text: 'נשלח: ' + (p ? propAddr(p) : 'נכס #' + s.property_id) + (s.reaction ? ' · ' + REACT[s.reaction] + (s.reason ? ' (' + s.reason + ')' : '') : ''), who: s.agent_id }); });
+  (D.acts || []).filter(function (a) { return a.buyer_id === b.id || (k.length === 9 && a.phone9 === k); }).forEach(function (a) {
+    var p = a.property_id ? propById(a.property_id) : null;
+    if (a.type === 'tour') E.push({ at: (a.meta && a.meta.when) || a.at, ic: '📅', text: 'סיור' + (p ? ' ב' + propAddr(p) : ''), who: a.agent_id });
+    else if (a.type === 'lead') E.push({ at: a.at, ic: '✨', text: 'נכנס כקונה חדש', who: a.agent_id });
+  });
+  E.sort(function (x, y) { return String(y.at || '') < String(x.at || '') ? -1 : 1; });
+  if (!E.length) return '';
+  var shown = UI.tlAll === b.id ? E : E.slice(0, 8);
+  return '<div class="card"><h2>היסטוריה</h2><div class="tl">' + shown.map(function (e) {
+    var w = isAdmin() && e.who && e.who !== D.me.id ? ' · ' + esc(agentName(e.who)) : '';
+    return '<div class="te"><span class="ti">' + e.ic + '</span><div><small>' + esc(tlWhen(e.at)) + w + '</small><p>' + esc(e.text) + '</p></div></div>';
+  }).join('') + '</div>' + (E.length > shown.length ? '<button class="btn wide" type="button" data-act="tlAll" data-id="' + b.id + '">עוד ' + (E.length - shown.length) + '</button>' : '') + '</div>';
 }
 // ===== כספים ועסקאות (מנהל): שלב כל עסקה והפעולה הבאה, נגזר מנתוני הגבייה. העריכה – בדשבורד מנכ״ל =====
 function sideNet(price, x) { x = x || {}; var mode = x.mode || (+x.amt ? 'fx' : 'pv'); if (mode === 'fx') { var a = +x.amt || 0; return x.inc ? Math.round(a / 1.18) : a; } return Math.round((+price || 0) * (+x.pct || 0) / 100); }
@@ -680,6 +737,7 @@ function buyerMatches() {
     if (f.due === 'none' && b.next_contact) return false;
     if (f.rate === 'none' && b.rating) return false;
     if (f.rate && f.rate !== 'none' && b.rating !== f.rate) return false;
+    if (f.heat && heatOf(b) !== f.heat) return false;
     if (f.agent && b.agent_id !== f.agent) return false;
     if (!q) return true;
     return String(b.name).toLowerCase().indexOf(q) >= 0 || String(b.profile_name || '').toLowerCase().indexOf(q) >= 0 || (qd.length >= 3 && digits(b.phone).indexOf(qd) >= 0);
@@ -687,7 +745,7 @@ function buyerMatches() {
 }
 function drawBuyerList() {
   var el = document.getElementById('list'); if (!el) return;
-  var m = buyerMatches(), f = F.b, dirty = f.status !== 'active' || f.due || f.rate || f.agent || UI.q;
+  var m = buyerMatches(), f = F.b, dirty = f.status !== 'active' || f.due || f.rate || f.heat || f.agent || UI.q;
   el.innerHTML = resultBar(m.length, 'קונים', dirty, 'clearBuyers') + (m.length ? '<div class="list">' + m.slice(0, UI.max).map(buyerRow).join('') + '</div>' + (m.length > UI.max ? '<button class="btn wide more" type="button" data-act="moreBuyers">הצג עוד</button>' : '') : '<div class="empty">לא נמצאו קונים. נסה לשנות את הסינון.</div>');
 }
 function vBuyers() {
@@ -695,7 +753,7 @@ function vBuyers() {
   return '<main class="page"><div class="head"><h1>קונים</h1><a class="btn pri sm" href="#new">קונה חדש</a></div>' +
     '<input class="in" id="q" type="search" placeholder="חיפוש לפי שם, טלפון או פרופיל" aria-label="חיפוש קונים" value="' + esc(UI.q) + '">' +
     chips('b.status', [['active', 'פעילים'], ['frozen', 'בהקפאה'], ['bought', 'קנו'], ['all', 'הכול']], f.status, 'סטטוס') +
-    '<div class="flts">' + sel('b.due', 'חזרה ללקוח', [['', 'הכול'], ['due', 'היום ובאיחור'], ['week', 'עד שבוע'], ['none', 'ללא תאריך']], f.due) + sel('b.rate', 'דירוג', [['', 'הכול'], ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['none', 'ללא דירוג']], f.rate) +
+    '<div class="flts">' + sel('b.due', 'חזרה ללקוח', [['', 'הכול'], ['due', 'היום ובאיחור'], ['week', 'עד שבוע'], ['none', 'ללא תאריך']], f.due) + sel('b.rate', 'דירוג', [['', 'הכול'], ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['none', 'ללא דירוג']], f.rate) + sel('b.heat', 'חום', [['', 'הכול'], ['hot', 'חם'], ['warm', 'בינוני'], ['cold', 'קר'], ['off', 'לא רלוונטי']], f.heat) +
     (isAdmin() ? '<div style="grid-column:1/-1">' + sel('b.agent', 'סוכן', agentOpts('כל הסוכנים'), f.agent) + '</div>' : '') + '</div><div id="list"></div></main>' + nav('buyers');
 }
 function vBuyer(id) {
@@ -708,10 +766,11 @@ function vBuyer(id) {
   var outs = [['ans', 'ענה'], ['noans', 'לא ענה'], ['sent', 'שלחתי דירות'], ['irr', 'לא רלוונטי כרגע']].map(function (o) { return '<button class="btn" type="button" data-act="outcome" data-k="' + o[0] + '">' + o[1] + '</button>'; }).join('');
   return '<main class="page" data-b="' + b.id + '"><a class="back" href="#buyers">חזרה לקונים</a><h1>' + esc(b.name) + '</h1><p class="sub">' + esc(b.profile_name || 'ללא פרופיל') + '</p>' +
     (b.phone ? '<div class="acts"><a class="btn pri" href="tel:' + esc(digits(b.phone)) + '">התקשר</a><a class="btn" href="https://wa.me/' + esc(waNum(b.phone)) + '" target="_blank" rel="noopener">וואטסאפ</a></div>' : '<div style="height:14px"></div>') +
+    heatCard(b) +
     '<div class="card"><h2>מה היה בשיחה?</h2><div class="outs">' + outs + '</div>' + (b.last_contact ? '<p class="sub" style="margin-top:8px">קשר אחרון: ' + esc(dm(b.last_contact)) + '</p>' : '') + '</div>' +
     '<div class="card"><h2>חזרה ללקוח</h2><label class="field" style="margin-bottom:0"><span>תאריך חזרה</span><input class="in ltr" id="next" type="date" value="' + esc(b.next_contact || '') + '"></label><div class="quick">' + quick + (b.next_contact ? '<button class="btn sm link" type="button" data-act="nextClear">ללא תאריך</button>' : '') + '</div></div>' +
     '<div class="card"><h2>הערה חדשה</h2><textarea class="in" id="note" aria-label="הערה חדשה">' + esc(UI.draft[b.id] || '') + '</textarea><button class="btn pri wide" style="margin-top:8px" type="button" data-act="addNote">שמירת הערה</button>' +
-    (notes.length ? '<h2>הערות קודמות</h2>' + notes.map(function (n) { return '<div class="note">' + esc(n) + '</div>'; }).join('') : '') + '</div>' +
+    '</div>' + timelineCard(b) +
     matchCard(b) + sentCard(b) + tourCard(b) + profileCard(b) +
     '<div class="card"><h2>דירוג וסטטוס</h2><div class="seg">' + ratings + '</div><label class="field" style="margin:14px 0 0"><span>סטטוס</span><select class="in" id="status">' + statuses + '</select></label>' +
     (isAdmin() ? '<div style="margin-top:14px">' + agentField('assign', b.agent_id).replace('class="field"', 'class="field" style="margin:0"') + '</div>' : '') + '</div></main>' + nav('buyers');
@@ -1074,6 +1133,11 @@ var ACT = {
     api('nbdone', { buyer_id: b.id }).then(function () { if (quiet !== true) toast('הקונה ירד מהקונים החדשים'); }).catch(function () { b.new_at = today(); render(); toast('לא נשמר. נסה שוב.'); });
   },
   // מדף הנכס: שליחה לקונה אחד בוואטסאפ, ורישום בהיסטוריה ובהערות הקונה
+  setHeat: function (el) {
+    var b = cur(), v = el.dataset.v || null; if (b.heat === v || (!v && !b.heat)) return;
+    patchBuyer(b.id, { heat: v }, v ? 'סומן: ' + HEAT[v] : 'חזרה להצעה של המערכת');
+  },
+  tlAll: function (el) { UI.tlAll = +el.dataset.id; render(); },
   dismissAlert: function (el) {
     var a = (D.alerts || []).filter(function (x) { return String(x.id) === el.dataset.id; })[0]; if (!a) return;
     a.dismissed_at = new Date().toISOString(); render();
