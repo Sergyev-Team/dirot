@@ -146,6 +146,13 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .pick b{display:block;font-weight:700}
 .pick small{display:block;color:var(--muted);font-size:15px}
 .pick a{flex:none;color:var(--gold-ink);font-size:15px;font-weight:600}
+.score{display:inline-block;font-size:12px;font-weight:800;padding:1px 6px;border-radius:6px;background:var(--line);color:var(--muted);vertical-align:2px;direction:ltr}
+.score.ok{background:var(--gold-soft);color:var(--gold-ink)}.score.hi{background:#dcefe3;color:#1d6b3f}
+.sent{display:inline-block;margin-top:3px;font-size:13px;font-weight:700;color:#1d6b3f}
+.row.mb{gap:10px}.row.mb .main{flex:1;min-width:0;color:inherit;text-decoration:none}.row.mb .main b{display:block}.row.mb .main small{display:block}.row.mb .btn{flex:none}
+.snt{padding:10px 0;border-bottom:1px solid var(--line)}.snt .main b{display:block;font-weight:700}.snt .main a{color:inherit}.snt small{color:var(--muted);font-size:14px}
+.rxs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.rx{font:inherit;font-size:14px;font-weight:700;min-height:38px;padding:4px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+.rx[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 details.card summary{font-size:15px;font-weight:700;color:var(--muted);cursor:pointer;min-height:28px}
 details.card[open] summary{margin-bottom:12px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -259,8 +266,9 @@ function loadAll() {
     isAdmin() ? db('agent_requests?select=id,email,name,phone,license,created_at&status=eq.pending&order=created_at.asc') : Promise.resolve([]),
     isAdmin() ? rpc('outbox_status').catch(function () { return null; }) : Promise.resolve(null),
     db('search_profiles?select=name,deal,rooms_min,rooms_max,budget,need_elevator,need_parking,need_mamad,neighborhoods,note'),
-    db('portals?select=property_id,owner_name,excl_to,active,agent_id&active=is.true')
-  ]).then(function (r) { D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.loadedAt = Date.now(); });
+    db('portals?select=property_id,owner_name,excl_to,active,agent_id&active=is.true'),
+    db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason&order=sent_at.desc&limit=5000').catch(function () { return []; })
+  ]).then(function (r) { D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
 }
 function enter() {
   app.innerHTML = '<div class="load">טוען…</div>';
@@ -425,6 +433,29 @@ function fits(pr, p) {
 }
 function matchProps(b) { var pr = profileOf(b); return pr ? D.props.filter(function (p) { return fits(pr, p); }) : []; }
 function matchBuyers(p) { return D.buyers.filter(function (b) { var pr = profileOf(b); return b.status === 'פעיל' && pr && fits(pr, p); }); }
+// ציון התאמה (רק לסדר ולהדגשה – מי שמופיע ברשימה עומד בכל התנאים של הפרופיל)
+function matchScore(pr, p) {
+  var s = 72, price = +p.price || 0, bud = +pr.budget || 0, rooms = +p.rooms || 0, src = p.source || {};
+  if (bud && price) { var r = price / bud; s += r <= 0.8 ? 6 : r <= 1 ? 14 : -8; }
+  if (rooms && pr.rooms_min && pr.rooms_max && rooms > +pr.rooms_min && rooms < +pr.rooms_max) s += 4;
+  if ((pr.neighborhoods || []).length) s += 6;
+  if (portalOf(p.id)) s += 4;
+  if (src.last_post && src.last_post >= addDays(today(), -14)) s += 3;
+  return Math.max(40, Math.min(99, s));
+}
+function scoreTag(n) { return '<span class="score' + (n >= 90 ? ' hi' : n >= 80 ? ' ok' : '') + '">' + n + '%</span>'; }
+// היסטוריית שליחה לפי טלפון הקונה
+function phone9(v) { return digits(v).slice(-9); }
+function sendsOf(b) { var k = phone9(b.phone); return k.length === 9 ? (D.sends || []).filter(function (s) { return s.phone9 === k; }) : []; }
+function sentTo(b, pid) { return sendsOf(b).filter(function (s) { return String(s.property_id) === String(pid); })[0] || null; }
+var REACT = { like: 'אהב', no: 'לא מתאים', tour: 'רוצה סיור' };
+function logSends(b, list) {
+  var k = phone9(b.phone); if (k.length !== 9 || !list.length) return Promise.resolve();
+  var rows = list.map(function (p) { return { phone9: k, buyer_id: b.id, property_id: p.id }; });
+  return db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason', { method: 'POST', body: rows, prefer: 'return=representation' })
+    .then(function (r) { D.sends = (r || []).concat(D.sends || []); }).catch(function () { toast('השליחה לא נרשמה בהיסטוריה'); });
+}
+function propText(b, p) { return 'שלום ' + String(b.name).split(' ')[0] + ', יש לי דירה שיכולה להתאים לך:\n\n' + propAddr(p) + ', ' + (p.city || '') + '\n' + propSpec(p).concat(p.price ? [money(p.price)] : []).join(' · ') + '\n' + SITE + 'd/' + p.id + '.html\n\nצוות סרגייב'; }
 function portalOf(id) { return D.portals.filter(function (x) { return String(x.property_id) === String(id); })[0] || null; }
 function aptText(b, list) {
   return 'שלום ' + String(b.name).split(' ')[0] + ', מצאתי עבורך דירות שיכולות להתאים:\n\n' + list.map(function (p) { return propAddr(p) + ', ' + (p.city || '') + '\n' + propSpec(p).concat(p.price ? [money(p.price)] : []).join(' · ') + '\n' + SITE + 'd/' + p.id + '.html'; }).join('\n\n') + '\n\nצוות סרגייב';
@@ -519,7 +550,7 @@ function vBuyer(id) {
     '<div class="card"><h2>חזרה ללקוח</h2><label class="field" style="margin-bottom:0"><span>תאריך חזרה</span><input class="in ltr" id="next" type="date" value="' + esc(b.next_contact || '') + '"></label><div class="quick">' + quick + (b.next_contact ? '<button class="btn sm link" type="button" data-act="nextClear">ללא תאריך</button>' : '') + '</div></div>' +
     '<div class="card"><h2>הערה חדשה</h2><textarea class="in" id="note" aria-label="הערה חדשה">' + esc(UI.draft[b.id] || '') + '</textarea><button class="btn pri wide" style="margin-top:8px" type="button" data-act="addNote">שמירת הערה</button>' +
     (notes.length ? '<h2>הערות קודמות</h2>' + notes.map(function (n) { return '<div class="note">' + esc(n) + '</div>'; }).join('') : '') + '</div>' +
-    matchCard(b) + tourCard(b) + profileCard(b) +
+    matchCard(b) + sentCard(b) + tourCard(b) + profileCard(b) +
     '<div class="card"><h2>דירוג וסטטוס</h2><div class="seg">' + ratings + '</div><label class="field" style="margin:14px 0 0"><span>סטטוס</span><select class="in" id="status">' + statuses + '</select></label>' +
     (isAdmin() ? '<div style="margin-top:14px">' + agentField('assign', b.agent_id).replace('class="field"', 'class="field" style="margin:0"') + '</div>' : '') + '</div></main>' + nav('buyers');
 }
@@ -527,9 +558,22 @@ function matchCard(b) {
   var m = matchProps(b), pick = UI.pick[b.id] || {}, n = Object.keys(pick).length;
   if (!profileOf(b)) return '<div class="card"><h2>דירות מתאימות</h2><p class="sub">הגדר פרופיל חיפוש כדי לראות דירות מתאימות.</p></div>';
   if (!m.length) return '<div class="card"><h2>דירות מתאימות</h2><p class="sub">אין כרגע דירות שמתאימות לפרופיל.</p></div>';
-  return '<div class="card"><h2>דירות מתאימות (' + m.length + ')</h2>' + m.slice(0, 12).map(function (p) {
-    return '<label class="pick"><input type="checkbox" data-pick="' + p.id + '"' + (pick[p.id] ? ' checked' : '') + ' aria-label="בחירת ' + esc(propAddr(p)) + '"><span class="main"><b>' + esc(propAddr(p)) + '</b><small>' + esc(propSpec(p).concat(p.price ? [money(p.price)] : []).join(' · ')) + '</small></span><a href="#p/' + p.id + '">פרטים</a></label>';
+  // הכי מתאימות קודם; מה שכבר נשלח – בסוף, עם התאריך והתגובה
+  var pr = profileOf(b), rows = m.map(function (p) { return { p: p, s: matchScore(pr, p), sent: sentTo(b, p.id) }; })
+    .sort(function (x, y) { return (!!x.sent - !!y.sent) || (y.s - x.s); }), fresh = rows.filter(function (x) { return !x.sent; }).length;
+  return '<div class="card"><h2>דירות מתאימות (' + m.length + ')</h2>' + (rows.length > fresh ? '<p class="sub" style="margin:-4px 0 6px">' + fresh + ' חדשות · ' + (rows.length - fresh) + ' כבר נשלחו</p>' : '') + rows.slice(0, 15).map(function (x) {
+    var p = x.p, sn = x.sent ? '<span class="sent">נשלח ' + esc(dm(x.sent.sent_at)) + (x.sent.reaction ? ' · ' + esc(REACT[x.sent.reaction]) : '') + '</span>' : '';
+    return '<label class="pick"><input type="checkbox" data-pick="' + p.id + '"' + (pick[p.id] ? ' checked' : '') + ' aria-label="בחירת ' + esc(propAddr(p)) + '"><span class="main"><b>' + esc(propAddr(p)) + ' ' + scoreTag(x.s) + '</b><small>' + esc(propSpec(p).concat(p.price ? [money(p.price)] : []).join(' · ')) + '</small>' + sn + '</span><a href="#p/' + p.id + '">פרטים</a></label>';
   }).join('') + '<button class="btn pri wide" style="margin-top:10px" type="button" data-act="sendApts"' + (n ? '' : ' disabled') + '>' + (n ? 'שליחה בוואטסאפ (' + n + ')' : 'בחר דירות לשליחה') + '</button></div>';
+}
+// מה נשלח לקונה ומה הוא ענה – לחיצה על תגובה שומרת אותה
+function sentCard(b) {
+  var L = sendsOf(b); if (!L.length) return '';
+  return '<div class="card"><h2>נשלח לקונה (' + L.length + ')</h2>' + L.slice(0, 20).map(function (s) {
+    var p = propById(s.property_id), name = p ? propAddr(p) : 'נכס #' + s.property_id;
+    var btns = ['like', 'tour', 'no'].map(function (k) { return '<button type="button" class="rx" data-act="react" data-s="' + s.id + '" data-v="' + k + '" aria-pressed="' + (s.reaction === k) + '">' + REACT[k] + '</button>'; }).join('');
+    return '<div class="snt"><div class="main"><b>' + (p ? '<a href="#p/' + p.id + '">' + esc(name) + '</a>' : esc(name)) + '</b><small>נשלח ' + esc(dm(s.sent_at)) + (s.reason ? ' · ' + esc(s.reason) : '') + '</small></div><div class="rxs">' + btns + '</div></div>';
+  }).join('') + '</div>';
 }
 function tourCard(b) {
   var m = matchProps(b), ids = m.map(function (p) { return p.id; }), rest = D.props.filter(function (p) { return ids.indexOf(p.id) < 0; }), opt = function (p) { return '<option value="' + p.id + '">#' + p.id + ' ' + esc(propAddr(p)) + '</option>'; };
@@ -706,7 +750,18 @@ function vProp(id) {
     '<div class="acts"><a class="btn pri" href="' + esc(share) + '" target="_blank" rel="noopener">שליחה ללקוח</a><a class="btn" href="../d/' + p.id + '.html" target="_blank" rel="noopener">דף הנכס</a></div>' +
     '<div class="card"><h2>מתווך או מפרסם</h2><div class="kv"><span>שם</span><b>' + esc(s.broker || 'לא צוין') + '</b></div>' + (phone ? '<div class="kv"><span>טלפון</span><b dir="ltr">' + esc(s.broker_phone) + '</b></div><div class="acts" style="margin-bottom:0"><a class="btn" href="tel:' + esc(phone) + '">התקשר</a><button class="btn" type="button" data-act="copy" data-v="' + esc(s.broker_phone) + '">העתקת מספר</button></div>' : '') + (s.last_post ? '<div class="kv"><span>פורסם לאחרונה</span><b>' + esc(dm(s.last_post)) + '</b></div>' : '') + '</div>' +
     (portalOf(p.id) ? '<a class="btn wide" style="margin-bottom:12px" href="#o/' + p.id + '">ניהול פורטל בעלי הנכס</a>' : '') +
-    (function () { var m = matchBuyers(p); return '<h2>קונים מתאימים (' + m.length + ')</h2>' + (m.length ? '<div class="list">' + m.slice(0, 20).map(buyerRow).join('') + '</div>' : '<div class="empty">אין קונים מתאימים.</div>'); })() + '</main>' + nav('props');
+    (function () {
+      // קונים מתאימים: הכי מתאימים קודם, ומי שעוד לא קיבל את הנכס – עם כפתור שליחה בוואטסאפ
+      var rows = matchBuyers(p).map(function (b) { return { b: b, s: matchScore(profileOf(b), p), sent: sentTo(b, p.id) }; })
+        .sort(function (x, y) { return (!!x.sent - !!y.sent) || (y.s - x.s); }), fresh = rows.filter(function (x) { return !x.sent; }).length;
+      return '<h2>קונים מתאימים (' + rows.length + ')</h2>' + (rows.length > fresh ? '<p class="sub" style="margin:-4px 0 8px">' + fresh + ' עוד לא קיבלו · ' + (rows.length - fresh) + ' כבר קיבלו</p>' : '') +
+        (rows.length ? '<div class="list">' + rows.slice(0, 40).map(function (x) {
+          var b = x.b, who = isAdmin() && b.agent_id !== D.me.id ? agentName(b.agent_id) : '';
+          return '<div class="row mb"><a class="main" href="#b/' + b.id + '"><b>' + esc(b.name) + (b.rating ? ' <span class="tag">' + esc(b.rating) + '</span>' : '') + ' ' + scoreTag(x.s) + '</b><small>' + esc([b.profile_name || '', who].filter(Boolean).join(' · ')) + '</small>' +
+            (x.sent ? '<span class="sent">נשלח ' + esc(dm(x.sent.sent_at)) + (x.sent.reaction ? ' · ' + esc(REACT[x.sent.reaction]) : '') + '</span>' : '') + '</a>' +
+            (b.phone && !x.sent ? '<button class="btn sm pri" type="button" data-act="sendOne" data-b="' + b.id + '" data-p="' + p.id + '">שליחה</button>' : '') + '</div>';
+        }).join('') + '</div>' : '<div class="empty">אין קונים מתאימים.</div>');
+    })() + '</main>' + nav('props');
 }
 
 // ===== פורטל בעלי נכסים (ניהול שוטף) =====
@@ -850,10 +905,26 @@ var ACT = {
     b.new_at = null; render();
     api('nbdone', { buyer_id: b.id }).then(function () { if (quiet !== true) toast('הקונה ירד מהקונים החדשים'); }).catch(function () { b.new_at = today(); render(); toast('לא נשמר. נסה שוב.'); });
   },
+  // מדף הנכס: שליחה לקונה אחד בוואטסאפ, ורישום בהיסטוריה ובהערות הקונה
+  sendOne: function (el) {
+    var b = byId(el.dataset.b), p = propById(el.dataset.p); if (!b || !p) return;
+    window.open('https://wa.me/' + waNum(b.phone) + '?text=' + encodeURIComponent(propText(b, p)), '_blank', 'noopener');
+    var t = today(), iv = INTERVAL[b.rating || ''] || 30;
+    logSends(b, [p]).then(render);
+    patchBuyer(b.id, { last_contact: t, next_contact: addDays(t, iv), notes: withNote(b, 'שלחתי דירות: #' + p.id) }, 'נרשם שנשלח ל' + String(b.name).split(' ')[0]);
+  },
+  react: function (el) {
+    var s = (D.sends || []).filter(function (x) { return String(x.id) === el.dataset.s; })[0]; if (!s) return;
+    var v = s.reaction === el.dataset.v ? null : el.dataset.v, reason = s.reason;
+    if (v === 'no') { var r = prompt('למה לא מתאים? (לא חובה)', s.reason || ''); if (r === null) return; reason = r.trim().slice(0, 200) || null; }
+    var old = { reaction: s.reaction, reason: s.reason }, f = { reaction: v, reason: v === 'no' ? reason : null, reaction_at: v ? new Date().toISOString() : null };
+    Object.assign(s, f); render();
+    db('buyer_sends?id=eq.' + s.id, { method: 'PATCH', body: f, prefer: 'return=minimal' }).catch(function () { Object.assign(s, old); render(); toast('לא נשמר. נסה שוב.'); });
+  },
   sendApts: function () {
     var b = cur(), ids = Object.keys(UI.pick[b.id] || {}), list = D.props.filter(function (p) { return ids.indexOf(String(p.id)) >= 0; }); if (!list.length) return;
     window.open('https://wa.me/' + waNum(b.phone) + '?text=' + encodeURIComponent(aptText(b, list)), '_blank', 'noopener');
-    var t = today(), iv = INTERVAL[b.rating || ''] || 30; delete UI.pick[b.id];
+    var t = today(), iv = INTERVAL[b.rating || ''] || 30; delete UI.pick[b.id]; logSends(b, list).then(render);
     patchBuyer(b.id, { last_contact: t, next_contact: addDays(t, iv), notes: withNote(b, 'שלחתי דירות: ' + list.map(function (p) { return '#' + p.id; }).join(', ')) }, 'נרשם שנשלחו דירות');
   },
   chip: function (el) { var k = el.dataset.k, v = el.dataset.v; if (k === 'deal') { UI.deal = v; F.p = { city: '', nb: '', rooms: '', max: '' }; UI.pmax = PAGE; if (v === 'mkt') UI.mkt = null; } else { var p = k.split('.'); F[p[0]][p[1]] = v; UI.max = PAGE; } render(); },

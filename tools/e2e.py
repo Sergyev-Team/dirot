@@ -41,7 +41,10 @@ def sgn_actions(pg):
     def shot(n): p = f'{OUT}/sgn_{n}.png'; pg.screenshot(path=p, full_page=True); SHOTS.append(p)
     r['drafts'] = pg.locator('.cdi').count(); shot('new')
     for m in ['list', 'own']:
-        pg.click(f'#modes button[data-m="{m}"]'); pg.wait_for_timeout(9000); shot(m)
+        btn = pg.locator(f'#modes button[data-m="{m}"]')
+        if btn.is_visible(): btn.click()
+        else: pg.evaluate(f"location.hash='#{m}'")  # הכפתור מוסתר כשנכנסים לפורטל דרך הקישור
+        pg.wait_for_timeout(9000); shot(m)
     r['list_groups'] = pg.locator('.cg').count(); r['owner_cards'] = pg.locator('.oc').count()
     return r
 def ceo_actions(pg):
@@ -70,6 +73,8 @@ with sync_playwright() as p:
     for n, u in [('privacy', SITE + 'privacy.html'), ('terms', SITE + 'terms.html'), ('portal_login', SITE + 'o/'), ('app_login', SITE + 'app/')]:
         run_page(page(), n, u, unlock=False, wait=2500)
     run_page(page(), 'hub', SITE + 'x/a0d769373a49b.html', wait=8000)
+    run_page(page(), 'office_team', SITE + 'x/a0d769373a49b.html#team', wait=7000)
+    run_page(page(), 'office_tasks', SITE + 'x/a0d769373a49b.html#atk', wait=7000)
     run_page(page(), 'buyers', SITE + 'x/b018b2a874ee8.html', buy_actions, wait=9000)
     run_page(page(), 'broker', SITE + 'x/c84971d9f1d2f.html', wait=6000)
     run_page(page(), 'marketing', SITE + 'x/eacbed7dad154.html', wait=6000)
