@@ -152,6 +152,10 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .nx{margin:6px 0 0;font-size:15px;font-weight:700}.nx.late{color:#a5281b}.side.late{color:#a5281b;font-weight:700}
 .heat{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;vertical-align:2px}.h-hot{background:#fbe3e0;color:#a5281b}.h-warm{background:var(--gold-soft);color:var(--gold-ink)}.h-cold{background:#e3ecf6;color:#2c5a85}.h-off{background:var(--line);color:var(--muted)}
 .tl{display:flex;flex-direction:column}.te{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.te:last-child{border-bottom:0}.ti{flex:none;width:26px;text-align:center;font-size:17px}.te small{color:var(--muted);font-size:13px}.te p{margin:1px 0 0;font-size:15px;white-space:pre-wrap}
+.ai{display:flex;flex-direction:column;gap:10px;margin:8px 0 14px}.ai-q{align-self:flex-start;max-width:85%;background:var(--gold-soft);color:var(--fg);border-radius:14px 14px 14px 4px;padding:9px 13px;white-space:pre-wrap}
+.ai-a{align-self:flex-end;max-width:92%;background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 4px 14px;padding:10px 13px;white-space:pre-wrap;line-height:1.55}.ai-a.err{color:#a5281b}.ai-a.busy{color:var(--muted)}
+.ai-th{margin:10px 0 4px;font-size:13px;font-weight:700;color:var(--muted);white-space:normal}.ai-t{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);white-space:normal}.ai-t .main{flex:1;min-width:0}.ai-t b{display:block;font-weight:700}.ai-t small{color:var(--muted)}
+.ai-sug{flex-wrap:wrap}.ai-sug .chip{white-space:normal;text-align:right}.ai-f{position:sticky;bottom:0;display:flex;gap:8px;align-items:flex-end;background:var(--bg);padding:8px 0}.ai-f textarea{flex:1;resize:none}
 .rank{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold-ink);font-weight:800;display:grid;place-items:center;font-size:14px}
 .pts{font-size:20px;font-weight:800;display:block;text-align:center}
 .kts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.kt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
@@ -385,6 +389,7 @@ var IC = {
   buyers: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c.6-3.6 3-5.5 6-5.5s5.4 1.9 6 5.5"/><path d="M16 5a3.5 3.5 0 0 1 0 6.5M18 14.8c1.7.8 2.7 2.5 3 5.2"/>',
   tasks: '<path d="m5 12.5 4 4L19 7"/>',
   money: '<path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/>',
+  spark: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   props: '<path d="M5 20V6l7-3 7 3v14"/><path d="M3 20h18M10 20v-5h4v5M9 9h.01M15 9h.01"/>',
   sign: '<path d="M4 20h16"/><path d="m6 16 9.5-9.5a2.1 2.1 0 0 1 3 3L9 19l-4 1z"/>',
@@ -398,16 +403,16 @@ var BOARDS = { buy: 'b018b2a874ee8.html', con: 'c84971d9f1d2f.html', mkt: 'eacbe
 var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt', '3a256a46e8e4d': 'upl', de7f766b5893b: 'sgn', '1103bc8f62e33': 'sgn' };
 function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
 function tabsFor() {
-  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
+  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['ai', 'עוזר'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
   if (isAdmin()) t = t.concat([['money', 'עסקאות'], ['admin', 'אדמיניסטרציה'], ['assign', 'שיוך']]);
   return t;
 }
 function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
-function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'perf' || r.indexOf('agent/') === 0) return 'perf'; if (r === 'money' || r === 'admin') return r; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
+function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'perf' || r.indexOf('agent/') === 0) return 'perf'; if (r === 'money' || r === 'admin' || r === 'ai') return r; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
 function drawBar(r) {
   var bar = document.getElementById('bar'), cur = tabOf(r);
   bar.hidden = false; document.body.classList.add('navon');
-  var TI = { today: 'today', alerts: 'bell', perf: 'chart', money: 'money', admin: 'tasks', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
+  var TI = { today: 'today', alerts: 'bell', ai: 'spark', perf: 'chart', money: 'money', admin: 'tasks', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
   document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + ic(TI[x[0]]) + x[1] + (x[0] === 'assign' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + (x[0] === 'alerts' && myAlerts().length ? '<span class="count">' + myAlerts().length + '</span>' : '') + '</a>'; }).join('');
   document.documentElement.style.setProperty('--bh', bar.offsetHeight + 'px');
 }
@@ -540,6 +545,33 @@ function drawAutos() {
   e.innerHTML = '<div class="list">' + D.autos.map(function (a) {
     return '<label class="auto"><span class="main"><b>' + esc(a.name) + '</b><small>' + esc(a.description || '') + '</small><small class="lr">' + esc(tm(a.last_run) + (a.last_result ? ' · ' + a.last_result : '')) + '</small></span><input type="checkbox" class="sw" data-auto="' + esc(a.key) + '"' + (a.enabled ? ' checked' : '') + ' aria-label="' + esc(a.name) + '"></label>';
   }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
+}
+// ===== עוזר AI (Claude): שאלות על נתוני המשרד, תשובה + טיוטות משימות שיוצרים רק באישור =====
+var AI = { msgs: [], busy: false };
+function aiAsk(q) {
+  q = String(q || '').trim(); if (!q || AI.busy) return;
+  var hist = AI.msgs.slice(-6).map(function (m) { return { role: m.role, text: m.text }; });
+  AI.msgs.push({ role: 'user', text: q }); AI.busy = true; render();
+  (Date.now() > S.exp && S.rt ? refresh() : Promise.resolve()).then(function () {
+    return fetch(SB + '/functions/v1/office-ai', { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + S.at, 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, history: hist }) });
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    AI.msgs.push(j.ok ? { role: 'assistant', text: j.answer || '', tasks: j.tasks || [] } : { role: 'assistant', text: j.message || 'העוזר לא הצליח לענות. נסה שוב.', err: 1 });
+  }).catch(function () { AI.msgs.push({ role: 'assistant', text: 'אין חיבור לעוזר כרגע. נסה שוב.', err: 1 }); })
+    .then(function () { AI.busy = false; render(); var e = document.querySelector('.aiend'); if (e) e.scrollIntoView({ block: 'end' }); });
+}
+function vAI() {
+  var sug = ['מה דורש טיפול היום?', 'אילו קונים לא קיבלו מענה?', 'אילו קונים חמים ולא נשלחו להם דירות?', 'אילו בלעדיות מסתיימות בקרוב?'].concat(isAdmin() ? ['מה צפוי להיסגר החודש ומה עוד לא נגבה?', 'מי הסוכן עם הביצועים הטובים החודש?'] : []);
+  var body = AI.msgs.length ? AI.msgs.map(function (m, i) {
+    if (m.role === 'user') return '<div class="ai-q">' + esc(m.text) + '</div>';
+    var tk = (m.tasks || []).map(function (t, k) {
+      var who = isAdmin() ? ((D.agents || []).filter(function (a) { return a.slug === t.agent; })[0] || D.me).name : '';
+      return '<div class="ai-t"><div class="main"><b>' + esc(t.text) + '</b><small>' + esc([who, t.due ? 'עד ' + dm(t.due) : ''].filter(Boolean).join(' · ')) + '</small></div>' +
+        (t.done ? '<span class="sent">נוצרה ✓</span>' : '<button class="btn sm pri" type="button" data-act="aiTask" data-i="' + i + '" data-k="' + k + '">יצירת משימה</button>') + '</div>';
+    }).join('');
+    return '<div class="ai-a' + (m.err ? ' err' : '') + '">' + esc(m.text) + (tk ? '<p class="ai-th">משימות מוצעות – נוצרות רק אם תאשר:</p>' + tk : '') + '</div>';
+  }).join('') : '<p class="sub">שאלו כל דבר על הקונים, הנכסים, המשימות' + (isAdmin() ? ', העסקאות והסוכנים' : '') + '. העוזר עונה רק מהנתונים במערכת' + (isAdmin() ? '' : ' שלך') + ', ולא מבצע שום פעולה בלי אישור.</p><div class="chips ai-sug">' + sug.map(function (s) { return '<button class="chip" type="button" data-act="aiSug">' + esc(s) + '</button>'; }).join('') + '</div>';
+  return '<main class="page"><div class="head"><h1>עוזר</h1>' + (AI.msgs.length ? '<button class="btn sm" type="button" data-act="aiClear">שיחה חדשה</button>' : '') + '</div><div class="ai">' + body + (AI.busy ? '<div class="ai-a busy">חושב…</div>' : '') + '<span class="aiend"></span></div>' +
+    '<form class="ai-f" data-form="ai"><textarea class="in" id="aiq" rows="2" maxlength="1000" placeholder="מה תרצה לדעת?" aria-label="שאלה לעוזר"></textarea><button class="btn pri" type="submit"' + (AI.busy ? ' disabled' : '') + '>שליחה</button></form></main>';
 }
 // ===== ציון חום לקונה: ידני (buyers.heat) או הצעה של המערכת לפי הפעילות =====
 var HEAT = { hot: 'חם', warm: 'בינוני', cold: 'קר', off: 'לא רלוונטי' };
@@ -1078,6 +1110,7 @@ function render() {
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
   else if (r === 'alerts') app.innerHTML = vAlerts();
+  else if (r === 'ai') app.innerHTML = vAI();
   else if (r === 'money' && isAdmin()) { app.innerHTML = vMoney(); loadDeals(drawMoney); }
   else if (r === 'admin' && isAdmin()) { app.innerHTML = vAdmin(); loadAdmin(); }
   else if (r === 'perf') { if (!isAdmin()) { location.replace('#agent/' + D.me.id); return; } app.innerHTML = vPerf(); loadKpi(); }
@@ -1133,6 +1166,15 @@ var ACT = {
     api('nbdone', { buyer_id: b.id }).then(function () { if (quiet !== true) toast('הקונה ירד מהקונים החדשים'); }).catch(function () { b.new_at = today(); render(); toast('לא נשמר. נסה שוב.'); });
   },
   // מדף הנכס: שליחה לקונה אחד בוואטסאפ, ורישום בהיסטוריה ובהערות הקונה
+  aiSug: function (el) { aiAsk(el.textContent); },
+  aiClear: function () { AI.msgs = []; render(); },
+  aiTask: function (el) {
+    var m = AI.msgs[+el.dataset.i], x = m && m.tasks && m.tasks[+el.dataset.k]; if (!x || x.done) return;
+    var ag = isAdmin() ? (D.agents || []).filter(function (a) { return a.slug === x.agent; })[0] : null, body = { text: x.text, due: x.due || null };
+    if (ag) body.agent_id = ag.id;
+    el.disabled = true;
+    db('tasks?select=' + TASK_COLS, { method: 'POST', body: body, prefer: 'return=representation' }).then(function (r) { D.tasks.unshift(r[0]); x.done = 1; render(); toast('המשימה נוצרה'); kick(); }).catch(function () { el.disabled = false; toast('לא נשמר. נסה שוב.'); });
+  },
   setHeat: function (el) {
     var b = cur(), v = el.dataset.v || null; if (b.heat === v || (!v && !b.heat)) return;
     patchBuyer(b.id, { heat: v }, v ? 'סומן: ' + HEAT[v] : 'חזרה להצעה של המערכת');
@@ -1226,6 +1268,7 @@ var ACT = {
 };
 function reloadPortal() { var id = UI.portal.p.id; return api('pget', { id: +id }).then(function (j) { UI.portal = j; render(); }); }
 var FORM = {
+  ai: function () { var e = document.getElementById('aiq'); if (e && e.value.trim()) aiAsk(e.value); },
   goals: function () {
     var f = document.querySelector('[data-form="goals"]'); if (!f) return;
     var body = { agent_id: f.dataset.a, month: f.dataset.m };
