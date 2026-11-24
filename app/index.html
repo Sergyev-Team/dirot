@@ -146,6 +146,13 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .pick b{display:block;font-weight:700}
 .pick small{display:block;color:var(--muted);font-size:15px}
 .pick a{flex:none;color:var(--gold-ink);font-size:15px;font-weight:600}
+.row small.wrap{white-space:normal;overflow:visible}
+.rank{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold-ink);font-weight:800;display:grid;place-items:center;font-size:14px}
+.pts{font-size:20px;font-weight:800;display:block;text-align:center}
+.kts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.kt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kt b{font-size:24px;font-weight:800;line-height:1.2}.kt b small{font-size:15px;color:var(--muted);font-weight:700}.kt span{color:var(--muted);font-size:14px}
+.kt .kbar{display:block;flex:none;height:6px;border-radius:9px;background:var(--line);margin-top:6px;overflow:hidden;padding:0}.kt .kfill{display:block;height:6px;background:var(--gold);border-radius:9px}
+.goals{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
 .al{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);border-inline-start:4px solid var(--line)}.al .main{flex:1;min-width:0}.al b{display:block;font-weight:700}.al small{display:block;color:var(--muted);font-size:14px}
 .al .lv{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:0 6px;margin-bottom:2px;background:var(--line);color:var(--muted)}
 .al.lv-urgent{border-inline-start-color:#c0392b}.al.lv-urgent .lv{background:#fbe3e0;color:#a5281b}.al.lv-today{border-inline-start-color:var(--gold)}.al.lv-today .lv{background:var(--gold-soft);color:var(--gold-ink)}
@@ -198,7 +205,7 @@ var app = document.getElementById('app');
 var S = { at: null, exp: 0, rt: null, uid: null, email: '' };
 var D = { me: null, buyers: [], tasks: [], props: [], agents: [], requests: [], profiles: [], portals: [], outbox: null, signCode: null, loadedAt: 0 };
 var UI = { q: '', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, pick: {}, mkt: null, portal: null, login: { step: 'login', mode: 'login', email: '', err: '', busy: false } };
-function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' } }; }
+function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' }, pf: { per: 'month' } }; }
 var F = freshFilters();
 
 function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -384,16 +391,16 @@ var BOARDS = { buy: 'b018b2a874ee8.html', con: 'c84971d9f1d2f.html', mkt: 'eacbe
 var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt', '3a256a46e8e4d': 'upl', de7f766b5893b: 'sgn', '1103bc8f62e33': 'sgn' };
 function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
 function tabsFor() {
-  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
+  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
   if (isAdmin()) t = t.concat([['assign', 'שיוך']]);
   return t;
 }
 function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
-function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
+function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'perf' || r.indexOf('agent/') === 0) return 'perf'; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
 function drawBar(r) {
   var bar = document.getElementById('bar'), cur = tabOf(r);
   bar.hidden = false; document.body.classList.add('navon');
-  var TI = { today: 'today', alerts: 'bell', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
+  var TI = { today: 'today', alerts: 'bell', perf: 'chart', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
   document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + ic(TI[x[0]]) + x[1] + (x[0] === 'assign' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + (x[0] === 'alerts' && myAlerts().length ? '<span class="count">' + myAlerts().length + '</span>' : '') + '</a>'; }).join('');
   document.documentElement.style.setProperty('--bh', bar.offsetHeight + 'px');
 }
@@ -454,6 +461,8 @@ function matchScore(pr, p) {
 function scoreTag(n) { return '<span class="score' + (n >= 90 ? ' hi' : n >= 80 ? ' ok' : '') + '">' + n + '%</span>'; }
 // היסטוריית שליחה לפי טלפון הקונה
 function phone9(v) { return digits(v).slice(-9); }
+// יומן פעילות לביצועי סוכנים (שיחה, סיור) – לא חוסם אם נכשל
+function logAct(type, b, pid, meta) { var k = b ? phone9(b.phone) : ''; db('activities', { method: 'POST', body: { type: type, buyer_id: b ? b.id : null, phone9: k.length === 9 ? k : null, property_id: pid || null, meta: meta || {} }, prefer: 'return=minimal' }).catch(function () {}); }
 function sendsOf(b) { var k = phone9(b.phone); return k.length === 9 ? (D.sends || []).filter(function (s) { return s.phone9 === k; }) : []; }
 function sentTo(b, pid) { return sendsOf(b).filter(function (s) { return String(s.property_id) === String(pid); })[0] || null; }
 var REACT = { like: 'אהב', no: 'לא מתאים', tour: 'רוצה סיור' };
@@ -524,6 +533,63 @@ function drawAutos() {
   e.innerHTML = '<div class="list">' + D.autos.map(function (a) {
     return '<label class="auto"><span class="main"><b>' + esc(a.name) + '</b><small>' + esc(a.description || '') + '</small><small class="lr">' + esc(tm(a.last_run) + (a.last_result ? ' · ' + a.last_result : '')) + '</small></span><input type="checkbox" class="sw" data-auto="' + esc(a.key) + '"' + (a.enabled ? ' checked' : '') + ' aria-label="' + esc(a.name) + '"></label>';
   }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
+}
+// ===== ביצועי סוכנים: דירוג, כרטיס סוכן ויעדים =====
+var PER = [['week', 'השבוע'], ['month', 'החודש'], ['prev', 'חודש קודם'], ['quarter', 'הרבעון']];
+var KPI = [['deals', 'עסקאות', 'deals'], ['excl_new', 'בלעדיות חדשות', 'exclusives'], ['signed', 'טפסים שנחתמו', 'signed'], ['tours', 'סיורים', 'tours'], ['sends', 'דירות שנשלחו', 'sends'], ['contacts', 'שיחות', 'contacts'], ['leads', 'קונים חדשים', '']];
+function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function perRange(k) {
+  var t = today(), d = new Date(t + 'T12:00:00'), y = d.getFullYear(), m = d.getMonth();
+  if (k === 'week') return [addDays(t, -d.getDay()), t];
+  if (k === 'quarter') return [ymd(new Date(y, Math.floor(m / 3) * 3, 1)), t];
+  if (k === 'prev') return [ymd(new Date(y, m - 1, 1)), ymd(new Date(y, m, 0))];
+  return [ymd(new Date(y, m, 1)), t];
+}
+function loadKpi(aid) {
+  var per = F.pf.per, r = perRange(per), key = per + r[0] + r[1], mon = per === 'prev' ? r[0] : r[0].slice(0, 8) + '01';
+  var draw = function () { if (aid) drawAgent(aid); else drawPerf(); };
+  if (UI.kpi && UI.kpi.key === key) { draw(); return; }
+  Promise.all([rpc('agent_kpis', { p_from: r[0], p_to: r[1] }), (per === 'month' || per === 'prev') ? db('agent_goals?month=eq.' + mon) : Promise.resolve([])])
+    .then(function (x) { UI.kpi = { key: key, rows: x[0] || [], goals: x[1] || [], mon: mon }; draw(); })
+    .catch(function () { var e = document.getElementById('kpi'); if (e) e.innerHTML = '<div class="empty">הנתונים לא נטענו. נסה שוב.</div>'; });
+}
+function vPerf() {
+  return '<main class="page"><div class="head"><h1>ביצועי הצוות</h1></div>' + chips('pf.per', PER, F.pf.per, 'תקופה') + '<div id="kpi"><div class="load">טוען…</div></div>' +
+    '<p class="sub" style="margin-top:14px">הניקוד מתגמל תוצאות: עסקה 40, בלעדיות 20, טופס שנחתם 8, סיור 5, דירה שנשלחה 1, קונה חדש 1, שיחה ½.</p></main>';
+}
+function drawPerf() {
+  var e = document.getElementById('kpi'); if (!e || !UI.kpi) return;
+  var R = UI.kpi.rows.slice().sort(function (a, b) { return b.score - a.score; }), sum = function (k) { return R.reduce(function (n, x) { return n + (+x[k] || 0); }, 0); };
+  e.innerHTML = '<div class="stats"><div class="stat"><b>' + sum('deals') + '</b><span>עסקאות</span></div><div class="stat"><b>' + esc(money(sum('revenue'))) + '</b><span>עמלות (לפני מע״מ)</span></div><div class="stat"><b>' + sum('signed') + '</b><span>טפסים שנחתמו</span></div></div>' +
+    '<div class="list">' + R.map(function (x, i) {
+      var line = KPI.filter(function (k) { return k[0] !== 'leads' && x[k[0]]; }).map(function (k) { return k[1] + ' ' + x[k[0]]; }).join(' · ') || 'אין פעילות בתקופה';
+      return '<a class="row" href="#agent/' + esc(x.agent_id) + '"><span class="rank">' + (i + 1) + '</span><span class="main"><b>' + esc(x.name) + '</b><small class="wrap">' + esc(line) + '</small></span><span class="side"><b class="pts">' + x.score + '</b><small>נק׳</small></span></a>';
+    }).join('') + '</div>';
+}
+function vAgent(aid) {
+  var a = (D.agents || []).filter(function (x) { return x.id === aid; })[0] || (D.me.id === aid ? D.me : null), t = today(), mine = function (x) { return x.agent_id === aid; };
+  var act = D.buyers.filter(function (b) { return mine(b) && b.status === 'פעיל'; }), due = act.filter(function (b) { return b.next_contact && b.next_contact <= t; });
+  var open = D.tasks.filter(function (x) { return mine(x) && !x.done; }), late = open.filter(function (x) { return x.due && x.due < t; });
+  return '<main class="page">' + (isAdmin() ? '<a class="back" href="#perf">חזרה לביצועי הצוות</a>' : '') + '<h1>' + esc(a ? a.name : 'סוכן') + '</h1>' +
+    '<div class="stats"><a class="stat" href="#buyers"><b>' + act.length + '</b><span>קונים פעילים</span></a><a class="stat" href="#buyers"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks"><b>' + open.length + '</b><span>משימות פתוחות' + (late.length ? ' · ' + late.length + ' באיחור' : '') + '</span></a></div>' +
+    chips('pf.per', PER, F.pf.per, 'תקופה') + '<div id="kpi"><div class="load">טוען…</div></div></main>';
+}
+function drawAgent(aid) {
+  var e = document.getElementById('kpi'); if (!e || !UI.kpi) return;
+  var x = UI.kpi.rows.filter(function (r) { return r.agent_id === aid; })[0];
+  if (!x) { e.innerHTML = '<div class="empty">אין נתונים לסוכן הזה.</div>'; return; }
+  var g = UI.kpi.goals.filter(function (r) { return r.agent_id === aid; })[0] || null, withGoal = F.pf.per === 'month' || F.pf.per === 'prev';
+  var tiles = KPI.map(function (k) {
+    var v = +x[k[0]] || 0, goal = g && k[2] ? +g[k[2]] || 0 : 0, pct = goal ? Math.min(100, Math.round(v / goal * 100)) : 0;
+    return '<div class="kt"><b>' + v + (goal ? '<small> / ' + goal + '</small>' : '') + '</b><span>' + k[1] + '</span>' + (goal ? '<span class="kbar"><span class="kfill" style="width:' + pct + '%"></span></span>' : '') + '</div>';
+  }).join('');
+  var tk = x.tasks_due ? Math.round(x.tasks_done / x.tasks_due * 100) : null;
+  tiles += '<div class="kt"><b>' + esc(money(x.revenue) || '₪0') + '</b><span>עמלות (לפני מע״מ)</span></div><div class="kt"><b>' + (tk === null ? '—' : Math.min(100, tk) + '%') + '</b><span>משימות שבוצעו' + (x.tasks_due ? ' (' + x.tasks_done + ' מתוך ' + x.tasks_due + ')' : '') + '</span></div>' +
+    '<div class="kt"><b>' + x.excl_active + '</b><span>בלעדיות פעילות</span></div>';
+  var form = isAdmin() && withGoal ? '<form class="card" data-form="goals" data-a="' + esc(aid) + '" data-m="' + esc(UI.kpi.mon) + '"><h2>יעדים ל' + esc(new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(new Date(UI.kpi.mon + 'T12:00:00'))) + '</h2><div class="goals">' +
+    KPI.filter(function (k) { return k[2]; }).map(function (k) { return '<label class="field"><span>' + k[1] + '</span><input class="in ltr" type="number" min="0" inputmode="numeric" name="' + k[2] + '" value="' + (g ? +g[k[2]] || '' : '') + '"></label>'; }).join('') +
+    '</div><button class="btn pri wide" type="submit">שמירת יעדים</button></form>' : '';
+  e.innerHTML = '<div class="kts">' + tiles + '</div>' + form;
 }
 function vToday() {
   var t = today(), who = F.d.agent, mine = function (x) { return !who || x.agent_id === who; };
@@ -895,6 +961,8 @@ function render() {
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
   else if (r === 'alerts') app.innerHTML = vAlerts();
+  else if (r === 'perf') { if (!isAdmin()) { location.replace('#agent/' + D.me.id); return; } app.innerHTML = vPerf(); loadKpi(); }
+  else if (r.indexOf('agent/') === 0) { var aid = r.slice(6); if (!isAdmin() && aid !== D.me.id) aid = D.me.id; app.innerHTML = vAgent(aid); loadKpi(aid); }
   else if (r === 'alerts/set' && isAdmin()) { app.innerHTML = vAutoSet(); loadAutos(); }
   else if (r === 'props') { app.innerHTML = vProps(); drawProps(); }
   else if (r === 'team' && isAdmin()) app.innerHTML = vTeam();
@@ -994,6 +1062,7 @@ var ACT = {
     if (k === 'irr') f.next_contact = addDays(t, 60);
     f.notes = withNote(b, { ans: 'ענה', sent: 'שלחתי דירות', noans: 'לא ענה', irr: 'לא רלוונטי כרגע' }[k]);
     patchBuyer(b.id, f, 'עודכן. חזרה ב-' + dm(f.next_contact));
+    logAct('contact', b, null, { k: k });
   },
   addNote: function () {
     var b = cur(), el = document.getElementById('note'), v = el.value.trim(); if (!v) { el.focus(); return; }
@@ -1033,6 +1102,14 @@ var ACT = {
 };
 function reloadPortal() { var id = UI.portal.p.id; return api('pget', { id: +id }).then(function (j) { UI.portal = j; render(); }); }
 var FORM = {
+  goals: function () {
+    var f = document.querySelector('[data-form="goals"]'); if (!f) return;
+    var body = { agent_id: f.dataset.a, month: f.dataset.m };
+    ['contacts', 'sends', 'tours', 'signed', 'exclusives', 'deals'].forEach(function (k) { var el = f.querySelector('[name="' + k + '"]'); body[k] = Math.max(0, parseInt(el && el.value, 10) || 0); });
+    db('agent_goals', { method: 'POST', body: body, prefer: 'resolution=merge-duplicates,return=minimal' }).then(function () {
+      if (UI.kpi) { UI.kpi.goals = UI.kpi.goals.filter(function (g) { return g.agent_id !== body.agent_id; }).concat([body]); drawAgent(body.agent_id); } toast('היעדים נשמרו');
+    }).catch(function () { toast('לא נשמר. נסה שוב.'); });
+  },
   pwlogin: function () {
     var L = UI.login; L.email = document.getElementById('em').value.trim().toLowerCase(); var pw = document.getElementById('pw').value; L.busy = true; L.err = ''; renderLogin();
     authCall('token?grant_type=password', { email: L.email, password: pw }).then(function (j) { setSession(j); L.busy = false; if (!location.hash) location.hash = '#today'; return enter(); }).catch(function (e) { L.busy = false; L.err = loginErr(e); renderLogin(); });
@@ -1059,7 +1136,7 @@ var FORM = {
   },
   tour: function () {
     var b = cur(), id = +document.getElementById('tp').value, wv = document.getElementById('tw').value, p = propById(id); if (!id || !wv) return;
-    api('tour', { id: id, buyer_id: b.id, when: new Date(wv).toISOString() }).then(function (j) { patchBuyer(b.id, { notes: withNote(b, 'נקבע סיור ב' + (p ? propAddr(p) : '#' + id) + ' ל-' + j.when) }, 'הסיור נקבע ביומן'); }).catch(function () { toast('הסיור לא נקבע. נסה שוב.'); });
+    api('tour', { id: id, buyer_id: b.id, when: new Date(wv).toISOString() }).then(function (j) { logAct('tour', b, id, { when: new Date(wv).toISOString() }); patchBuyer(b.id, { notes: withNote(b, 'נקבע סיור ב' + (p ? propAddr(p) : '#' + id) + ' ל-' + j.when) }, 'הסיור נקבע ביומן'); }).catch(function () { toast('הסיור לא נקבע. נסה שוב.'); });
   },
   profile: function () {
     var b = cur(), v = function (id) { return document.getElementById(id).value.trim(); }, c = function (id) { return document.getElementById(id).checked; };
