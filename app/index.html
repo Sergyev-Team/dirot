@@ -403,8 +403,8 @@ var BOARDS = { buy: 'b018b2a874ee8.html', con: 'c84971d9f1d2f.html', mkt: 'eacbe
 var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt', '3a256a46e8e4d': 'upl', de7f766b5893b: 'sgn', '1103bc8f62e33': 'sgn' };
 function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
 function tabsFor() {
-  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['ai', 'עוזר'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
-  if (isAdmin()) t = t.concat([['money', 'עסקאות'], ['admin', 'אדמיניסטרציה'], ['assign', 'שיוך']]);
+  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות']];
+  if (isAdmin()) t = t.concat([['market', 'ניתוח שוק'], ['money', 'עסקאות'], ['admin', 'אדמיניסטרציה'], ['assign', 'שיוך']]);
   return t;
 }
 function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
@@ -547,7 +547,7 @@ function drawAutos() {
   }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
 }
 // ===== עוזר AI (Claude): שאלות על נתוני המשרד, תשובה + טיוטות משימות שיוצרים רק באישור =====
-var AI = { msgs: [], busy: false };
+var AI = { msgs: [], busy: false }, AI_ON = false;
 function aiAsk(q) {
   q = String(q || '').trim(); if (!q || AI.busy) return;
   var hist = AI.msgs.slice(-6).map(function (m) { return { role: m.role, text: m.text }; });
@@ -1105,12 +1105,14 @@ function render() {
   else if (r === 'new') { app.innerHTML = vNew(); UI.prefill = null; }
   else if (r === 'import') app.innerHTML = vImport();
   else if (r === 'contacts') app.innerHTML = vContacts();
-  else if (r === 'market' || r.indexOf('market/') === 0) { if (window.MKT) app.innerHTML = window.MKT.view(r); else { app.innerHTML = '<div class="load">טוען…</div>'; loadMarket(); } }
+  // ניתוח שוק – למשה בלבד (סוכנים לא רואים, לבקשת משה 24/11)
+  else if ((r === 'market' || r.indexOf('market/') === 0) && isAdmin()) { if (window.MKT) app.innerHTML = window.MKT.view(r); else { app.innerHTML = '<div class="load">טוען…</div>'; loadMarket(); } }
   else if (r === 'share') { app.innerHTML = '<div class="load">טוען…</div>'; takeShare(); }
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
   else if (r === 'alerts') app.innerHTML = vAlerts();
-  else if (r === 'ai') app.innerHTML = vAI();
+  // עוזר AI – מושבת זמנית לבקשת משה (24/11). הקוד נשאר; להחזרה: לשונית 'ai' ב-tabsFor ושורה זו
+  else if (r === 'ai' && AI_ON) app.innerHTML = vAI();
   else if (r === 'money' && isAdmin()) { app.innerHTML = vMoney(); loadDeals(drawMoney); }
   else if (r === 'admin' && isAdmin()) { app.innerHTML = vAdmin(); loadAdmin(); }
   else if (r === 'perf') { if (!isAdmin()) { location.replace('#agent/' + D.me.id); return; } app.innerHTML = vPerf(); loadKpi(); }
