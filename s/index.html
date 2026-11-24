@@ -88,7 +88,7 @@ async function load(){
  try{const r=await fetch(API+"?op=cget&k="+encodeURIComponent(K));DOC=await r.json()}catch(e){$("#app").innerHTML='<div class="msg bad">לא הצלחנו לטעון את המסמך. בדקו את החיבור ונסו שוב.</div>';return}
  if(!DOC.ok){$("#app").innerHTML='<div class="msg bad">המסמך לא נמצא. פנו למתווך לקבלת קישור חדש.</div>';return}
  if(DOC.signed){$("#app").innerHTML=`<div class="msg ok">✓ המסמך נחתם ב-${esc(DOC.signed)}. העתק נשלח למייל שלכם.</div>`;return}
- if(DOC.c&&DOC.c.broker&&DOC.c.broker.name)BROKER={name:DOC.c.broker.name,lic:DOC.c.broker.lic||"",phone:DOC.c.broker.phone||"",team:"צוות סרגייב"};
+ // כל הטפסים על השם והרישיון של משה מאיר כהן (גם טופס שסוכן שלח)
  DS=docs(DOC);render()}
 const consent=()=>DS.length>1?CONSENT2:CONSENT1;
 function docHTML(d){return `<h1>${esc(d.title)}</h1><div class="num">מס' ${d.num}</div>
@@ -105,7 +105,7 @@ function render(){const c=DOC.c;
  <label>מייל * (חובה – לקבלת העתק חתום)<input id="em" required type="email" inputmode="email" autocomplete="email"></label>
  <label>טלפון<input id="ph" type="tel" value="${esc(c.phone)}" autocomplete="tel"></label></div>
  ${DS.map(docHTML).join('<hr style="border:0;border-top:2px solid var(--gold);margin:22px 0">')}
- <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label><p class="hint" style="font-size:13px;margin:4px 0 0">הפרטים נשמרים לפי <a href="../privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ו<a href="../terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p>
+ <label class="chk"><input type="checkbox" id="ok"> ${consent()}</label>${/^(buy|rentin)$/.test(DOC.type||DOC.c.type||"buy")?'<label class="chk" style="margin-top:8px"><input type="checkbox" id="mailok"> אני מאשר/ת לקבל מצוות סרגייב במייל דירות שמתאימות לי ועדכונים (דיוור פרסומי). אפשר להסיר בכל עת בקישור שבכל מייל. לא חובה.</label>':""}<p class="hint" style="font-size:13px;margin:4px 0 0">הפרטים נשמרים לפי <a href="../privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a> ו<a href="../terms.html" target="_blank" rel="noopener">תנאי השימוש</a>.</p>
  <div class="row" style="justify-content:space-between"><b>חתימה:</b><button class="btn ghost" id="clr" type="button">נקה חתימה</button></div>
  <canvas class="sigbox" id="sig"></canvas><p class="hint">חותמים עם האצבע בתוך המסגרת.</p>
  <div id="err"></div><button class="btn" id="go">✍️ חתימה ושליחה</button></div>`;
@@ -125,7 +125,7 @@ async function submit(){const {v,m}=val(),E=$("#err");if(m.length){E.innerHTML=`
  const b=$("#go");b.disabled=true;b.textContent="מכין את המסמך…";E.innerHTML="";
  try{const now=new Date(),when=now.toLocaleDateString("he-IL",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+now.toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"});
   const pdf=await makePdf(v,when);b.textContent="שולח…";
-  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"csign",k:K,pdf,d:Object.assign({},v,{ua:navigator.userAgent})})});
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({op:"csign",k:K,pdf,d:Object.assign({},v,{ua:navigator.userAgent,mailok:!!($("#mailok")&&$("#mailok").checked)})})});
   const j=await r.json();if(!j.ok)throw new Error(j.error==="signed"?"המסמך כבר נחתם":j.error||"שגיאה");
   $("#app").innerHTML=`<div class="msg ok">✓ תודה ${esc(v.name)}! ${DS.length>1?"המסמכים נחתמו":"המסמך נחתם"} בהצלחה.<br>העתק חתום נשלח למייל ${esc(v.email)}.</div><button class="btn" id="dl">📄 הורדת העתק</button>`;
   $("#dl").onclick=()=>{const a=document.createElement("a");a.href="data:application/pdf;base64,"+pdf;a.download="הזמנת-שירותי-תיווך-"+pad(DOC.n)+".pdf";a.click()};window.scrollTo(0,0)}
