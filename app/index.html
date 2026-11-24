@@ -146,6 +146,12 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .pick b{display:block;font-weight:700}
 .pick small{display:block;color:var(--muted);font-size:15px}
 .pick a{flex:none;color:var(--gold-ink);font-size:15px;font-weight:600}
+.al{display:flex;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);border-inline-start:4px solid var(--line)}.al .main{flex:1;min-width:0}.al b{display:block;font-weight:700}.al small{display:block;color:var(--muted);font-size:14px}
+.al .lv{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:0 6px;margin-bottom:2px;background:var(--line);color:var(--muted)}
+.al.lv-urgent{border-inline-start-color:#c0392b}.al.lv-urgent .lv{background:#fbe3e0;color:#a5281b}.al.lv-today{border-inline-start-color:var(--gold)}.al.lv-today .lv{background:var(--gold-soft);color:var(--gold-ink)}
+.aacts{display:flex;flex-direction:column;gap:6px;flex:none}.aacts .btn{min-width:74px}
+.auto{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}.auto .main{flex:1;min-width:0}.auto b{display:block;font-weight:700}.auto small{display:block;color:var(--muted);font-size:14px}.auto .lr{font-size:13px;margin-top:2px}
+.sw{appearance:none;-webkit-appearance:none;flex:none;width:48px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .15s}.sw::after{content:'';position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:inset-inline-start .15s}.sw:checked{background:var(--gold)}.sw:checked::after{inset-inline-start:23px}
 .score{display:inline-block;font-size:12px;font-weight:800;padding:1px 6px;border-radius:6px;background:var(--line);color:var(--muted);vertical-align:2px;direction:ltr}
 .score.ok{background:var(--gold-soft);color:var(--gold-ink)}.score.hi{background:#dcefe3;color:#1d6b3f}
 .sent{display:inline-block;margin-top:3px;font-size:13px;font-weight:700;color:#1d6b3f}
@@ -192,7 +198,7 @@ var app = document.getElementById('app');
 var S = { at: null, exp: 0, rt: null, uid: null, email: '' };
 var D = { me: null, buyers: [], tasks: [], props: [], agents: [], requests: [], profiles: [], portals: [], outbox: null, signCode: null, loadedAt: 0 };
 var UI = { q: '', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, pick: {}, mkt: null, portal: null, login: { step: 'login', mode: 'login', email: '', err: '', busy: false } };
-function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' } }; }
+function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' } }; }
 var F = freshFilters();
 
 function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -267,8 +273,9 @@ function loadAll() {
     isAdmin() ? rpc('outbox_status').catch(function () { return null; }) : Promise.resolve(null),
     db('search_profiles?select=name,deal,rooms_min,rooms_max,budget,need_elevator,need_parking,need_mamad,neighborhoods,note'),
     db('portals?select=property_id,owner_name,excl_to,active,agent_id&active=is.true'),
-    db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason&order=sent_at.desc&limit=5000').catch(function () { return []; })
-  ]).then(function (r) { D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
+    db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason&order=sent_at.desc&limit=5000').catch(function () { return []; }),
+    db('notifications?select=id,key,level,title,body,link,due,agent_id,created_at,dismissed_at&resolved_at=is.null&order=created_at.desc&limit=500').catch(function () { return []; })
+  ]).then(function (r) { D.alerts = r[9] || []; D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
 }
 function enter() {
   app.innerHTML = '<div class="load">טוען…</div>';
@@ -364,6 +371,7 @@ var IC = {
   today: '<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9h12v-9"/>',
   buyers: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c.6-3.6 3-5.5 6-5.5s5.4 1.9 6 5.5"/><path d="M16 5a3.5 3.5 0 0 1 0 6.5M18 14.8c1.7.8 2.7 2.5 3 5.2"/>',
   tasks: '<path d="m5 12.5 4 4L19 7"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   props: '<path d="M5 20V6l7-3 7 3v14"/><path d="M3 20h18M10 20v-5h4v5M9 9h.01M15 9h.01"/>',
   sign: '<path d="M4 20h16"/><path d="m6 16 9.5-9.5a2.1 2.1 0 0 1 3 3L9 19l-4 1z"/>',
   mkt: '<path d="M3 10.5v3a1 1 0 0 0 1 1h2.5L12 19V5L6.5 9.5H4a1 1 0 0 0-1 1z"/><path d="M15.5 9a3.5 3.5 0 0 1 0 6M18.5 6a7.5 7.5 0 0 1 0 12"/>',
@@ -376,17 +384,17 @@ var BOARDS = { buy: 'b018b2a874ee8.html', con: 'c84971d9f1d2f.html', mkt: 'eacbe
 var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt', '3a256a46e8e4d': 'upl', de7f766b5893b: 'sgn', '1103bc8f62e33': 'sgn' };
 function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
 function tabsFor() {
-  var t = [['today', 'היום שלי'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
+  var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
   if (isAdmin()) t = t.concat([['assign', 'שיוך']]);
   return t;
 }
 function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
-function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
+function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
 function drawBar(r) {
   var bar = document.getElementById('bar'), cur = tabOf(r);
   bar.hidden = false; document.body.classList.add('navon');
-  var TI = { today: 'today', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
-  document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + ic(TI[x[0]]) + x[1] + (x[0] === 'assign' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + '</a>'; }).join('');
+  var TI = { today: 'today', alerts: 'bell', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
+  document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + ic(TI[x[0]]) + x[1] + (x[0] === 'assign' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + (x[0] === 'alerts' && myAlerts().length ? '<span class="count">' + myAlerts().length + '</span>' : '') + '</a>'; }).join('');
   document.documentElement.style.setProperty('--bh', bar.offsetHeight + 'px');
 }
 function hideBar() { document.getElementById('bar').hidden = true; document.body.classList.remove('navon', 'boards'); }
@@ -488,6 +496,35 @@ function newRow(b) {
   return '<div class="row" style="display:block"><a class="main" href="#b/' + b.id + '" style="display:block;text-decoration:none;color:inherit"><b>' + esc(b.name) + '</b><small>נכנס ' + esc(d) + ' · ' + (profileOf(b) ? (m.length ? m.length + ' דירות מתאימות' : 'אין כרגע דירות מתאימות') : 'עוד לא הוגדר מה מחפש') + '</small></a>' +
     '<div class="acts" style="margin-top:8px">' + (m.length && b.phone ? '<button class="btn pri" type="button" data-act="nbSend" data-id="' + b.id + '">שלח לו ' + Math.min(5, m.length) + ' דירות</button>' : '') + '<button class="btn" type="button" data-act="nbDone" data-id="' + b.id + '">הורד מהחדשים</button></div></div>';
 }
+// ===== התראות (נוצרות אוטומטית בבסיס הנתונים כל 20 דקות) =====
+var LVL = { urgent: ['דחוף', 1], today: ['היום', 2], info: ['לידיעה', 3] };
+function myAlerts(all) { var me = D.me ? D.me.id : ''; return (D.alerts || []).filter(function (a) { return !a.dismissed_at && (all || a.agent_id === me); }).sort(function (a, b) { return (LVL[a.level][1] - LVL[b.level][1]) || (a.created_at < b.created_at ? 1 : -1); }); }
+function alertRow(a) {
+  var who = isAdmin() && a.agent_id !== D.me.id ? agentName(a.agent_id) : '';
+  return '<div class="al lv-' + a.level + '"><div class="main"><span class="lv">' + LVL[a.level][0] + '</span><b>' + esc(a.title) + '</b><small>' + esc([a.body, who].filter(Boolean).join(' · ')) + '</small></div><div class="aacts">' +
+    (a.link ? '<a class="btn sm pri" href="' + esc(a.link) + '">לטיפול</a>' : '') + '<button class="btn sm" type="button" data-act="dismissAlert" data-id="' + a.id + '">טופל</button></div></div>';
+}
+function vAlerts() {
+  var all = isAdmin() && F.al && F.al.all, L = myAlerts(all), f = (F.al && F.al.lv) || '';
+  var cnt = function (k) { return L.filter(function (a) { return a.level === k; }).length; }, M = f ? L.filter(function (a) { return a.level === f; }) : L;
+  return '<main class="page"><div class="head"><h1>התראות</h1>' + (isAdmin() ? '<a class="btn sm" href="#alerts/set">הגדרות</a>' : '') + '</div>' +
+    '<p class="sub" style="margin-top:-6px">המערכת בודקת כל 20 דקות. התראה נסגרת לבד כשהעניין מטופל.</p>' +
+    (isAdmin() ? chips('al.all', [['', 'שלי'], ['1', 'כל הצוות']], all ? '1' : '', 'של מי') : '') +
+    chips('al.lv', [['', 'הכול (' + L.length + ')'], ['urgent', 'דחוף (' + cnt('urgent') + ')'], ['today', 'היום (' + cnt('today') + ')'], ['info', 'לידיעה (' + cnt('info') + ')']], f, 'רמת דחיפות') +
+    (M.length ? '<div class="list">' + M.map(alertRow).join('') + '</div>' : '<div class="empty">אין התראות פתוחות. 👌</div>') + '</main>';
+}
+// הגדרות האוטומציות (מנהל): מתג לכל אחת, מתי רצה לאחרונה ומה קרה
+function vAutoSet() { return '<main class="page"><a class="back" href="#alerts">חזרה להתראות</a><h1>אוטומציות</h1><p class="sub">כל אוטומציה רצה כל 20 דקות. כיבוי סוגר את ההתראות שלה.</p><div id="autos"><div class="load">טוען…</div></div></main>'; }
+function loadAutos() {
+  db('automations?select=key,name,description,enabled,last_run,last_result&order=sort.asc').then(function (r) { D.autos = r; drawAutos(); }).catch(function () { var e = document.getElementById('autos'); if (e) e.innerHTML = '<div class="empty">לא נטען.</div>'; });
+}
+function drawAutos() {
+  var e = document.getElementById('autos'); if (!e || !D.autos) return;
+  var tm = function (x) { return x ? new Intl.DateTimeFormat('he-IL', { timeZone: TZ, day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(x)) : 'עוד לא רצה'; };
+  e.innerHTML = '<div class="list">' + D.autos.map(function (a) {
+    return '<label class="auto"><span class="main"><b>' + esc(a.name) + '</b><small>' + esc(a.description || '') + '</small><small class="lr">' + esc(tm(a.last_run) + (a.last_result ? ' · ' + a.last_result : '')) + '</small></span><input type="checkbox" class="sw" data-auto="' + esc(a.key) + '"' + (a.enabled ? ' checked' : '') + ' aria-label="' + esc(a.name) + '"></label>';
+  }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
+}
 function vToday() {
   var t = today(), who = F.d.agent, mine = function (x) { return !who || x.agent_id === who; };
   var due = D.buyers.filter(function (b) { return mine(b) && b.status === 'פעיל' && b.next_contact && b.next_contact <= t; }).sort(function (a, b) { return a.next_contact < b.next_contact ? -1 : 1; });
@@ -500,12 +537,13 @@ function vToday() {
   var fresh = D.buyers.filter(function (b) { return mine(b) && b.new_at; }).sort(function (a, b) { return a.new_at < b.new_at ? 1 : -1; });
   var newBlock = fresh.length ? '<h2>קונים חדשים <span class="count">' + fresh.length + '</span></h2><div class="list">' + fresh.map(newRow).join('') + '</div>' : '';
   var show = F.d.show, buyersBlock = newBlock + '<h2>למי לחזור היום</h2>' + (due.length ? '<div class="list">' + due.slice(0, 12).map(buyerRow).join('') + '</div>' + (due.length > 12 ? '<a class="btn wide more" href="#buyers" data-act="filterDue">כל ה-' + due.length + '</a>' : '') : '<div class="empty">אין קונים לחזור אליהם היום.</div>');
+  var AL = myAlerts(), alBlock = AL.length ? '<h2>דורש טיפול <span class="count">' + AL.length + '</span></h2><div class="list">' + AL.slice(0, 4).map(alertRow).join('') + '</div>' + (AL.length > 4 ? '<a class="btn wide more" href="#alerts">כל ההתראות (' + AL.length + ')</a>' : '') : '';
   var tasksBlock = '<h2>משימות להיום</h2>' + (todayTasks.length ? '<div class="list">' + todayTasks.map(taskRow).join('') + '</div>' : '<div class="empty">אין משימות להיום.</div>');
   return '<main class="page"><div class="head"><div><h1>' + hello + ', ' + esc(String(D.me.name).split(' ')[0]) + '</h1><p class="sub">' + esc(date) + '</p></div><div class="head-acts">' + team + '<a class="btn sm" href="#contacts">חיבור אנשי קשר</a><a class="btn sm" href="#import">ייבוא קונים</a><button class="btn link" type="button" data-act="logout">יציאה</button></div></div>' + stuck +
     '<div class="stats"><a class="stat" href="#buyers" data-act="filterDue"><b>' + due.length + '</b><span>לחזור היום</span></a><a class="stat" href="#tasks" data-act="filterOpen"><b>' + open.length + '</b><span>משימות פתוחות</span></a><a class="stat" href="#buyers" data-act="filterActive"><b>' + active + '</b><span>קונים פעילים</span></a></div>' +
     chips('d.show', [['all', 'הכול'], ['buyers', 'קונים'], ['tasks', 'משימות']], show, 'מה להציג') +
     (isAdmin() ? '<div class="flts" style="grid-template-columns:1fr">' + sel('d.agent', 'סוכן', agentOpts('כל הצוות'), who) + '</div>' : '') +
-    (show !== 'tasks' ? buyersBlock : '') + (show !== 'buyers' ? tasksBlock : '') + '</main>' + nav('today');
+    alBlock + (show !== 'tasks' ? buyersBlock : '') + (show !== 'buyers' ? tasksBlock : '') + '</main>' + nav('today');
 }
 
 // ===== קונים =====
@@ -856,6 +894,8 @@ function render() {
   else if (r === 'share') { app.innerHTML = '<div class="load">טוען…</div>'; takeShare(); }
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
+  else if (r === 'alerts') app.innerHTML = vAlerts();
+  else if (r === 'alerts/set' && isAdmin()) { app.innerHTML = vAutoSet(); loadAutos(); }
   else if (r === 'props') { app.innerHTML = vProps(); drawProps(); }
   else if (r === 'team' && isAdmin()) app.innerHTML = vTeam();
   else if (r === 'assign' && isAdmin()) { app.innerHTML = vAssign(); drawAssign(); }
@@ -906,6 +946,15 @@ var ACT = {
     api('nbdone', { buyer_id: b.id }).then(function () { if (quiet !== true) toast('הקונה ירד מהקונים החדשים'); }).catch(function () { b.new_at = today(); render(); toast('לא נשמר. נסה שוב.'); });
   },
   // מדף הנכס: שליחה לקונה אחד בוואטסאפ, ורישום בהיסטוריה ובהערות הקונה
+  dismissAlert: function (el) {
+    var a = (D.alerts || []).filter(function (x) { return String(x.id) === el.dataset.id; })[0]; if (!a) return;
+    a.dismissed_at = new Date().toISOString(); render();
+    db('notifications?id=eq.' + a.id, { method: 'PATCH', body: { dismissed_at: a.dismissed_at }, prefer: 'return=minimal' }).catch(function () { a.dismissed_at = null; render(); toast('לא נשמר. נסה שוב.'); });
+  },
+  runAutos: function (el) {
+    el.disabled = true; el.textContent = 'רץ…';
+    rpc('run_automations_now').then(function () { return Promise.all([loadAutos(), db('notifications?select=id,key,level,title,body,link,due,agent_id,created_at,dismissed_at&resolved_at=is.null&order=created_at.desc&limit=500').then(function (r) { D.alerts = r; })]); }).then(function () { toast('ההתראות עודכנו'); render(); }).catch(function () { toast('לא הצליח. נסה שוב.'); el.disabled = false; el.textContent = 'הרצה עכשיו'; });
+  },
   sendOne: function (el) {
     var b = byId(el.dataset.b), p = propById(el.dataset.p); if (!b || !p) return;
     window.open('https://wa.me/' + waNum(b.phone) + '?text=' + encodeURIComponent(propText(b, p)), '_blank', 'noopener');
@@ -1055,6 +1104,11 @@ document.addEventListener('input', function (e) {
 document.addEventListener('change', function (e) {
   var id = e.target.id, k = e.target.dataset && e.target.dataset.flt, pk = e.target.dataset && e.target.dataset.pick, im = e.target.dataset && e.target.dataset.imp;
   if (id === 'impf' && e.target.files[0]) { readFile(e.target.files[0]).then(function (people) { if (!people.length) { toast('לא נמצאו קונים בקובץ'); return; } setImport(people); render(); }).catch(function () { toast('הקובץ לא נקרא. נסה קובץ אקסל, CSV או vcf.'); }); return; }
+  if (e.target.dataset && e.target.dataset.auto) {
+    var ak = e.target.dataset.auto, on = e.target.checked, A0 = (D.autos || []).filter(function (x) { return x.key === ak; })[0];
+    db('automations?key=eq.' + encodeURIComponent(ak), { method: 'PATCH', body: { enabled: on }, prefer: 'return=minimal' }).then(function () { if (A0) A0.enabled = on; toast(on ? 'האוטומציה הופעלה' : 'האוטומציה כובתה – ההתראות שלה ייסגרו בריצה הבאה'); }).catch(function () { e.target.checked = !on; toast('לא נשמר. נסה שוב.'); });
+    return;
+  }
   if (im !== undefined && UI.imp) { UI.imp[+im].on = e.target.checked; render(); return; }
   if (pk) { var bid = cur().id, sel0 = UI.pick[bid] = UI.pick[bid] || {}; if (e.target.checked) sel0[pk] = 1; else delete sel0[pk]; render(); return; }
   if (e.target.dataset && e.target.dataset.passign) { var ppid = e.target.dataset.passign, pag = e.target.value; api('passign', { id: +ppid, agent_id: pag }).then(function () { var x = portalOf(ppid); if (x) x.agent_id = pag; toast('הנכס שויך אל ' + agentName(pag)); }).catch(function () { toast('השיוך נכשל. נסה שוב.'); render(); }); return; }
