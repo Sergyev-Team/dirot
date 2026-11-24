@@ -147,6 +147,9 @@ body.navon .page{padding-bottom:calc(var(--bh,64px) + 28px)}
 .pick small{display:block;color:var(--muted);font-size:15px}
 .pick a{flex:none;color:var(--gold-ink);font-size:15px;font-weight:600}
 .row small.wrap{white-space:normal;overflow:visible}
+.deal{padding:12px 14px;border-bottom:1px solid var(--line)}.deal .dh{display:flex;justify-content:space-between;gap:8px;align-items:center}.deal small{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.dst{flex:none;font-size:12px;font-weight:800;border-radius:6px;padding:1px 8px;background:var(--line);color:var(--muted)}.dst.s1,.dst.s2{background:var(--gold-soft);color:var(--gold-ink)}.dst.s3{background:#dcefe3;color:#1d6b3f}.dst.s0{background:#fbe3e0;color:#a5281b}
+.nx{margin:6px 0 0;font-size:15px;font-weight:700}.nx.late{color:#a5281b}.side.late{color:#a5281b;font-weight:700}
 .rank{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--gold-ink);font-weight:800;display:grid;place-items:center;font-size:14px}
 .pts{font-size:20px;font-weight:800;display:block;text-align:center}
 .kts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.kt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
@@ -205,7 +208,7 @@ var app = document.getElementById('app');
 var S = { at: null, exp: 0, rt: null, uid: null, email: '' };
 var D = { me: null, buyers: [], tasks: [], props: [], agents: [], requests: [], profiles: [], portals: [], outbox: null, signCode: null, loadedAt: 0 };
 var UI = { q: '', max: PAGE, pq: '', deal: 'מכירה', pmax: PAGE, draft: {}, pick: {}, mkt: null, portal: null, login: { step: 'login', mode: 'login', email: '', err: '', busy: false } };
-function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' }, pf: { per: 'month' } }; }
+function freshFilters() { return { b: { status: 'active', due: '', rate: '', agent: '' }, t: { view: 'open', agent: '' }, p: { city: '', nb: '', rooms: '', max: '' }, d: { show: 'all', agent: '' }, al: { all: '', lv: '' }, pf: { per: 'month' }, mn: { v: 'open' } }; }
 var F = freshFilters();
 
 function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -279,7 +282,7 @@ function loadAll() {
     isAdmin() ? db('agent_requests?select=id,email,name,phone,license,created_at&status=eq.pending&order=created_at.asc') : Promise.resolve([]),
     isAdmin() ? rpc('outbox_status').catch(function () { return null; }) : Promise.resolve(null),
     db('search_profiles?select=name,deal,rooms_min,rooms_max,budget,need_elevator,need_parking,need_mamad,neighborhoods,note'),
-    db('portals?select=property_id,owner_name,excl_to,active,agent_id&active=is.true'),
+    db('portals?select=property_id,owner_name,excl_to,active,agent_id,stage&active=is.true'),
     db('buyer_sends?select=id,phone9,buyer_id,property_id,agent_id,sent_at,reaction,reason&order=sent_at.desc&limit=5000').catch(function () { return []; }),
     db('notifications?select=id,key,level,title,body,link,due,agent_id,created_at,dismissed_at&resolved_at=is.null&order=created_at.desc&limit=500').catch(function () { return []; })
   ]).then(function (r) { D.alerts = r[9] || []; D.buyers = r[0]; D.tasks = r[1]; D.props = r[2]; D.agents = r[3]; D.requests = r[4]; D.outbox = r[5]; D.profiles = r[6]; D.portals = r[7]; D.sends = r[8] || []; D.loadedAt = Date.now(); });
@@ -378,6 +381,7 @@ var IC = {
   today: '<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9h12v-9"/>',
   buyers: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c.6-3.6 3-5.5 6-5.5s5.4 1.9 6 5.5"/><path d="M16 5a3.5 3.5 0 0 1 0 6.5M18 14.8c1.7.8 2.7 2.5 3 5.2"/>',
   tasks: '<path d="m5 12.5 4 4L19 7"/>',
+  money: '<path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   props: '<path d="M5 20V6l7-3 7 3v14"/><path d="M3 20h18M10 20v-5h4v5M9 9h.01M15 9h.01"/>',
   sign: '<path d="M4 20h16"/><path d="m6 16 9.5-9.5a2.1 2.1 0 0 1 3 3L9 19l-4 1z"/>',
@@ -392,15 +396,15 @@ var SLUG_TAB = { b018b2a874ee8: 'buy', c84971d9f1d2f: 'con', eacbed7dad154: 'mkt
 function boardUrl(t) { var f = t === 'sgn' ? (isAdmin() ? 'de7f766b5893b.html' : '1103bc8f62e33.html') : BOARDS[t]; return '../x/' + f.replace(/(#.*)?$/, '?v=' + Math.floor(Date.now() / 600000) + '$1'); }
 function tabsFor() {
   var t = [['today', 'היום שלי'], ['alerts', 'התראות'], ['perf', 'ביצועים'], ['buy', 'קונים'], ['tasks', 'משימות'], ['con', 'מתווך'], ['mkt', 'שיווק'], ['sgn', 'החתמות'], ['market', 'ניתוח שוק']];
-  if (isAdmin()) t = t.concat([['assign', 'שיוך']]);
+  if (isAdmin()) t = t.concat([['money', 'עסקאות'], ['admin', 'אדמיניסטרציה'], ['assign', 'שיוך']]);
   return t;
 }
 function isBoard(r) { return r === 'buy' || r === 'con' || r === 'mkt' || r === 'sgn' || r === 'upl' || r === 'ceo'; }
-function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'perf' || r.indexOf('agent/') === 0) return 'perf'; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
+function tabOf(r) { if (r === 'market' || r.indexOf('market/') === 0) return 'market'; if (isBoard(r) || r === 'tasks') return r; if (r === 'alerts' || r === 'alerts/set') return 'alerts'; if (r === 'perf' || r.indexOf('agent/') === 0) return 'perf'; if (r === 'money' || r === 'admin') return r; if (r === 'team' || r === 'assign') return 'assign'; return 'today'; }
 function drawBar(r) {
   var bar = document.getElementById('bar'), cur = tabOf(r);
   bar.hidden = false; document.body.classList.add('navon');
-  var TI = { today: 'today', alerts: 'bell', perf: 'chart', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
+  var TI = { today: 'today', alerts: 'bell', perf: 'chart', money: 'money', admin: 'tasks', buy: 'buyers', tasks: 'tasks', con: 'props', mkt: 'mkt', sgn: 'sign', team: 'team', assign: 'team', market: 'chart' };
   document.getElementById('tabs').innerHTML = tabsFor().map(function (x) { return '<a href="#' + x[0] + '"' + (x[0] === cur ? ' aria-current="page"' : '') + '>' + ic(TI[x[0]]) + x[1] + (x[0] === 'assign' && D.requests.length ? '<span class="count">' + D.requests.length + '</span>' : '') + (x[0] === 'alerts' && myAlerts().length ? '<span class="count">' + myAlerts().length + '</span>' : '') + '</a>'; }).join('');
   document.documentElement.style.setProperty('--bh', bar.offsetHeight + 'px');
 }
@@ -533,6 +537,60 @@ function drawAutos() {
   e.innerHTML = '<div class="list">' + D.autos.map(function (a) {
     return '<label class="auto"><span class="main"><b>' + esc(a.name) + '</b><small>' + esc(a.description || '') + '</small><small class="lr">' + esc(tm(a.last_run) + (a.last_result ? ' · ' + a.last_result : '')) + '</small></span><input type="checkbox" class="sw" data-auto="' + esc(a.key) + '"' + (a.enabled ? ' checked' : '') + ' aria-label="' + esc(a.name) + '"></label>';
   }).join('') + '</div><button class="btn wide" style="margin-top:12px" type="button" data-act="runAutos">הרצה עכשיו</button>';
+}
+// ===== כספים ועסקאות (מנהל): שלב כל עסקה והפעולה הבאה, נגזר מנתוני הגבייה. העריכה – בדשבורד מנכ״ל =====
+function sideNet(price, x) { x = x || {}; var mode = x.mode || (+x.amt ? 'fx' : 'pv'); if (mode === 'fx') { var a = +x.amt || 0; return x.inc ? Math.round(a / 1.18) : a; } return Math.round((+price || 0) * (+x.pct || 0) / 100); }
+function dealInfo(d) {
+  var sides = [['seller', 'מהמוכר'], ['buyer', 'מהקונה']].map(function (s) { var x = d[s[0]] || {}; return { k: s[0], label: s[1], name: x.name || '', net: sideNet(d.price, x), inv: !!x.inv, paid: !!x.paid, paidAt: x.paidAt || '' }; }).filter(function (s) { return s.net > 0; });
+  var total = sides.reduce(function (n, s) { return n + s.net; }, 0), paid = sides.filter(function (s) { return s.paid; }).reduce(function (n, s) { return n + s.net; }, 0);
+  var noInv = sides.filter(function (s) { return !s.inv && !s.paid; }), wait = sides.filter(function (s) { return !s.paid; });
+  var stage = !sides.length ? ['חסרה עמלה', 0] : !wait.length ? ['נסגרה', 3] : paid ? ['גבייה חלקית', 2] : noInv.length === sides.length ? ['נפתחה', 0] : ['ממתינה לתשלום', 1];
+  var next = !sides.length ? 'להשלים את העמלה בדיווח העסקה' : noInv.length ? 'להוציא חשבונית ' + noInv[0].label + (noInv[0].name ? ' (' + noInv[0].name + ')' : '') : wait.length ? 'לגבות ' + wait[0].label + (wait[0].name ? ' (' + wait[0].name + ')' : '') + ' · ' + money(wait[0].net) : 'הכול נגבה';
+  var age = Math.floor((new Date(today() + 'T12:00:00') - new Date(String(d.date) + 'T12:00:00')) / 864e5);
+  return { sides: sides, total: total, paid: paid, open: total - paid, stage: stage, next: next, age: age };
+}
+function loadDeals(draw) {
+  if (D.deals) { draw(); return; }
+  db('deals?select=n,date,property_id,address,price,kind,seller,buyer,agent_pct&order=date.desc').then(function (r) { D.deals = r || []; draw(); }).catch(function () { var e = document.getElementById('fin'); if (e) e.innerHTML = '<div class="empty">לא נטען. נסה שוב.</div>'; });
+}
+function vMoney() { return '<main class="page"><div class="head"><h1>עסקאות וגבייה</h1><a class="btn sm" href="#ceo">דיווח ועדכון</a></div>' + chips('mn.v', [['open', 'פתוחות'], ['done', 'נסגרו'], ['all', 'הכול']], F.mn.v, 'סינון') + '<div id="fin"><div class="load">טוען…</div></div></main>'; }
+function drawMoney() {
+  var e = document.getElementById('fin'); if (!e || !D.deals) return;
+  var t = today(), ym = t.slice(0, 7), L = D.deals.map(function (d) { return { d: d, i: dealInfo(d) }; });
+  var month = L.filter(function (x) { return String(x.d.date).slice(0, 7) === ym; }), sum = function (A, k) { return A.reduce(function (n, x) { return n + x.i[k]; }, 0); };
+  var paidMonth = L.reduce(function (n, x) { return n + x.i.sides.filter(function (s) { return s.paid && String(s.paidAt).slice(0, 7) === ym; }).reduce(function (m, s) { return m + s.net; }, 0); }, 0);
+  var way = (D.portals || []).filter(function (p) { return p.stage === 'offer' || p.stage === 'nego'; });
+  var M = L.filter(function (x) { return F.mn.v === 'all' || (F.mn.v === 'done' ? x.i.stage[1] === 3 : x.i.stage[1] < 3); }).sort(function (a, b) { return (a.i.stage[1] - b.i.stage[1]) || (b.i.age - a.i.age); });
+  e.innerHTML = '<div class="kts"><div class="kt"><b>' + esc(money(sum(month, 'total')) || '₪0') + '</b><span>עמלות שנסגרו החודש</span></div><div class="kt"><b>' + esc(money(paidMonth) || '₪0') + '</b><span>נגבה החודש</span></div>' +
+    '<div class="kt"><b>' + esc(money(sum(L, 'open')) || '₪0') + '</b><span>עוד לא נגבה (כל העסקאות)</span></div><div class="kt"><b>' + L.filter(function (x) { return x.i.stage[1] < 3; }).length + '</b><span>עסקאות פתוחות</span></div></div>' +
+    '<p class="sub" style="margin:-4px 0 10px">הסכומים לפני מע״מ, באותו חישוב כמו בדשבורד מנכ״ל.</p>' +
+    (way.length ? '<h2>בדרך לעסקה <span class="count">' + way.length + '</span></h2><div class="list">' + way.map(function (p) { var pr = propById(p.property_id); return '<a class="row" href="#o/' + p.property_id + '"><span class="main"><b>' + esc(pr ? propAddr(pr) : 'נכס #' + p.property_id) + '</b><small>' + (p.stage === 'nego' ? 'במו״מ' : 'יש הצעה') + (p.owner_name ? ' · ' + esc(p.owner_name) : '') + '</small></span></a>'; }).join('') + '</div>' : '') +
+    '<h2>עסקאות</h2>' + (M.length ? '<div class="list">' + M.map(function (x) {
+      var d = x.d, i = x.i, late = i.stage[1] < 3 && i.age > 30;
+      return '<div class="deal"><div class="dh"><b>' + esc(d.address || 'עסקה ' + d.n) + '</b><span class="dst s' + i.stage[1] + '">' + esc(i.stage[0]) + '</span></div>' +
+        '<small>' + esc(dm(d.date)) + ' · ' + esc(money(d.price)) + ' · עמלה ' + esc(money(i.total) || '₪0') + (i.open && i.paid ? ' · נגבה ' + esc(money(i.paid)) : '') + '</small>' +
+        (i.stage[1] < 3 ? '<p class="nx' + (late ? ' late' : '') + '">← ' + esc(i.next) + (late ? ' · ' + i.age + ' ימים מהעסקה' : '') + '</p>' : '') + '</div>';
+    }).join('') + '</div>' : '<div class="empty">אין עסקאות בסינון הזה.</div>');
+}
+// ===== מרכז אדמיניסטרציה (מנהל): מה מחכה למשרד – טפסים, גבייה, קונים חדשים, משימות שנתת, בלעדיות =====
+function vAdmin() { return '<main class="page"><div class="head"><h1>אדמיניסטרציה</h1></div><p class="sub" style="margin-top:-6px">כל מה שמחכה למשרד, במקום אחד.</p><div id="adm"><div class="load">טוען…</div></div></main>'; }
+function loadAdmin() {
+  Promise.all([new Promise(function (ok) { loadDeals(ok); }), D.pending ? Promise.resolve(D.pending) : db('contracts?select=n,type,client_name,client_phone,status,created_at,agent_id&status=not.in.(' + encodeURIComponent('"נחתם","בוטל"') + ')&order=created_at.desc&limit=100').catch(function () { return []; })])
+    .then(function (r) { D.pending = r[1] || []; drawAdmin(); });
+}
+function drawAdmin() {
+  var e = document.getElementById('adm'); if (!e || !D.deals) return;
+  var t = today(), sec = function (title, n, body, empty) { return '<h2>' + title + (n ? ' <span class="count">' + n + '</span>' : '') + '</h2>' + (n ? '<div class="list">' + body + '</div>' : '<div class="empty">' + empty + '</div>'); };
+  var sg = D.pending || [], coll = D.deals.map(function (d) { return { d: d, i: dealInfo(d) }; }).filter(function (x) { return x.i.stage[1] < 3; });
+  var nb = D.buyers.filter(function (b) { return b.status === 'פעיל' && b.new_at; });
+  var ot = D.tasks.filter(function (x) { return x.assigned_by && !x.done; }).sort(function (a, b) { return (a.due || '9') < (b.due || '9') ? -1 : 1; });
+  var ex = (D.portals || []).filter(function (p) { return p.excl_to && p.excl_to <= addDays(t, 30); }).sort(function (a, b) { return a.excl_to < b.excl_to ? -1 : 1; });
+  e.innerHTML =
+    sec('טפסים ממתינים לחתימה', sg.length, sg.map(function (c) { return '<a class="row" href="#sgn"><span class="main"><b>' + esc(c.client_name || 'טופס ' + c.n) + '</b><small>נשלח ' + esc(dm(c.created_at)) + (isAdmin() && c.agent_id && c.agent_id !== D.me.id ? ' · ' + esc(agentName(c.agent_id)) : '') + '</small></span></a>'; }).join(''), 'אין טפסים שמחכים לחתימה.') +
+    sec('גבייה וחשבוניות', coll.length, coll.map(function (x) { return '<a class="row" href="#money"><span class="main"><b>' + esc(x.d.address || 'עסקה ' + x.d.n) + '</b><small>' + esc(x.i.next) + '</small></span><span class="side">' + esc(money(x.i.open) || '') + '</span></a>'; }).join(''), 'אין גבייה פתוחה.') +
+    sec('קונים חדשים שעוד לא טופלו', nb.length, nb.map(buyerRow).join(''), 'אין קונים חדשים שמחכים.') +
+    sec('משימות שנתת לסוכנים', ot.length, ot.map(taskRow).join(''), 'אין משימות פתוחות שנתת.') +
+    sec('בלעדיות שמסתיימות (30 יום)', ex.length, ex.map(function (p) { var pr = propById(p.property_id); return '<a class="row" href="#o/' + p.property_id + '"><span class="main"><b>' + esc(pr ? propAddr(pr) : 'נכס #' + p.property_id) + '</b><small>' + (p.owner_name ? esc(p.owner_name) + ' · ' : '') + 'עד ' + esc(dm(p.excl_to)) + '</small></span><span class="side ' + (p.excl_to <= addDays(t, 7) ? 'late' : '') + '">' + esc(dueText(p.excl_to)) + '</span></a>'; }).join(''), 'אין בלעדיות שמסתיימות בקרוב.');
 }
 // ===== ביצועי סוכנים: דירוג, כרטיס סוכן ויעדים =====
 var PER = [['week', 'השבוע'], ['month', 'החודש'], ['prev', 'חודש קודם'], ['quarter', 'הרבעון']];
@@ -961,6 +1019,8 @@ function render() {
   else if (r === 'buyers') { app.innerHTML = vBuyers(); drawBuyerList(); }
   else if (r === 'tasks') app.innerHTML = vTasks();
   else if (r === 'alerts') app.innerHTML = vAlerts();
+  else if (r === 'money' && isAdmin()) { app.innerHTML = vMoney(); loadDeals(drawMoney); }
+  else if (r === 'admin' && isAdmin()) { app.innerHTML = vAdmin(); loadAdmin(); }
   else if (r === 'perf') { if (!isAdmin()) { location.replace('#agent/' + D.me.id); return; } app.innerHTML = vPerf(); loadKpi(); }
   else if (r.indexOf('agent/') === 0) { var aid = r.slice(6); if (!isAdmin() && aid !== D.me.id) aid = D.me.id; app.innerHTML = vAgent(aid); loadKpi(aid); }
   else if (r === 'alerts/set' && isAdmin()) { app.innerHTML = vAutoSet(); loadAutos(); }

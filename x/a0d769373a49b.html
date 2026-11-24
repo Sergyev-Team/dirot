@@ -114,9 +114,9 @@ h2{font-size:15px;color:var(--muted);margin:26px 0 10px}
 </div>
 <script>
 const KEY="sergyev_console_pw",SALT="aRpH11nKNeJigDpaXDbaXA==",IV="EO0mafgFUlbkq1XQ",CT="qzsiC/9r9gGG9ibl5Q7LwQD/dtA=",IT=250000;
-const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",own:"de7f766b5893b.html#own",ceo:"de7f766b5893b.html#ceo",tsk:"../app/#tasks",ana:"../app/#market",alr:"../app/#alerts",prf:"../app/#perf"};
-const NAMES={home:"לוח בקרה",alr:"התראות",prf:"ביצועי סוכנים",tsk:"משימות",buy:"קונים",own:"פורטל בעלי נכסים",sgn:"החתמות",con:"מתווך",mkt:"שיווק",upl:"העלאה",ana:"ניתוח שוק",team:"שיוך סוכנים",atk:"משימות לסוכנים",ceo:"דשבורד מנכ״ל"};
-const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["alr","🔔","קונים, משימות, בלעדיות וגבייה שדורשים טיפול"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["prf","🏆","דירוג סוכנים, יעדים ומדדים"],["atk","📋","לכתוב משימה לסוכן ולראות שבוצעה"],["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
+const B={buy:"b018b2a874ee8.html",con:"c84971d9f1d2f.html",mkt:"eacbed7dad154.html",upl:"3a256a46e8e4d.html",sgn:"de7f766b5893b.html",own:"de7f766b5893b.html#own",ceo:"de7f766b5893b.html#ceo",tsk:"../app/#tasks",ana:"../app/#market",alr:"../app/#alerts",prf:"../app/#perf",mny:"../app/#money",adm:"../app/#admin"};
+const NAMES={home:"לוח בקרה",alr:"התראות",prf:"ביצועי סוכנים",mny:"עסקאות וגבייה",adm:"אדמיניסטרציה",tsk:"משימות",buy:"קונים",own:"פורטל בעלי נכסים",sgn:"החתמות",con:"מתווך",mkt:"שיווק",upl:"העלאה",ana:"ניתוח שוק",team:"שיוך סוכנים",atk:"משימות לסוכנים",ceo:"דשבורד מנכ״ל"};
+const MENU=[["היום",[["home","📊","מה דורש טיפול, כסף וצוות"],["alr","🔔","קונים, משימות, בלעדיות וגבייה שדורשים טיפול"],["tsk","✅","כל המשימות של כל הסוכנים"],["buy","👥","קונים, תור יומי ושיוך לסוכן"]]],["נכסים",[["own","🏠","בעלי נכסים, דוחות, הודעות ובקשות"],["sgn","✍️","טפסים חדשים וטפסים שנשלחו"],["con","🏢","כל הנכסים מהמתווכים"],["mkt","📣","פליירים, סטורי ופרסומים"],["upl","⬆️","העלאת נכס חדש לאתר"],["ana","📊","עסקאות, מודעות והמלצת מחיר – PDF ומצגת"]]],["ניהול",[["mny","💰","שלב כל עסקה, חשבוניות וגבייה"],["adm","🗂️","טפסים, גבייה, קונים חדשים ומשימות שמחכים"],["prf","🏆","דירוג סוכנים, יעדים ומדדים"],["atk","📋","לכתוב משימה לסוכן ולראות שבוצעה"],["team","👔","אישור סוכנים חדשים, חשבונות ושיוך דירות"],["ceo","📈","עסקאות, עמלות וגבייה"]]]];
 const SLUGS={b018b2a874ee8:"buy",c84971d9f1d2f:"con",eacbed7dad154:"mkt","3a256a46e8e4d":"upl",de7f766b5893b:"sgn"};
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),$=id=>document.getElementById(id);
 async function sgKey(pw,salt,it){const u=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)),e=a=>btoa(String.fromCharCode.apply(null,a));
@@ -132,7 +132,7 @@ async function dec(pw,salt,iv,ct,it){const key=await sgKey(pw,salt,it);
 async function check(pw){try{await dec(pw,SALT,IV,CT,IT);return true}catch(e){return false}}
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const F={};
-function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||((t==="tsk"||t==="ana"||t==="alr"||t==="prf")?B[t]:B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1"));f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=(t==="tsk"||t==="ana"||t==="alr"||t==="prf")?url:url.replace(/(\?[^#]*)?(#.*)?$/,"?r="+Date.now()+"$2")}return f}
+function frame(t,url){let f=F[t];if(!f){f=document.createElement("iframe");f.title=NAMES[t];f.src=url||((B[t].indexOf("../app/")===0)?B[t]:B[t].replace(/(#.*)?$/,"?v="+Math.floor(Date.now()/600000)+"$1"));f.onload=()=>hook(f);$("frames").appendChild(f);F[t]=f}else if(url){f.src=(B[t].indexOf("../app/")===0)?url:url.replace(/(\?[^#]*)?(#.*)?$/,"?r="+Date.now()+"$2")}return f}
 function show(t,url){ls.set("office_tab",t);$("mcur").textContent=NAMES[t]||"";closeMenu();drawMenu(t);$("agp").hidden=t!=="team";$("atp").hidden=t!=="atk";
  if(t==="team"){$("frames").hidden=true;$("home").hidden=true;agDraw(1);return}
  if(t==="atk"){$("frames").hidden=true;$("home").hidden=true;atLoad();return}
@@ -324,7 +324,7 @@ async function dash(){const h=new Date().getHours();$("hello").textContent=(h<12
  if(!DASH)dashLoad();drawDash();if(Date.now()-dashAt<120000)return;try{const o=await dashData();DASH=o;dashAt=Date.now();dashSave()}catch(e){$("upd").textContent="הנתונים לא נטענו. רענן את הדף."}drawDash()}
 
 function start(){$("lock").hidden=true;$("app").hidden=false;sizeBar();
- const h=location.hash.match(/^#(home|alr|prf|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team|atk)/);show(h?h[1]:"home")}
+ const h=location.hash.match(/^#(home|alr|prf|mny|adm|ceo|tsk|own|ana|buy|con|mkt|upl|sgn|team|atk)/);show(h?h[1]:"home")}
 window.addEventListener("resize",sizeBar);try{new ResizeObserver(sizeBar).observe($("bar"))}catch(e){}if(document.fonts)document.fonts.ready.then(sizeBar);
 $("out").onclick=()=>{if(confirm("לצאת ולמחוק את הקוד מהמכשיר הזה?")){ls.del(KEY);ls.del("office_dash_v1");try{Object.keys(localStorage).filter(k=>k.indexOf("kdf_")===0||k.indexOf("office_ag")===0||k.indexOf("office_atk")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()}};
 $("lf").onsubmit=async e=>{e.preventDefault();const pw=$("pw").value;if(await check(pw)){ls.set(KEY,pw);start()}else $("err").hidden=false};
